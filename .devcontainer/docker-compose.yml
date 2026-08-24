@@ -1,0 +1,32 @@
+version: '2'
+services:
+  dev:
+    image: "dev:python3"
+    build:
+      context: "."
+      dockerfile: ./dev/Dockerfile
+      args:
+        # Update 'VARIANT' to pick a Python version: 3, 3.10, 3.11, 3.12
+        # Available image variants: https://github.com/microsoft/vscode-dev-containers/blob/main/containers/python-3/README.md
+        VARIANT: "3"
+    volumes:
+      - ..:/home/vscode/dev/code:cached
+      - ./dev/.vscode:/home/vscode/dev/.vscode:cached
+    depends_on:
+      - lb
+      - unoserver
+    tty: true
+    command: bash
+  lb:
+    image: nginx
+    #container_name: "lb"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:cached
+    ports:
+      - 80:80
+  unoserver:
+    image: "unoserver"
+    build:
+      context: "."
+      dockerfile: ./unoserver/Dockerfile
+
