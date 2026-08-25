@@ -10,11 +10,10 @@ set_name = "mj_plus"
 # ------------------------------------------------------------
 
 def test_normalize_success():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
+    engine = GlyphTagEngine(fn)
 
-    result = engine.normalize_tags("{MJ000001}", fn)
-
+    result = engine.normalize_tags("{MJ000001}")
     assert isinstance(result, GlyphResult)
     assert result.success is True
     assert result.errors == []
@@ -22,10 +21,10 @@ def test_normalize_success():
 
 
 def test_normalize_not_found():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
-
-    result = engine.normalize_tags("{MJ999999}", fn)
+    engine = GlyphTagEngine(fn)
+    
+    result = engine.normalize_tags("{MJ999999}")
 
     assert result.success is False
     assert len(result.errors) == 1
@@ -37,10 +36,10 @@ def test_normalize_not_found():
 
 
 def test_normalize_archived():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
+    engine = GlyphTagEngine(fn)
 
-    result = engine.normalize_tags("{MJ000012}", fn)
+    result = engine.normalize_tags("{MJ000012}")
 
     assert result.success is False
     assert len(result.errors) == 1
@@ -55,36 +54,15 @@ def test_normalize_archived():
 # ------------------------------------------------------------
 
 def test_render_success():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
+    engine = GlyphTagEngine(fn)
+    
+    norm = engine.normalize_tags("{MJ000001}")
+    assert norm.success is True
+    assert norm.errors == []
 
-    result = engine.render_text("{MJ000001}", fn)
-
-    assert result.success is True
-    assert result.errors == []
-    assert result.text == "々"  # U+3005
-
-
-def test_render_not_found():
-    engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table, set_name)
-
-    result = engine.render_text("{MJ999999}", fn)
-
-    assert result.success is False
-    assert len(result.errors) == 1
-    assert result.errors[0].code == "error.glyph.not_found"
-
-
-def test_render_archived():
-    engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table, set_name)
-
-    result = engine.render_text("{MJ000013}", fn)
-
-    assert result.success is False
-    assert len(result.errors) == 1
-    assert result.errors[0].code == "error.glyph.archived"
+    result = engine.render_text(norm.text)
+    assert result == "々"  # U+3005
 
 
 # ------------------------------------------------------------
@@ -92,10 +70,10 @@ def test_render_archived():
 # ------------------------------------------------------------
 
 def test_to_dict():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
+    engine = GlyphTagEngine(fn)
 
-    result = engine.normalize_tags("{MJ999999}", fn)
+    result = engine.normalize_tags("{MJ999999}")
     d = result.to_dict()
 
     assert d["success"] is False
@@ -104,9 +82,10 @@ def test_to_dict():
     assert isinstance(d["errors"], list)
     assert d["errors"][0]["code"] == "error.glyph.not_found"
 
+
 def test_complex_text():
-    engine = GlyphTagEngine()
     fn = make_replace_fn(glyph_table, set_name)
+    engine = GlyphTagEngine(fn)
 
     text = (
         "東京都{MJ022336}飾区は、{{MJ022336}を使います。<845B,E0103>\n"
@@ -116,7 +95,7 @@ def test_complex_text():
     # ------------------------------
     # normalize_tags()
     # ------------------------------
-    norm = engine.normalize_tags(text, fn)
+    norm = engine.normalize_tags(text)
     assert norm.success is True
     assert len(norm.errors) == 0
 
@@ -127,32 +106,26 @@ def test_complex_text():
     # ------------------------------
     # render_text()
     # ------------------------------
-    # 代替字形「葛」で判定する
-    rend = engine.render_text(text, fn)
-    assert rend.success is True
-    assert len(rend.errors) == 0
+    rend = engine.render_text(norm.text)
 
     # U+845B U+E0103 https://moji.or.jp/mojikibansearch/info?MJ%E6%96%87%E5%AD%97%E5%9B%B3%E5%BD%A2%E5%90%8D=MJ022336
     # U+845B U+E0102 https://moji.or.jp/mojikibansearch/info?MJ%E6%96%87%E5%AD%97%E5%9B%B3%E5%BD%A2%E5%90%8D=MJ022335
-    assert "東京都" + chr(0x845B) + chr(0xE0103) + "飾区" in rend.text
-    assert "奈良県" + chr(0x845B) + chr(0xE0102) + "城市" in rend.text
+    assert "東京都" + chr(0x845B) + chr(0xE0103) + "飾区" in rend
+    assert "奈良県" + chr(0x845B) + chr(0xE0102) + "城市" in rend
 
     # タグ外の MJ 番号はそのまま
-    assert "{MJ022336}を使います。<845B,E0103>" in rend.text
-    assert "{MJ022335}を使います。<845B,E0102>" in rend.text
+    assert "{MJ022336}を使います。<845B,E0103>" in rend
+    assert "{MJ022335}を使います。<845B,E0102>" in rend
 
     # ------------------------------
-    # render_text()
+    # render_text() 代替字形「葛」で判定する
     # ------------------------------
-    # 代替字形「葛」で判定する
-    rend = engine.render_text(text, fn, True)
-    assert rend.success is True
-    assert len(rend.errors) == 0
+    rend = engine.render_text(norm.text, True)
 
     # U+845B → 葛
-    assert "東京都葛飾区" in rend.text
-    assert "奈良県葛城市" in rend.text
+    assert "東京都葛飾区" in rend
+    assert "奈良県葛城市" in rend
 
     # タグ外の MJ 番号はそのまま
-    assert "{MJ022336}を使います。<845B,E0103>" in rend.text
-    assert "{MJ022335}を使います。<845B,E0102>" in rend.text
+    assert "{MJ022336}を使います。<845B,E0103>" in rend
+    assert "{MJ022335}を使います。<845B,E0102>" in rend
