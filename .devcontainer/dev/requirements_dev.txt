@@ -1,0 +1,16 @@
+pip
+build
+fastapi
+python-multipart
+pydantic
+pydantic-settings
+uvicorn
+pytest
+pytest-cov
+httpx
+docxtpl
+# python_odt_template[standard]
+git+https://github.com/jp-one/python-odt-template-forked.git#egg=python_odt_template[standard]
+# relatorio[chart,fodt]
+git+https://github.com/jp-one/relatorio-forked.git#egg=relatorio[chart,fodt]
+unoserver
