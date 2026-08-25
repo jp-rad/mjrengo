@@ -20,10 +20,16 @@ pip3 install --upgrade  "mjrengo_data_mj @ git+https://github.com/jp-rad/mjrengo
 
 ```
 
+```bash
+
+pip3 install --upgrade  "mjrengo_data_mj_plus @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_data_mj_plus"
+
+```
+
 ### Uninstall
 
 ```bash
 
-pip uninstall -y mjrengo mjrengo_replace mjrengo_data_mj
+pip uninstall -y mjrengo mjrengo_data_mj mjrengo_data_mj_plus
 
 ```
