@@ -41,12 +41,6 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 
-[project.optional-dependencies]
-full = [
-    "mjrengo_replace @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_replace",
-    "mjrengo_data_mj @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_data_mj",
-]
-
 [project.urls]
 Homepage = "https://github.com/jp-one/mjrengo"
 Repository = "https://github.com/jp-one/mjrengo"
