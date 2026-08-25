@@ -1,7 +1,9 @@
 import pytest
 from mjrengo.engine import GlyphTagEngine, GlyphError, GlyphResult
 from mjrengo.replace import make_replace_fn
-from mjrengo.data.mj import glyph_table
+from mjrengo.data.mj_plus import glyph_table
+
+set_name = "mj_plus"
 
 # ------------------------------------------------------------
 # normalize_tags() のテスト
@@ -9,43 +11,43 @@ from mjrengo.data.mj import glyph_table
 
 def test_normalize_success():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.normalize_tags("{MJ0001}", fn)
+    result = engine.normalize_tags("{MJ000001}", fn)
 
     assert isinstance(result, GlyphResult)
     assert result.success is True
     assert result.errors == []
-    assert result.text == "{MJ0001 ucs=U+4E00 rep=U+4E00 set=mj_plus}"
+    assert result.text == "{MJ000001 ucs=U+3005 rep=U+3005 set=mj_plus}"
 
 
 def test_normalize_not_found():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.normalize_tags("{MJ9999}", fn)
+    result = engine.normalize_tags("{MJ999999}", fn)
 
     assert result.success is False
     assert len(result.errors) == 1
 
     err = result.errors[0]
     assert err.code == "error.glyph.not_found"
-    assert "MJ9999" in err.message
-    assert err.params["glyph"] == "MJ9999"
+    assert "MJ999999" in err.message
+    assert err.params["glyph"] == "MJ999999"
 
 
 def test_normalize_archived():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.normalize_tags("{GJ0431}", fn)
+    result = engine.normalize_tags("{MJ000012}", fn)
 
     assert result.success is False
     assert len(result.errors) == 1
 
     err = result.errors[0]
     assert err.code == "error.glyph.archived"
-    assert err.params["glyph"] == "GJ0431"
+    assert err.params["glyph"] == "MJ000012"
 
 
 # ------------------------------------------------------------
@@ -54,20 +56,20 @@ def test_normalize_archived():
 
 def test_render_success():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.render_text("{MJ0001}", fn)
+    result = engine.render_text("{MJ000001}", fn)
 
     assert result.success is True
     assert result.errors == []
-    assert result.text == "一"  # U+4E00
+    assert result.text == "々"  # U+3005
 
 
 def test_render_not_found():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.render_text("{MJ9999}", fn)
+    result = engine.render_text("{MJ999999}", fn)
 
     assert result.success is False
     assert len(result.errors) == 1
@@ -76,9 +78,9 @@ def test_render_not_found():
 
 def test_render_archived():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.render_text("{GJ0431}", fn)
+    result = engine.render_text("{MJ000013}", fn)
 
     assert result.success is False
     assert len(result.errors) == 1
@@ -91,9 +93,9 @@ def test_render_archived():
 
 def test_to_dict():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
-    result = engine.normalize_tags("{MJ9999}", fn)
+    result = engine.normalize_tags("{MJ999999}", fn)
     d = result.to_dict()
 
     assert d["success"] is False
@@ -104,7 +106,7 @@ def test_to_dict():
 
 def test_complex_text():
     engine = GlyphTagEngine()
-    fn = make_replace_fn(glyph_table)
+    fn = make_replace_fn(glyph_table, set_name)
 
     text = (
         "東京都{MJ022336}飾区は、{{MJ022336}を使います。<845B,E0103>\n"
