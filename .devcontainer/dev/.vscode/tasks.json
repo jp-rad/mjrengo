@@ -30,34 +30,6 @@
             },
             "problemMatcher": []
         },
-        
-        {
-            "label": "build package mjrengo_replace",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "-m",
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_replace" // Set the working directory to 'code' folder
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "install package mjrengo_replace",
-            "type": "shell",
-            "command": "pip3",
-            "args": [
-                "install",
-                "--upgrade",
-                ".",
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_replace" // Set the working directory to 'code' folder
-            },
-            "problemMatcher": []
-        },
         {
             "label": "build package mjrengo_data_mj",
             "type": "shell",
@@ -86,12 +58,25 @@
             "problemMatcher": []
         },
         {
+            "label": "uninstall packages",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "uninstall",
+                "-y",
+                "mjrengo",
+                "mjrengo_data_mj",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/code" // Set the working directory to 'code' folder
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "rebuild package",
             "dependsOn": [
                 "build package mjrengo",
                 "install package mjrengo",
-                "build package mjrengo_replace",
-                "install package mjrengo_replace",
                 "build package mjrengo_data_mj",
                 "install package mjrengo_data_mj",
             ],
