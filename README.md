@@ -13,3 +13,11 @@ To install the latest version directly from GitHub, run:
 pip3 install --upgrade "mjrengo[full] @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo"
 
 ```
+
+### Uninstall
+
+```bash
+
+pip uninstall -y mjrengo mjrengo_replace mjrengo_data_mj
+
+```
