@@ -2,7 +2,7 @@
     "python.defaultInterpreterPath": "/usr/local/bin/python",
     "python.envFile": "${workspaceFolder}/code/pythonpath.env",
     "python.analysis.extraPaths": [
-        "code/src"
+        "code/mjrengo/src"
     ],
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
