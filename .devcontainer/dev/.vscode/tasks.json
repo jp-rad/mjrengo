@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build package",
+            "label": "build package mjrengo",
             "type": "shell",
             "command": "python",
             "args": [
@@ -17,7 +17,7 @@
             "problemMatcher": []
         },
         {
-            "label": "install package",
+            "label": "install package mjrengo",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -30,11 +30,70 @@
             },
             "problemMatcher": []
         },
+        
+        {
+            "label": "build package mjrengo_replace",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/code/mjrengo_replace" // Set the working directory to 'code' folder
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "install package mjrengo_replace",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "--upgrade",
+                ".",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/code/mjrengo_replace" // Set the working directory to 'code' folder
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build package mjrengo_data_mj",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj" // Set the working directory to 'code' folder
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "install package mjrengo_data_mj",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "--upgrade",
+                ".",
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj" // Set the working directory to 'code' folder
+            },
+            "problemMatcher": []
+        },
         {
             "label": "rebuild package",
             "dependsOn": [
-                "build package",
-                "install package"
+                "build package mjrengo",
+                "install package mjrengo",
+                "build package mjrengo_replace",
+                "install package mjrengo_replace",
+                "build package mjrengo_data_mj",
+                "install package mjrengo_data_mj",
             ],
             "dependsOrder": "sequence",
             "problemMatcher": [],

@@ -15,7 +15,7 @@ packages = ["src/mjrengo"]
 
 
 [project]
-name = "mjrengo"
+name = "mjrengo_data_mj"
 dynamic = ["version"]
 # dependencies = [
 #   "unoserver",

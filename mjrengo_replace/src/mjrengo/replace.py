@@ -1,4 +1,4 @@
-from .engine import GlyphError
+from mjrengo.engine import GlyphError
 
 def make_replace_fn(table):
     def replace_fn(m, errors):
