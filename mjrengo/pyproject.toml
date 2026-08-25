@@ -5,7 +5,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "__about__.py"
+path = "../__about__.py"
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -27,12 +27,6 @@ keywords = []
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
-]
-
-[project.optional-dependencies]
-full = [
-    "mjrengo_replace @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_replace",
-    "mjrengo_data_mj @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_data_mj",
 ]
 
 [project.urls]
