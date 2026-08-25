@@ -1,6 +1,4 @@
 import re
-# import gettext
-# import os
 from dataclasses import dataclass, field
 from typing import Protocol, List, Dict, Any, Match
 from .glyph_utils import (
@@ -10,18 +8,6 @@ from .glyph_utils import (
     restore_left_brace,
 )
 from .ucs import decode_ucs
-
-# # ============================================================
-# # i18n (gettext)
-# # ============================================================
-
-# LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
-# LANG = os.getenv("GLYPH_LANG", "en")
-
-# translation = gettext.translation(
-#     "glyph", LOCALE_DIR, languages=[LANG], fallback=True
-# )
-# _ = translation.gettext
 
 
 # ============================================================
@@ -82,18 +68,21 @@ class GlyphTagEngine:
         r'\}'
     )
 
+    def __init__(self, replace_fn: ReplaceFn):
+        self.replace_fn = replace_fn
+    
     # --------------------------------------------------------
     # normalize_tags()
     # --------------------------------------------------------
-    def normalize_tags(self, text: str, replace_fn: ReplaceFn) -> GlyphResult:
-        if replace_fn is None:
+    def normalize_tags(self, text: str) -> GlyphResult:
+        if self.replace_fn is None:
             raise ValueError("replace_fn is required")
-
+        
         text = escape_left_brace(text)
         errors: List[GlyphError] = []
 
         result_text = self.TAG_PATTERN.sub(
-            lambda m: replace_fn(m, errors),
+            lambda m: self.replace_fn(m, errors),
             text
         )
 
@@ -108,16 +97,9 @@ class GlyphTagEngine:
     # --------------------------------------------------------
     # render_text()
     # --------------------------------------------------------
-    def render_text(self, text: str, replace_fn: ReplaceFn, use_rep=False, tofu="U+25A1") -> GlyphResult:
-        if replace_fn is None:
-            raise ValueError("replace_fn is required")
+    def render_text(self, text: str, use_rep=False, tofu="U+25A1") -> str:
 
-        # First normalize
-        norm = self.normalize_tags(text, replace_fn)
-        if not norm.success:
-            return norm
-
-        expanded = protect_left_brace(norm.text)
+        expanded = protect_left_brace(text)
 
         def _replace(m):
             ucs = m.group("ucs")
@@ -126,9 +108,5 @@ class GlyphTagEngine:
             return decode_ucs(seq or tofu)
         
         rendered = self.TAG_PATTERN.sub(_replace, expanded)
-        
-        return GlyphResult(
-            success=True,
-            text=restore_left_brace(rendered),
-            errors=[],
-        )
+
+        return restore_left_brace(rendered)
