@@ -1,333 +1,351 @@
-# 📘 Glyph Tag Specification  
-**Version:** 0.3.0  
-**Status:** Complete  
-**Author:** [jp-rad](https://github.com/jp-rad)  
-**Last Updated:** 2026-08-21  
+# 📘 **Glyph Tag Specification v0.5.8**  
+**Core Specification（本文）＋ Annex A〜F（補足資料）**  
+**Author:** jp-rad  
+**Last Updated:** 2026-08-28  
 
+---
 
-# 1. Purpose（目的）
+# =============================  
+# 🟦 **本文（Core Specification）**  
+# =============================  
 
-Glyph Tag は、MJ/GJ などの字形名（glyph name）を  
-**UCS（ISO/IEC 10646）コードポイント列・IVS（異体字セレクタ）・代表文字（縮退後文字）**  
-とともに安全に扱うための **文字抽象化タグ形式**である。
+本文は Glyph Tag の抽象仕様のみを扱う。  
+Unicode IVS、MJ文字、行政事務標準文字、GJ文字、フォント実装などの具体的体系は Annex に分離する。
 
-本仕様は、Unicode の抽象的な文字体系と、  
-実際のフォント実装に依存する字形体系のギャップを埋めるために設計されている。
+---
 
-Glyph Tag の `ucs=` は **縮退前の UCS コードポイント列（IVS を含む）**であり、  
-`rep=` は **縮退後の代表文字（Representative Character）**である。
+# **1. Purpose（目的）**
 
-`set=` は **字形体系を表すユーザー定義識別子**であり、  
-**Glyph Table 全体で 1つだけ指定される。  
-entries 内の各項目は set= を持たず、テーブルの set= を継承する。**
+Glyph Tag は、字形名（glyph-name）と  
+UCS コードポイント並び（UCSSeq）および  
+IVS（Variation Selector）を含む字形指定を  
+抽象的に扱うためのタグ形式である。
 
+Glyph Tag は、文字コード体系の違いを吸収し、  
+字形情報を安定的に管理・交換するための抽象レイヤを提供する。
 
-# 2. Syntax（構文）
+---
 
-Glyph Tag は **2つの表記形式**を許容する。
+# **2. Syntax（構文）**
 
-## 2.1 完全形式
-
-```
-{glyph:<図形名> [ucs=<UCSSeq>] [rep=<UCSSeq>] [set=<Identifier>]}
-```
-
-## 2.2 省略形式
+Glyph Tag の正式構文は以下の 1形式のみとする。
 
 ```
-{<図形名> [ucs=<UCSSeq>] [rep=<UCSSeq>] [set=<Identifier>]}
+{<glyph-name> [b=<UCSSeq>] [v=<UCSSeq>] [set=<Identifier>]}
 ```
 
+### ✔ 属性順は任意  
+パーサは属性順に依存しない。
 
-# 2.3 Tag Recognition（タグ認識）
+---
 
-```
-glyph 名は英数字（A–Z, a–z, 0–9）のみで構成される。
+## ✔ `{` のエスケープ（構文として正式規定）
 
-正規表現：
-    glyph-name = [A-Za-z0-9]+
+Glyph Tag の開始記号 `{` を文字として表記したい場合は、  
+次の **2種類の方法**を構文として正式に規定する。
 
-非英数字を含む {や}, {漢字}, {★} などは Glyph Tag として認識されない。
-これらは Tag Completion の対象外であり、そのまま出力される。
-```
+---
 
-
-# 2.4 Tag Escape（タグのエスケープ）
-
-Glyph Tag をリテラルとして出力したい場合、  
-波括弧を二重化して `{{` を使用する。
+### **1. `{_LB_}` — リテラル `{` を表す正式な構文要素**
 
 ```
-"{{MJ0001}" → "{MJ0001}"
+{_LB_}  →  {
 ```
 
-### ✔ エスケープ処理の仕様（v0.4.2）
+- ユーザーが直接使用することを想定  
+- 正規化後も `{_LB_}` のまま残す  
+- `{` に戻さない  
+
+---
+
+### **2. `"{{"` — 簡易エスケープ（内部的に `{_ESC_LB_}` に変換される）**
 
 ```
-1. "{{" を予約タグ "{_LB_}" に一時置換する。
-2. Tag Completion を実行する。
-3. "{_LB_}" を単一波括弧 "{" に戻す。
+{{  →  {
 ```
 
-### ✔ 予約タグ（短縮版）
+ただし `"{{"` は正規化処理のために内部的に次のタグに変換される：
 
 ```
-{_LB_}
+{{  →  {_ESC_LB_}
 ```
 
-- LB = Left Brace  
-- 衝突しない  
-- 軽量  
-- エスケープ専用  
-- 通常の Glyph Tag として扱われない  
+---
 
+## ✔ 内部処理専用タグ `{_ESC_LB_}`（ユーザーは使用しない）
 
-# 3. Attributes（属性）
+```
+{_ESC_LB_}
+```
 
-| 属性 | 説明 |
-|------|------|
-| **glyph** | 図形名（MJ0001 / GJ0431 / EMOJI001 など）。 |
-| **ucs** | 縮退前の UCS コードポイント列（U+XXXX）。IVS を含む。 |
-| **rep** | 縮退後の代表文字（Representative Character）。 |
-| **set** | 字形体系識別子（Glyph System Identifier）。ユーザー定義。 |
+- `"{{"` を内部的に表すための一時トークン  
+- 正規化後に **必ず `"{{"` に戻す**  
+- ユーザーが直接使用することは想定しない  
 
+---
 
-# 4. UCSSeq（UCS コードポイント列）
+# **3. UCSSeq（UCS コードポイント並び）**
 
-### ✔ UCSSeq は **U+XXXX を空白で区切った列**である。
+UCSSeq は、U+XXXX 形式の UCS コードポイントを  
+空白区切りで並べた並びである。
 
 例：
 
 ```
 U+4E00
 U+4E00 U+E0100
-U+9AD8 U+E0101
-U+1F600
+U+845B U+E0103
 ```
-
-
-# 5. Glyph System Identifier（字形体系識別子）
-
-### ✔ set= はユーザー定義の識別子  
-例：
-
-```
-set=dwpex
-set=ipaexm
-set=shsjp
-set=mj+
-```
-
-### ✔ 同一システム内では set= を統一することを推奨  
-Glyph Table が set= を 1つ持つことで自動的に統一される。
 
 ---
 
-# 6. Rendering rules（レンダリング仕様）
+# **4. Attributes（属性）**
+
+## **4.1 b — base（基本字形）**  
+IVS を含まない UCS コードポイント並び。
+
+## **4.2 v — variant（異体字）**  
+IVS を含む UCS コードポイント並び。  
+異体字が存在しない場合は v=b。
+
+## **4.3 set — Glyph System Identifier**  
+字形体系を識別するための任意の識別子。
+
+## **4.4 active — Internal Management Attribute**  
+正規化対象かどうかを示す内部属性。
+
+---
+
+# **5. Rendering Rules（描画規則）**
+
+描画モードは **2種類のみ**とする。  
+デフォルトは **mode="v"**。
 
 ```
-mode="ucs"     → ucs → rep → unknown
-mode="rep"     → rep → ucs → unknown
-mode="auto"    → ucs → rep → unknown（既定）
-mode="reduce"  → rep → unknown
+mode="v"       → v → b → tofu
+mode="b"       → b → tofu
 ```
 
+---
 
-# 7. Tag completion（タグ補完）
+## **5.1 tofu の描画（フォールバック描画）**
 
-補完対象：
+`v` または `b` が存在しない場合、  
+描画結果は **tofu（フォールバック字形）** とする。
 
-- `{MJ0001}`
-- `{glyph:MJ0001}`
-- `{GJ0431 rep=U+9AD8}`
-- `{MJ0001 ucs=U+4E00 U+E0100}`
+### **tofu の仕様**
 
-補完時に **Glyph Table の set= が自動付与される**。
+- tofu は任意の UCS コードポイント（U+XXXX）で指定する  
+- tofu は「字形が決定できない場合の代替字形」を表す  
+- tofu のデフォルト値は環境依存  
+- 正規化時に環境の設定値へ置き換えられる
 
+### **tofu の例**
 
-# 8. Glyph Table（仕様）
+```
+U+25A1   # □ White Square
+U+3013   # 〓 Geta Mark
+U+FFFD   # � Replacement Character
+```
+
+---
+
+# **6. Normalization（正規化）**
+
+正規化（Normalization）は、Glyph Tag を  
+**実行環境が採用する字形体系（set）に従って再解釈し、  
+b/v/set を環境固有の値へ置き換える処理**である。
+
+正規化は **すべての Glyph Tag に対して実行される**。
+
+---
+
+## **6.1 正規化の目的**
+
+- glyph-name を環境固有の字形体系にマッピングする  
+- b/v を環境固有の UCSSeq（IVS または PUP）に置き換える  
+- **set を環境の set に強制的に置き換える**  
+- 異なる字形体系間の互換性を確保する  
+- レガシー外字・MJ文字・GJ文字・IVS・PUP を統一的に扱う
+
+---
+
+## **6.2 正規化の動作**
+
+正規化は以下の処理を行う：
+
+### **1. glyph-name の解決**  
+実行環境の Glyph Table（set）に基づき  
+glyph-name を b/v にマッピングする。
+
+### **2. b/v の再解釈（環境依存）**  
+- b（基本字形）を環境固有の UCSSeq に置き換える  
+- v（異体字）を環境固有の UCSSeq（IVS または PUP）に置き換える
+
+### **3. set の置き換え（強制）**  
+タグ内の set が何であっても、  
+**正規化後は必ず「環境の set」に置き換える**。
+
+---
+
+## **6.3 エスケープ処理（正式仕様）**
+
+正規化処理では、`{{` を安全に扱うために次の手順を用いる。
+
+### ✔ エスケープ処理の流れ
+
+1. 入力テキスト中の `"{{"` を内部タグ `{_ESC_LB_}` に置換  
+2. 正規化処理（b/v/set の置換）を実行  
+3. 正規化後、`{_ESC_LB_}` を `"{{"` に戻す  
+4. `{_LB_}` は **リテラル `{` として扱い、正規化後も `{_LB_}` のまま残す**
+
+---
+
+## **6.4 エスケープ処理の例**
+
+### 入力
+```
+これは {{MJ0001} と {_LB_}MJ0002} の例です。
+```
+
+### 正規化前（内部処理）
+```
+これは {_ESC_LB_}MJ0001} と {_LB_}MJ0002} の例です。
+```
+
+### 正規化後
+```
+これは {_ESC_LB_}MJ0001} と {_LB_}MJ0002} の例です。
+```
+
+### エスケープ解除（最終出力）
+```
+これは {{MJ0001} と {_LB_}MJ0002} の例です。
+```
+
+---
+
+# **7. Glyph Table（仕様）**
 
 ```
 glyph-table = {
-    version: "<日付>",
-    description: "<任意の説明>",
-    set: "<字形体系識別子>",
+    version: "<date>",
+    set: "<identifier>",
     entries: {
-        <glyph-name>: { ucs: "<UCSSeq>", rep: "<UCSSeq>" },
-        ...
+        <glyph-name>: { b: "<UCSSeq>", v: "<UCSSeq>", active: <bool> }
     }
 }
 ```
 
-### ✔ entries は set= を持たない  
-### ✔ set= はテーブル全体の字形体系識別子  
-### ✔ Glyph Tag の set= は補完時に付与される
+---
 
+# =============================  
+# 🟩 **Annex（補足資料）**  
+# =============================  
 
-# 9. Example Glyph Table（例）
+Annex は Glyph Tag の抽象仕様を補完するための実装ガイドであり、  
+Unicode IVS、MJ文字、行政事務標準文字、GJ文字、フォント実装、  
+レガシー外字対応などを体系的にまとめる。
 
-```
-glyph-table = {
-    version: "2026-08-21",
-    description: "行政事務標準フォント(DWPIexMincho.ttf)",
-    set: "mj+",
-    entries: {
-        MJ0001: { ucs: "U+4E00 U+E0100", rep: "U+4E00" },
-        GJ0431: { ucs: "U+9AD8 U+E0101", rep: "U+9AD8" },
-        EMOJI001: { ucs: "U+1F600", rep: "U+1F600" }
-    }
-}
-```
+---
 
+# **Annex A — Unicode IVS / IVD（国際標準）**
 
-# 10. Reference Implementation（Python, v0.4.2）
+- IVS は ISO/IEC 10646 に規定された異体字指定の国際標準  
+- IVD は Unicode コンソーシアムが管理する異体字データベース  
+- Moji_Joho IVD Collection は日本政府の公式コレクション  
+- Glyph Tag の b/v モデルは IVS と完全整合する
 
-予約タグ `{_LB_}` を採用した最新版。
+---
 
-```python
-# -*- coding: utf-8 -*-
-"""
-Glyph Tag – Reference Implementation (Version 0.4.2)
-"""
+# **Annex B — MJ文字（Moji_Joho IVD）**
 
-import re
-import codecs
+MJ文字は Unicode に符号化済みであり、  
+必要に応じて IVS を持つ。
 
-ESCAPED = "{_LB_}"
-
-# ----------------------------------------------------------------------
-# 1. Glyph Table (example)
-# ----------------------------------------------------------------------
-
-GLYPH_TABLE = {
-    "version": "2026-08-21",
-    "description": "行政事務標準フォント(DWPIexMincho.ttf)",
-    "set": "mj+",
-    "entries": {
-        "MJ0001": { "ucs": "U+4E00 U+E0100", "rep": "U+4E00" },
-        "GJ0431": { "ucs": "U+9AD8 U+E0101", "rep": "U+9AD8" },
-        "EMOJI001": { "ucs": "U+1F600", "rep": "U+1F600" }
-    }
-}
-
-# ----------------------------------------------------------------------
-# 2. Tag pattern
-# ----------------------------------------------------------------------
-
-GLYPH_TAG_PATTERN = re.compile(
-    r'\{(?:glyph:)?(?P<glyph>[A-Za-z0-9]+)'
-    r'(?:\s+ucs=(?P<ucs>(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?'
-    r'(?:\s+rep=(?P<rep>(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?'
-    r'(?:\s+set=(?P<set>[A-Za-z0-9_+\-]+))?'
-    r'\}'
-)
-
-# ----------------------------------------------------------------------
-# 3. UCS → JSON Unicode escape
-# ----------------------------------------------------------------------
-
-def ucs_to_json_escape(ucs_seq: str) -> str:
-    cps = re.findall(r"U\+([0-9A-Fa-f]{4,6})", ucs_seq)
-    esc = ""
-    for cp_hex in cps:
-        cp = int(cp_hex, 16)
-        if cp <= 0xFFFF:
-            esc += f"\\u{cp:04X}"
-        else:
-            cp -= 0x10000
-            high = 0xD800 + (cp >> 10)
-            low  = 0xDC00 + (cp & 0x3FF)
-            esc += f"\\u{high:04X}\\u{low:04X}"
-    return esc
-
-def json_escape_to_text(s: str) -> str:
-    return codecs.decode(s, "unicode_escape")
-
-# ----------------------------------------------------------------------
-# 4. Escape processing
-# ----------------------------------------------------------------------
-
-def escape_braces(text: str) -> str:
-    return text.replace("{{", ESCAPED)
-
-def unescape_braces(text: str) -> str:
-    return text.replace(ESCAPED, "{")
-
-# ----------------------------------------------------------------------
-# 5. Tag completion
-# ----------------------------------------------------------------------
-
-def build_tag(glyph_name: str, info: dict, table_set: str) -> str:
-    parts = [f"glyph:{glyph_name}"]
-    if info.get("ucs"):
-        parts.append(f"ucs={info['ucs']}")
-    if info.get("rep"):
-        parts.append(f"rep={info['rep']}")
-    parts.append(f"set={table_set}")
-    return "{" + " ".join(parts) + "}"
-
-def expand_tag(match: re.Match) -> str:
-    glyph = match.group("glyph")
-    table_set = GLYPH_TABLE["set"]
-    info = GLYPH_TABLE["entries"].get(glyph)
-    if not info:
-        return match.group(0)
-    return build_tag(glyph, info, table_set)
-
-def expand_all(text: str) -> str:
-    text = escape_braces(text)
-    text = GLYPH_TAG_PATTERN.sub(expand_tag, text)
-    text = unescape_braces(text)
-    return text
-
-# ----------------------------------------------------------------------
-# 6. Rendering
-# ----------------------------------------------------------------------
-
-def render(parsed: dict, mode: str = "auto", unknown: str = "□") -> str:
-    ucs = parsed.get("ucs")
-    rep = parsed.get("rep")
-
-    if mode == "ucs":
-        if ucs:
-            return json_escape_to_text(ucs_to_json_escape(ucs))
-        if rep:
-            return json_escape_to_text(ucs_to_json_escape(rep))
-        return unknown
-
-    if mode == "rep" or mode == "reduce":
-        if rep:
-            return json_escape_to_text(ucs_to_json_escape(rep))
-        if ucs:
-            return json_escape_to_text(ucs_to_json_escape(ucs))
-        return unknown
-
-    if ucs:
-        return json_escape_to_text(ucs_to_json_escape(ucs))
-    if rep:
-        return json_escape_to_text(ucs_to_json_escape(rep))
-    return unknown
-
-def render_text(text: str, mode: str = "auto", unknown: str = "□") -> str:
-    def _replace(m: re.Match) -> str:
-        parsed = {
-            "glyph": m.group("glyph"),
-            "ucs": m.group("ucs"),
-            "rep": m.group("rep"),
-            "set": m.group("set"),
-        }
-        return render(parsed, mode=mode, unknown=unknown)
-
-    return GLYPH_TAG_PATTERN.sub(_replace, text)
-```
-
-
-# 11. Examples（例）
+例：
 
 ```
-入力:
-これは{{MJ0001}です。これは{MJ0001}です。
-
-出力:
-これは{MJ0001}です。これは一です。
+MJ022336: { b: "U+845B", v: "U+845B U+E0103" }
+MJ022335: { b: "U+845B", v: "U+845B U+E0102" }
 ```
+
+---
+
+# **Annex C — 行政事務標準文字（MJ＋GJ）**
+
+行政事務標準文字は：
+
+- MJ文字（Unicode符号化済み）
+- GJ文字（未符号化 → 私用面 PUP）
+
+から構成される。
+
+---
+
+# **Annex D — GJ文字（暫定私用面）［v0.5.8 修正版］**
+
+GJ文字は Unicode 未符号化であるため、  
+Glyph Tag では次の 2属性で表現する：
+
+### ✔ b — GJ代替文字（fallback glyph）  
+意味的に近い UCS 文字、縮退代替文字、  
+または組織内で合意された代替文字を設定する。
+
+例：
+
+```
+b = "U+6728"
+b = "U+3013"
+b = "U+FFFD"
+```
+
+### ✔ v — GJ暫定私用コード（PUP）  
+Unicode 未符号化のため、私用面（PUP）を使用する。
+
+例：
+
+```
+v = "U+100ABC"
+```
+
+---
+
+# **Annex E — フォント実装（IPAMJ明朝／DWPI明朝／DWPIex明朝）**
+
+### IPAMJ明朝  
+MJ文字の UCS/IVS を実装。
+
+### DWPI明朝  
+行政事務標準文字（MJ＋GJ）を実装。  
+IVS実装版＋後方互換PUP実装版の両方に対応。
+
+### DWPIex明朝  
+変体かな濁点の IVS 割り当て、戸籍正字の暫定追加などを実装。
+
+---
+
+# **Annex F — レガシー外字システムとのデータ連携**
+
+Glyph Tag は、独自外字を使用したレガシーシステム間のデータ連携にも対応できる。
+
+### ✔ レガシー外字 → Glyph Tag の変換  
+- 外字コード → glyph-name  
+- 外字グリフ → b/v にマッピング  
+- 外字フォントが失われても字形情報を保持可能
+
+### ✔ レガシー外字 → 行政事務標準文字への移行  
+- MJ文字に一致 → b/v を MJ に置換  
+- GJ文字に一致 → b/v を GJ に置換  
+- 一致しない → 暫定的に PUP に割り当て
+
+### ✔ 外部出力  
+- 縮退代替文字  
+- 画像出力  
+- PDF埋め込み  
+- 合意組織間での外字コードのまま出力
+
+Glyph Tag は、レガシー外字体系を含むあらゆる文字体系を  
+統一的に扱える抽象タグ仕様である。
+
+---
