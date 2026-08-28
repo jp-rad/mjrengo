@@ -16,8 +16,8 @@ def main():
     print("---- first 5 records ----")
     for i, (key, rec) in enumerate(items[:5]):
         print(f"[{i}] {key}")
-        print("  ucs    :", rec.ucs)
-        print("  rep    :", rec.rep)
+        print("  ucs    :", rec.v)
+        print("  rep    :", rec.b)
         print("  active :", rec.active)
         print("  comment:", rec.comment)
         print()
@@ -28,8 +28,8 @@ def main():
     for offset, (key, rec) in enumerate(last_items):
         i = start_index + offset
         print(f"[{i}] {key}")
-        print("  ucs    :", rec.ucs)
-        print("  rep    :", rec.rep)
+        print("  ucs    :", rec.v)
+        print("  rep    :", rec.b)
         print("  active :", rec.active)
         print("  comment:", rec.comment)
         print()

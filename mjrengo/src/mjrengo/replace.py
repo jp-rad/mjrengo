@@ -21,10 +21,10 @@ def make_replace_fn(glyph_table, set_name):
             return m.group(0)
 
         # Normalization
-        return "{%s ucs=%s rep=%s set=%s}" % (
+        return "{%s b=%s v=%s set=%s}" % (
             glyph,
-            entry["ucs"],
-            entry["rep"],
+            entry["b"],
+            entry["v"],
             set_name,
         )
 
