@@ -9,9 +9,9 @@ from tools.core.model import GlyphRecord
 
 def record_to_dict(rec: GlyphRecord) -> dict:
     return {
-        "glyph_name": rec.glyph_name,
-        "ucs": rec.ucs,
-        "rep": rec.rep,
+        "name": rec.name,
+        "b": rec.b,
+        "v": rec.v,
         "active": rec.active,
         "comment": rec.comment,
     }
@@ -35,8 +35,8 @@ def write_glyph_table_py(records: dict[str, GlyphRecord], out_path: Path, descri
     for name, rec in sorted(records.items()):
         d = record_to_dict(rec)
         lines.append(f"    {name!r}: {{ # {d['comment']}")
-        lines.append(f"        'ucs': {d['ucs']!r},")
-        lines.append(f"        'rep': {d['rep']!r},")
+        lines.append(f"        'b': {d['b']!r},")
+        lines.append(f"        'v': {d['v']!r},")
         lines.append(f"        'active': {d['active']!r},")
         lines.append("    },")
     lines.append("}")

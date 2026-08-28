@@ -16,14 +16,14 @@ from tools.core.normalize import (
 # === mji.00602.xlsx 固有の列名定数 ===
 
 COL_MJ_NAME = "MJ文字図形名"
-COL_REP     = "対応するUCS"
-COL_UCS_IVS = "実装したMoji_JohoコレクションIVS"
+COL_BASE     = "対応するUCS"
+COL_VARIANT = "実装したMoji_JohoコレクションIVS"
 COL_FONT    = "font"
 
 REQUIRED_COLUMNS = {
     COL_MJ_NAME,
-    COL_REP,
-    COL_UCS_IVS,
+    COL_BASE,
+    COL_VARIANT,
     COL_FONT,
 }
 
@@ -184,36 +184,36 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
         font_value = get(row_dict, COL_FONT)
         active = font_value != "実装なし"
         
-        rep_raw = get(row_dict, COL_REP)
+        base_raw = get(row_dict, COL_BASE)
         
-        rep = to_uplus_string(rep_raw)
-        if rep:
-            ok, reason = validate_uplus_input(rep)
+        base = to_uplus_string(base_raw)
+        if base:
+            ok, reason = validate_uplus_input(base)
             if not ok:
-                raise ValueError(f"Invalid REP for {glyph_name}: {reason}")
-            # コメント：代表文字
-            comments.append(decode_ucs(rep))
+                raise ValueError(f"Invalid base for {glyph_name}: {reason}")
+            # コメント：基本文字
+            comments.append(decode_ucs(base))
 
-            ucs_raw = get(row_dict, COL_UCS_IVS)
-            if ucs_raw == "":
-                ucs = rep
+            variant_raw = get(row_dict, COL_VARIANT)
+            if variant_raw == "":
+                variant = base
             else:
-                has_multiple = ";" in ucs_raw
+                has_multiple = ";" in variant_raw
                 if has_multiple:
-                    # コメント：複数の UCS 候補
-                    comments.append(ucs_raw)
-                ucs = pick_ucs_by_rep(ucs_raw, rep)
-                ok, reason = validate_uplus_input(ucs)
+                    # コメント：複数候補
+                    comments.append(variant_raw)
+                variant = pick_ucs_by_rep(variant_raw, base)
+                ok, reason = validate_uplus_input(variant)
                 if not ok:
-                    raise ValueError(f"Invalid UCS for {glyph_name}: {reason}")
+                    raise ValueError(f"Invalid variant for {glyph_name}: {reason}")
         else:
-            rep = None
-            ucs = None
+            base = None
+            variant = None
 
         rec = GlyphRecord(
-            glyph_name=glyph_name,
-            ucs=ucs,
-            rep=rep,
+            name=glyph_name,
+            b=base,
+            v=variant,
             active=active,
             comment=sanitize_comment(" ".join(comments)),
         )
