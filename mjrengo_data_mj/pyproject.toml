@@ -17,12 +17,6 @@ packages = ["src/mjrengo"]
 [project]
 name = "mjrengo_data_mj"
 dynamic = ["version"]
-# dependencies = [
-#   "unoserver",
-#   "docxtpl",
-#   "python_odt_template[standard] @ git+https://github.com/jp-one/python-odt-template-forked.git",
-#   "relatorio[chart,fodt] @ git+https://github.com/jp-one/relatorio-forked.git",
-# ]
 requires-python = ">=3.8"
 authors = [{ name = "jp-one" }]
 description = "Unicode UCS/IVS utilities for MJ/GJ glyph processing"
@@ -30,11 +24,6 @@ readme = "README.md"
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 keywords = [
-  # "report-engine",
-  # "unoserver",
-  # "python-odt-template",
-  # "python-docx-template",
-  # "jinja2",
 ]
 classifiers = [
   "Programming Language :: Python :: 3",

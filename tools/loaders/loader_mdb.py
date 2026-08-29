@@ -54,9 +54,9 @@ def load_mdb(path: Path, table_name: str, active_flag: bool) -> dict[str, GlyphR
         comment = sanitize_comment(comment_raw)
 
         rec = GlyphRecord(
-            glyph_name=glyph_name,
-            ucs=ucs,
-            rep=rep,
+            name=glyph_name,
+            v=ucs,
+            b=rep,
             active=active,
             comment=comment,
         )

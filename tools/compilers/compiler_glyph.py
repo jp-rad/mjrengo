@@ -1,23 +1,36 @@
-# tools/compiler_glyph.py
+# tools/compilers/compiler_glyph.py
 
+from __future__ import annotations
 from pathlib import Path
-import argparse
 
 from tools.loaders.load_mji_00602_xlsx import load_mji_00602_xlsx
+from tools.loaders.load_mjih_00201_xlsx import load_mjih_00201_xlsx
 from tools.core.model import GlyphRecord
 
 
-def record_to_dict(rec: GlyphRecord) -> dict:
-    return {
-        "glyph_name": rec.glyph_name,
-        "ucs": rec.ucs,
-        "rep": rec.rep,
-        "active": rec.active,
-        "comment": rec.comment,
-    }
+# ------------------------------------------------------------
+# name の重複チェック
+# ------------------------------------------------------------
+
+def ensure_unique_names(records: list[GlyphRecord]):
+    seen = set()
+    duplicates = []
+
+    for rec in records:
+        if rec.name in seen:
+            duplicates.append(rec.name)
+        else:
+            seen.add(rec.name)
+
+    if duplicates:
+        raise ValueError(f"Duplicate glyph names detected: {duplicates}")
 
 
-def write_glyph_table_py(records: dict[str, GlyphRecord], out_path: Path, description: list):
+# ------------------------------------------------------------
+# glyph_table.py の書き出し
+# ------------------------------------------------------------
+
+def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description: list[str], sort: bool = False):
     lines = []
 
     lines.append("# -*- coding: utf-8 -*-")
@@ -29,15 +42,16 @@ def write_glyph_table_py(records: dict[str, GlyphRecord], out_path: Path, descri
     for desc in description:
         lines.append(f"# {desc}")
     lines.append("")
-    
+
     lines.append("glyph_table = {")
 
-    for name, rec in sorted(records.items()):
-        d = record_to_dict(rec)
-        lines.append(f"    {name!r}: {{ # {d['comment']}")
-        lines.append(f"        'ucs': {d['ucs']!r},")
-        lines.append(f"        'rep': {d['rep']!r},")
-        lines.append(f"        'active': {d['active']!r},")
+    # sortが真の場合、name でソート
+    for rec in sorted(records, key=lambda r: r.name) if sort else records:
+        lines.append(f"    {rec.name!r}: {{")
+        lines.append(f"        # {rec.comment}")
+        lines.append(f"        'b': {rec.b!r},")
+        lines.append(f"        'v': {rec.v!r},")
+        lines.append(f"        'active': {rec.active!r},")
         lines.append("    },")
     lines.append("}")
     lines.append("")
@@ -45,21 +59,49 @@ def write_glyph_table_py(records: dict[str, GlyphRecord], out_path: Path, descri
     out_path.write_text("\n".join(lines), encoding="utf-8")
 
 
+# ------------------------------------------------------------
+# MJ（漢字）＋ MJIH（変体仮名）を合成して glyph_table を生成
+# ------------------------------------------------------------
+
 def compile_glyph_table_mj(out_path: Path):
     base = Path(__file__).resolve().parent.parent
-    xlsx_path = base / "data" / "mji.00602.xlsx"
 
-    print(f"[compiler] Loading: {xlsx_path}")
-    records = load_mji_00602_xlsx(xlsx_path)
-    print(f"[compiler] Loaded {len(records)} records")
+    # --- MJ（漢字編） ---
+    xlsx_mj = base / "data" / "mji.00602.xlsx"
+    print(f"[compiler] Loading MJ Kanji: {xlsx_mj}")
+    records_mj = load_mji_00602_xlsx(xlsx_mj)
+    print(f"[compiler] Loaded MJ Kanji: {len(records_mj)} records")
 
-    write_glyph_table_py(records, out_path, ["set: mj", "source file: mji.00602.xlsx"])
+    # --- MJIH（変体仮名編） ---
+    xlsx_mjih = base / "data" / "MJIH00201.xlsx"
+    print(f"[compiler] Loading MJ Hentaigana: {xlsx_mjih}")
+    records_mjih = load_mjih_00201_xlsx(xlsx_mjih)
+    print(f"[compiler] Loaded MJ Hentaigana: {len(records_mjih)} records")
+
+    # --- 合成（list のまま） ---
+    records = records_mj + records_mjih
+    print(f"[compiler] Total records (before duplicate check): {len(records)}")
+
+    # --- name の重複チェック ---
+    ensure_unique_names(records)
+    print("[compiler] Name uniqueness check passed")
+
+    description = [
+        "set: mj (kanji + hentaigana)",
+        "source file: mji.00602.xlsx",
+        "source file: MJIH00201.xlsx",
+    ]
+
+    write_glyph_table_py(records, out_path, description)
     print(f"[compiler] Wrote: {out_path.resolve()}")
 
 
+# ------------------------------------------------------------
+# main
+# ------------------------------------------------------------
+
 def main():
-    base = Path(__file__).resolve().parent.parent.parent    # "/home/vscode/dev/code"
-    # set: mj
+    base = Path(__file__).resolve().parent.parent.parent
     out_path = Path(base / "mjrengo_data_mj" / "src/mjrengo/data" / "mj" / "data_mj.py")
     compile_glyph_table_mj(out_path)
 

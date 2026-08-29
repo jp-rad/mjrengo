@@ -1,10 +1,10 @@
-# tools/loaders/loader_mji_00602_xlsx.py
+# tools/loaders/load_mji_00602_xlsx.py
 
 from pathlib import Path
 import zipfile
-import xml.etree.ElementTree as ET
 
 from mjrengo.ucs import decode_ucs
+
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
     to_uplus_string,
@@ -12,151 +12,63 @@ from tools.core.normalize import (
     pick_ucs_by_rep,
     sanitize_comment,
 )
+from tools.loaders.xlsx_strict_ooxml_loader import (
+    find_first_sheet_filename,
+    load_sheet_rows,
+    parse_header,
+)
 
-# === mji.00602.xlsx 固有の列名定数 ===
+# ------------------------------------------------------------
+# 列名（mji.00602.xlsx 固有）
+# ------------------------------------------------------------
 
 COL_MJ_NAME = "MJ文字図形名"
-COL_REP     = "対応するUCS"
-COL_UCS_IVS = "実装したMoji_JohoコレクションIVS"
-COL_FONT    = "font"
+COL_BASE     = "対応するUCS"
+COL_VARIANT  = "実装したMoji_JohoコレクションIVS"
+COL_FONT     = "font"
+COL_NOTE     = "備考"
 
 REQUIRED_COLUMNS = {
     COL_MJ_NAME,
-    COL_REP,
-    COL_UCS_IVS,
+    COL_BASE,
+    COL_VARIANT,
     COL_FONT,
+    COL_NOTE,
 }
 
 
 # ------------------------------------------------------------
-# workbook.xml → 1枚目のシートの XML ファイル名を取得
+# ローダー本体
 # ------------------------------------------------------------
 
-def _find_first_sheet_filename(z: zipfile.ZipFile) -> str:
+def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
     """
-    Strict OOXML の workbook.xml は r:id を持たないことがある。
-    その場合は sheetId=1 を 1枚目とみなし、
-    xl/worksheets/sheet1.xml を返す。
-    """
+    mji.00602.xlsx（MJ漢字編）を Strict OOXML として読み込むローダー。
 
-    wb_xml = z.read("xl/workbook.xml")
-    wb_root = ET.fromstring(wb_xml)
+    本ローダーは GlyphRecord の属性 b / v を次の仕様に従って構築する：
 
-    # namespace 自動判定
-    ns_uri = wb_root.tag.split("}")[0].strip("{")
-    ns = f"{{{ns_uri}}}"
+    4. Attributes（属性）
+    4.1 b — base（基本字形）
+        IVS を含まない UCS コードポイント並び。
 
-    sheet_elems = wb_root.findall(f".//{ns}sheet")
-    if not sheet_elems:
-        raise ValueError("workbook.xml に <sheet> がありません")
+    4.2 v — variant（異体字）
+        IVS を含む UCS コードポイント並び。
+        異体字が存在しない場合は v=b。
 
-    first_sheet = sheet_elems[0]
-
-    # Strict OOXML: r:id が存在しない
-    rid = first_sheet.attrib.get(
-        "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
-    )
-
-    if rid is None:
-        # Strict OOXML の場合は sheetId を使う
-        sheet_id = first_sheet.attrib.get("sheetId")
-        if sheet_id is None:
-            raise ValueError("Strict OOXML: sheetId がありません")
-
-        # sheetId=1 → sheet1.xml
-        return f"xl/worksheets/sheet{sheet_id}.xml"
-
-    # Transitional OOXML の場合（r:id がある）
-    rels_xml = z.read("xl/_rels/workbook.xml.rels")
-    rels_root = ET.fromstring(rels_xml)
-
-    rels_ns_uri = rels_root.tag.split("}")[0].strip("{")
-    rels_ns = f"{{{rels_ns_uri}}}"
-
-    for rel in rels_root.findall(f".//{rels_ns}Relationship"):
-        if rel.attrib.get("Id") == rid:
-            target = rel.attrib.get("Target")
-            return "xl/" + target
-
-    raise ValueError(f"workbook.xml.rels に r:id={rid} がありません")
-
-
-# ------------------------------------------------------------
-# Strict OOXML 専用ローダー本体
-# ------------------------------------------------------------
-
-def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
-    """
-    Strict OOXML 専用ローダー。
-    pandas / openpyxl が壊れる行政系 XLSX を確実に読み取る。
-
-    - workbook.xml で 1枚目のシートを特定
-    - sharedStrings.xml を使って文字列を復元（先頭ゼロ保持）
-    - sheet XML を Strict OOXML の namespace で解析
-    - 列名は A1, B1, C1... のセル内容から取得
-    - font="実装なし" → active=False
+    処理内容：
+    - workbook.xml から最初のシートを特定
+    - sharedStrings.xml と sheet XML を解析し、セル値を復元
+    - ヘッダー行から列名を取得
+    - base（代表文字）と variant（Moji_Joho コレクション IVS）を仕様に従って構築
+    - font="実装なし" の場合は active=False とする
     """
 
     with zipfile.ZipFile(path, "r") as z:
+        sheet_filename = find_first_sheet_filename(z)
+        rows = load_sheet_rows(z, sheet_filename)
+        headers = parse_header(rows)
 
-        # --- 1枚目のシートの XML ファイル名 ---
-        sheet_filename = _find_first_sheet_filename(z)
-
-        # --- sheet XML ---
-        sheet_xml = z.read(sheet_filename)
-        root = ET.fromstring(sheet_xml)
-
-        # namespace 自動判定
-        ns_uri = root.tag.split("}")[0].strip("{")
-        ns = f"{{{ns_uri}}}"
-
-        # --- sharedStrings.xml ---
-        shared_strings = []
-        if "xl/sharedStrings.xml" in z.namelist():
-            ss_xml = z.read("xl/sharedStrings.xml")
-            ss_root = ET.fromstring(ss_xml)
-
-            ss_ns_uri = ss_root.tag.split("}")[0].strip("{")
-            ss_ns = f"{{{ss_ns_uri}}}"
-
-            for si in ss_root.findall(f".//{ss_ns}si"):
-                t = si.find(f".//{ss_ns}t")
-                shared_strings.append(t.text if t is not None else "")
-
-        # --- 行データ抽出 ---
-        rows = []
-        for row in root.findall(f".//{ns}row"):
-            record = {}
-            for c in row.findall(f"{ns}c"):
-                cell_ref = c.attrib.get("r")
-                cell_type = c.attrib.get("t")
-
-                v = c.find(f"{ns}v")
-                if v is None:
-                    value = ""
-                else:
-                    raw = v.text
-                    if cell_type == "s":
-                        value = shared_strings[int(raw)]
-                    else:
-                        value = raw
-
-                record[cell_ref] = value
-
-            rows.append(record)
-
-    if not rows:
-        raise ValueError("sheet XML に <row> がありません（Strict OOXML の空シート）")
-
-    # --- ヘッダー行 ---
-    header_row = rows[0]
-    headers = {}
-
-    for cell_ref, value in header_row.items():
-        col = "".join([c for c in cell_ref if c.isalpha()])
-        headers[col] = value.strip()
-
-    # 必須列チェック
+    # --- 必須列チェック ---
     if not REQUIRED_COLUMNS.issubset(headers.values()):
         missing = REQUIRED_COLUMNS - set(headers.values())
         raise ValueError(f"Missing required columns in XLSX: {missing}")
@@ -165,6 +77,10 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
     col_map = {v: k for k, v in headers.items()}
 
     def get(row_dict, col_name):
+        """
+        行 dict から列名で値を取得する。
+        A列なら A1/A2/A3... のように cell_ref.startswith(col) で判定。
+        """
         col = col_map[col_name]
         for cell_ref, value in row_dict.items():
             if cell_ref.startswith(col):
@@ -172,7 +88,7 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
         return ""
 
     # --- レコード生成 ---
-    records: dict[str, GlyphRecord] = {}
+    records: list[GlyphRecord] = []
 
     for row_dict in rows[1:]:
         comments = []
@@ -181,43 +97,61 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
         if glyph_name == "":
             continue
 
+        # --- active 判定（font="実装なし" → False） ---
         font_value = get(row_dict, COL_FONT)
         active = font_value != "実装なし"
-        
-        rep_raw = get(row_dict, COL_REP)
-        
-        rep = to_uplus_string(rep_raw)
-        if rep:
-            ok, reason = validate_uplus_input(rep)
-            if not ok:
-                raise ValueError(f"Invalid REP for {glyph_name}: {reason}")
-            # コメント：代表文字
-            comments.append(decode_ucs(rep))
+        if not active:
+            comments.append(font_value)
 
-            ucs_raw = get(row_dict, COL_UCS_IVS)
-            if ucs_raw == "":
-                ucs = rep
+        # ------------------------------------------------------------
+        # b — base（基本字形）
+        #   IVS を含まない UCS コードポイント並び
+        # ------------------------------------------------------------
+        base_raw = get(row_dict, COL_BASE)
+        base = to_uplus_string(base_raw)
+
+        if base:
+            ok, reason = validate_uplus_input(base)
+            if not ok:
+                raise ValueError(f"Invalid base for {glyph_name}: {reason}")
+
+            comments.append(decode_ucs(base))
+
+            # ------------------------------------------------------------
+            # v — variant（異体字）
+            #   IVS を含む UCS コードポイント並び
+            #   異体字が存在しない場合は v=b
+            # ------------------------------------------------------------
+            variant_raw = get(row_dict, COL_VARIANT)
+
+            if variant_raw == "":
+                # 異体字が存在しない → v=b
+                variant = base
             else:
-                has_multiple = ";" in ucs_raw
-                if has_multiple:
-                    # コメント：複数の UCS 候補
-                    comments.append(ucs_raw)
-                ucs = pick_ucs_by_rep(ucs_raw, rep)
-                ok, reason = validate_uplus_input(ucs)
+                # 複数候補がある場合はコメントに残す
+                if ";" in variant_raw:
+                    comments.append(variant_raw)
+
+                # base と rep を比較して適切な UCS を選択
+                variant = pick_ucs_by_rep(variant_raw, base)
+
+                ok, reason = validate_uplus_input(variant)
                 if not ok:
-                    raise ValueError(f"Invalid UCS for {glyph_name}: {reason}")
+                    raise ValueError(f"Invalid variant for {glyph_name}: {reason}")
+
         else:
-            rep = None
-            ucs = None
+            # base が空 → v も空
+            base = None
+            variant = None
 
         rec = GlyphRecord(
-            glyph_name=glyph_name,
-            ucs=ucs,
-            rep=rep,
+            name=glyph_name,
+            b=base,
+            v=variant,
             active=active,
             comment=sanitize_comment(" ".join(comments)),
         )
 
-        records[glyph_name] = rec
+        records.append(rec)
 
     return records
