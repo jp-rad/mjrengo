@@ -1,4 +1,4 @@
-# tools/compiler_glyph.py
+# tools/compilers/compiler_glyph.py
 
 from __future__ import annotations
 from pathlib import Path

@@ -23,7 +23,6 @@ Strict OOXML (ISO/IEC 29500 Strict) 形式の XLSX を読み取るためのロ�
 セル値をそのまま正確に取得するためのローダーである。
 """
 
-from __future__ import annotations
 import zipfile
 import xml.etree.ElementTree as ET
 
