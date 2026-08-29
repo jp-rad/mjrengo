@@ -1,20 +1,19 @@
-# tools/loaders/loader_mjih_00201_xlsx.py
+# tools/loaders/load_mjih_00201_xlsx.py
 
-from __future__ import annotations
 from pathlib import Path
 import zipfile
-
-from tools.loaders.xlsx_strict_ooxml_loader import (
-    find_first_sheet_filename,
-    load_sheet_rows,
-    parse_header,
-)
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
     to_uplus_string,
     validate_uplus_input,
     sanitize_comment,
+)
+
+from tools.loaders.xlsx_strict_ooxml_loader import (
+    find_first_sheet_filename,
+    load_sheet_rows,
+    parse_header,
 )
 
 

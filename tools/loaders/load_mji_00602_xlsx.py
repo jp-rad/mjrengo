@@ -1,22 +1,21 @@
-# tools/loaders/loader_mji_00602_xlsx.py
+# tools/loaders/load_mji_00602_xlsx.py
 
-from __future__ import annotations
 from pathlib import Path
 import zipfile
 
-from tools.loaders.xlsx_strict_ooxml_loader import (
-    find_first_sheet_filename,
-    load_sheet_rows,
-    parse_header,
-)
-
 from mjrengo.ucs import decode_ucs
+
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
     to_uplus_string,
     validate_uplus_input,
     pick_ucs_by_rep,
     sanitize_comment,
+)
+from tools.loaders.xlsx_strict_ooxml_loader import (
+    find_first_sheet_filename,
+    load_sheet_rows,
+    parse_header,
 )
 
 # ------------------------------------------------------------

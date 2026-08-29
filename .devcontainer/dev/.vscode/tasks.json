@@ -12,7 +12,8 @@
                 "build"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo' folder
+                "cwd": "${workspaceFolder}/code/mjrengo",
             },
             "problemMatcher": []
         },
@@ -26,7 +27,8 @@
                 ".",
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo' folder
+                "cwd": "${workspaceFolder}/code/mjrengo",
             },
             "problemMatcher": []
         },
@@ -39,7 +41,8 @@
                 "build"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo_data_mj' folder
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj",
             },
             "problemMatcher": []
         },
@@ -53,7 +56,8 @@
                 ".",
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo_data_mj' folder
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj",
             },
             "problemMatcher": []
         },
@@ -66,7 +70,8 @@
                 "build"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo_data_mj_plus' folder
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus",
             },
             "problemMatcher": []
         },
@@ -80,7 +85,8 @@
                 ".",
             ],
             "options": {
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus" // Set the working directory to 'code' folder
+                // Set the working directory to 'mjrengo_data_mj_plus' folder
+                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus",
             },
             "problemMatcher": []
         },
@@ -95,8 +101,21 @@
                 "mjrengo_data_mj",
                 "mjrengo_data_mj_plus",
             ],
+            "problemMatcher": []
+        },
+        {
+            "label": "compile mjrengo_data_mj",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "tools/compilers/compiler_glyph.py"
+            ],
             "options": {
-                "cwd": "${workspaceFolder}/code" // Set the working directory to 'code' folder
+                // Set the working directory to 'code' folder
+                "cwd": "${workspaceFolder}/code",
+                "env": {
+                    "PYTHONPATH": "${workspaceFolder}/code"
+                }
             },
             "problemMatcher": []
         },
@@ -105,6 +124,7 @@
             "dependsOn": [
                 "build package mjrengo",
                 "install package mjrengo",
+                "compile mjrengo_data_mj",
                 "build package mjrengo_data_mj",
                 "install package mjrengo_data_mj",
                 "build package mjrengo_data_mj_plus",

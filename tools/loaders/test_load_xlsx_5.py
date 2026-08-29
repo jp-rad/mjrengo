@@ -1,21 +1,30 @@
 from pathlib import Path
+from tools.core.model import GlyphRecord
 from tools.loaders.load_mji_00602_xlsx import load_mji_00602_xlsx
+from tools.loaders.load_mjih_00201_xlsx import load_mjih_00201_xlsx
 
 def main():
-    BASE = Path(__file__).resolve().parent
+    BASE = Path(__file__).resolve().parent.parent
+
+    print("")
+
     xlsx_path = BASE / "data/mji.00602.xlsx"
-
     print("Absolute path:", xlsx_path)
-
     records = load_mji_00602_xlsx(xlsx_path)
-
     print("Total records:", len(records))
+    _print_first5_last5(records)
 
-    items = list(records.items())
+    xlsx_path = BASE / "data/MJIH00201.xlsx"
+    print("Absolute path:", xlsx_path)
+    records = load_mjih_00201_xlsx(xlsx_path)
+    print("Total records:", len(records))
+    _print_first5_last5(records)
+
+def _print_first5_last5(items: list[GlyphRecord]):
 
     print("---- first 5 records ----")
-    for i, (key, rec) in enumerate(items[:5]):
-        print(f"[{i}] {key}")
+    for i, rec in enumerate(items[:5]):
+        print(f"[{i}] {rec.name}")
         print("  ucs    :", rec.v)
         print("  rep    :", rec.b)
         print("  active :", rec.active)
@@ -25,9 +34,9 @@ def main():
     print("---- last 5 records ----")
     last_items = items[-5:]
     start_index = len(items) - 5
-    for offset, (key, rec) in enumerate(last_items):
+    for offset, rec in enumerate(last_items):
         i = start_index + offset
-        print(f"[{i}] {key}")
+        print(f"[{i}] {rec.name}")
         print("  ucs    :", rec.v)
         print("  rep    :", rec.b)
         print("  active :", rec.active)
