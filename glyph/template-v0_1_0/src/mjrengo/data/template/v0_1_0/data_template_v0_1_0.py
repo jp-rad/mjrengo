@@ -1,5 +1,5 @@
-# set: mj_plus
-VERSION = "test"
+# set: mj_plu
+VERSION = "0.1.0"
 GLYPH_TABLE = {
     "MJ000001": {"v": "U+3005", "b": "U+3005", "active": True},
     "MJ000012": {"v": "U+2CF1C", "b": "U+2CF1C", "active": False},

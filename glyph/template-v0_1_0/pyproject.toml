@@ -1,4 +1,22 @@
-# code/pyproject.toml
+# code/glyph/<project folder>/pyproject.toml
+[project]
+name = "mjrengo-data-template-v0_1_0"
+
+dynamic = ["version"]
+requires-python = ">=3.8"
+authors = [{ name = "jp-one" }]
+description = "Unicode UCS/IVS utilities for MJ/GJ glyph processing"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/jp-one/mjrengo"
+Repository = "https://github.com/jp-one/mjrengo"
 
 [build-system]
 requires = ["hatchling"]
@@ -12,24 +30,3 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mjrengo"]
-
-
-[project]
-name = "mjrengo-data-mj-plus-test"
-dynamic = ["version"]
-requires-python = ">=3.8"
-authors = [{ name = "jp-one" }]
-description = "Unicode UCS/IVS utilities for MJ/GJ glyph processing"
-readme = "README.md"
-license = "MIT"
-license-files = ["LICEN[CS]E*"]
-keywords = [
-]
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent",
-]
-
-[project.urls]
-Homepage = "https://github.com/jp-one/mjrengo"
-Repository = "https://github.com/jp-one/mjrengo"
