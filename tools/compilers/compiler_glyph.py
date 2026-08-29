@@ -30,7 +30,7 @@ def ensure_unique_names(records: list[GlyphRecord]):
 # glyph_table.py の書き出し
 # ------------------------------------------------------------
 
-def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, descriptions: list[str], sort: bool = False):
+def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, records: list[GlyphRecord], sort: bool = False):
     lines = []
 
     lines.append("# -*- coding: utf-8 -*-")
@@ -41,8 +41,10 @@ def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description
         lines.append(f"# {desc}")
     
     lines.append("")
+    lines.append(f"VERSION = {version!r}")
 
-    lines.append("glyph_table = {")
+    lines.append("")
+    lines.append("GLYPH_TABLE = {")
 
     # sortが真の場合、name でソート
     for rec in sorted(records, key=lambda r: r.name) if sort else records:
@@ -65,6 +67,7 @@ def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description
 def compile_glyph_table_mj(out_path: Path):
     base = Path(__file__).resolve().parent.parent
 
+    version = "6.02.201"
     descriptions = [
         "",
         "set: mj",
@@ -106,7 +109,7 @@ def compile_glyph_table_mj(out_path: Path):
     ensure_unique_names(records)
     print("[compiler] Name uniqueness check passed")
 
-    write_glyph_table_py(records, out_path, descriptions)
+    write_glyph_table_py(out_path, descriptions, version, records)
     print(f"[compiler] Wrote: {out_path.resolve()}")
 
 
@@ -116,7 +119,7 @@ def compile_glyph_table_mj(out_path: Path):
 
 def main():
     base = Path(__file__).resolve().parent.parent.parent
-    out_path = Path(base / "mjrengo_data_mj" / "src/mjrengo/data" / "mj" / "data_mj.py")
+    out_path = Path(base / "glyph" / "mj-v6_02_201" / "src/mjrengo/data" / "mj" / "data_mj.py")
     compile_glyph_table_mj(out_path)
 
 

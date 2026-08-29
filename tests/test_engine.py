@@ -1,8 +1,7 @@
 import pytest
 from mjrengo.engine import GlyphTagEngine, GlyphError, GlyphResult
 from mjrengo.replace import make_replace_fn
-# from mjrengo.data.mj import glyph_table
-from mjrengo.data.mj_plus import glyph_table
+from mjrengo.data.test import GLYPH_TABLE as glyph_table
 
 set_name = "mj_plus"
 
