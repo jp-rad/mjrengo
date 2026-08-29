@@ -1,12 +1,26 @@
 {
     "python.defaultInterpreterPath": "/usr/local/bin/python",
     "python.envFile": "${workspaceFolder}/code/pythonpath.env",
+    
+    // Extra import paths used ONLY by Pylance (VS Code IntelliSense).
+    // pytest.ini and pythonpath.env do not affect IntelliSense, so the same
+    // paths must be added here to avoid import warnings in the editor.
+    // Summary:
+    //   - pytest.ini → pytest runtime only
+    //   - pythonpath.env → VS Code run/debug environment only
+    //   - settings.json → IntelliSense only
+    // These three systems are independent, so paths must be listed in all.
     "python.analysis.extraPaths": [
-        "code/mjrengo/src"
+        "code/mjrengo/src",
+        "code/glyph/test/src",
+        "code/glyph/mj-v6_02_201/src",
+        "code/mjrengo-data-mj-plus-v4_10/src",
+        "code/mjrengo-data-mj-plusx-v1_20/src"
     ],
+
     "python.testing.pytestEnabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.pytestArgs": [
         "code/tests"
-    ],
+    ]
 }
