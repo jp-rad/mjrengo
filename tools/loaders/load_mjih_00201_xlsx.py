@@ -19,7 +19,7 @@ from tools.core.normalize import (
 
 
 # ------------------------------------------------------------
-# 参照する列名
+# 列名（MJIH00201.xlsx 固有）
 # ------------------------------------------------------------
 
 COL_MJ_NAME     = "MJ文字図形名"
@@ -51,13 +51,22 @@ REQUIRED_COLUMNS = {
 
 def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
     """
-    MJ文字情報一覧表 変体仮名編 Ver.002.01 専用 Strict OOXML ローダー。
+    MJ文字情報一覧表 変体仮名編 Ver.002.01 を Strict OOXML として読み込むローダー。
 
-    - 1行目セル値をヘッダーとして使用
-    - b = 字母のUCS符号位置
-    - v = UCS符号位置（変体仮名自身）※空欄なら None
-    - active = UCS がある場合 True、空欄なら False（統合・廃止）
-    - comment = 字母 + 音価1/2/3 + 統合先（備考）
+    本ローダーは GlyphRecord の属性 b / v を次の仕様に従って構築する：
+
+    4. Attributes（属性）
+    4.1 b — base（基本字形）
+        IVS を含まない UCS コードポイント並び。
+        本ファイルでは「字母のUCS符号位置」が b に相当する。
+
+    4.2 v — variant（異体字）
+        IVS を含む UCS コードポイント並び。
+        本ファイルでは「変体仮名自身の UCS符号位置」が v に相当する。
+        UCS が未割り当ての場合は v=None とし、active=False とする。
+
+    comment は次の情報を連結して構築する：
+        字母 / 音価1 / 音価2 / 音価3 / 備考
     """
 
     with zipfile.ZipFile(path, "r") as z:
@@ -74,7 +83,10 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
     col_map = {v: k for k, v in headers.items()}
 
     def get(row_dict, col_name):
-        """行 dict から列名で値を取得する。"""
+        """
+        行 dict から列名で値を取得する。
+        A列なら A1/A2/A3... のように cell_ref.startswith(col) で判定。
+        """
         col = col_map[col_name]
         for cell_ref, value in row_dict.items():
             if cell_ref.startswith(col):
@@ -89,7 +101,10 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
         if glyph_name == "":
             continue
 
-        # --- b: 字母のUCS符号位置 ---
+        # ------------------------------------------------------------
+        # b — base（基本字形）
+        #   字母の UCS（IVS を含まない UCS コードポイント並び）
+        # ------------------------------------------------------------
         jimo_ucs_raw = get(row_dict, COL_JIMO_UCS)
         b = to_uplus_string(jimo_ucs_raw)
 
@@ -97,11 +112,14 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
         if not ok:
             raise ValueError(f"Invalid 字母UCS for {glyph_name}: {reason}")
 
-        # --- v: UCS符号位置（変体仮名自身） ---
+        # ------------------------------------------------------------
+        # v — variant（異体字）
+        #   変体仮名自身の UCS（IVS を含む UCS コードポイント並び）
+        #   UCS 未割り当ての場合は v=None, active=False
+        # ------------------------------------------------------------
         ucs_raw = get(row_dict, COL_UCS)
 
         if ucs_raw == "":
-            # UCS未割り当て → 廃止・統合された変体仮名
             v = None
             active = False
         else:
@@ -111,7 +129,9 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
                 raise ValueError(f"Invalid UCS for {glyph_name}: {reason}")
             active = True
 
-        # --- コメント構築 ---
+        # ------------------------------------------------------------
+        # comment（字母 + 音価1/2/3 + 備考）
+        # ------------------------------------------------------------
         jimo  = get(row_dict, COL_JIMO)
         onka1 = get(row_dict, COL_ONKA1)
         onka2 = get(row_dict, COL_ONKA2)
