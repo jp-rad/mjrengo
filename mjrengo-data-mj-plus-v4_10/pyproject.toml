@@ -15,7 +15,7 @@ packages = ["src/mjrengo"]
 
 
 [project]
-name = "mjrengo_data_mj"
+name = "mjrengo-data-mj-plus-v4_10"
 dynamic = ["version"]
 requires-python = ">=3.8"
 authors = [{ name = "jp-one" }]
