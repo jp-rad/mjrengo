@@ -89,7 +89,7 @@ def find_first_sheet_filename(z: zipfile.ZipFile) -> str:
 # sharedStrings.xml の読み込み（rich text 対応）
 # ------------------------------------------------------------
 
-def load_shared_strings(z: zipfile.ZipFile) -> list[str]:
+def load_shared_strings(z: zipfile.ZipFile, rich: bool = False) -> list[str]:
     """
     sharedStrings.xml を読み込み、rich text (<r><t>) を含む場合も
     すべて連結して 1つの文字列として返す。
@@ -105,10 +105,15 @@ def load_shared_strings(z: zipfile.ZipFile) -> list[str]:
     ss_ns = f"{{{ss_ns_uri}}}"
 
     shared = []
-    for si in ss_root.findall(f".//{ss_ns}si"):
-        # rich text 対応：複数の <t> を連結
-        text = "".join(t.text or "" for t in si.findall(f".//{ss_ns}t"))
-        shared.append(text)
+    if rich:
+        for si in ss_root.findall(f".//{ss_ns}si"):
+            # rich text 対応：複数の <t> を連結
+            text = "".join(t.text or "" for t in si.findall(f".//{ss_ns}t"))
+            shared.append(text)
+    else:
+        for si in ss_root.findall(f".//{ss_ns}si"):
+            t = si.find(f".//{ss_ns}t")
+            shared.append(t.text if t is not None else "")
 
     return shared
 

@@ -30,7 +30,7 @@ def ensure_unique_names(records: list[GlyphRecord]):
 # glyph_table.py の書き出し
 # ------------------------------------------------------------
 
-def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description: list[str]):
+def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description: list[str], sort: bool = False):
     lines = []
 
     lines.append("# -*- coding: utf-8 -*-")
@@ -45,8 +45,8 @@ def write_glyph_table_py(records: list[GlyphRecord], out_path: Path, description
 
     lines.append("glyph_table = {")
 
-    # name でソート
-    for rec in sorted(records, key=lambda r: r.name):
+    # sortが真の場合、name でソート
+    for rec in sorted(records, key=lambda r: r.name) if sort else records:
         lines.append(f"    {rec.name!r}: {{")
         lines.append(f"        # {rec.comment}")
         lines.append(f"        'b': {rec.b!r},")
