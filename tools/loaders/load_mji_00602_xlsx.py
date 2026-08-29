@@ -19,7 +19,9 @@ from tools.core.normalize import (
     sanitize_comment,
 )
 
-# === mji.00602.xlsx 固有の列名定数 ===
+# ------------------------------------------------------------
+# 列名（mji.00602.xlsx 固有）
+# ------------------------------------------------------------
 
 COL_MJ_NAME = "MJ文字図形名"
 COL_BASE     = "対応するUCS"
@@ -35,24 +37,36 @@ REQUIRED_COLUMNS = {
     COL_NOTE,
 }
 
+
+# ------------------------------------------------------------
+# ローダー本体
+# ------------------------------------------------------------
+
 def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
     """
-    mji.00602.xlsx 専用 Strict OOXML ローダー。
+    mji.00602.xlsx（MJ漢字編）を Strict OOXML として読み込むローダー。
 
-    - Strict OOXML の workbook.xml / sheet XML を基盤モジュールで処理
-    - 列名はヘッダー行から復元
-    - Moji_Joho コレクション IVS を variant として扱う
-    - base が空の場合は active=False とする
+    本ローダーは GlyphRecord の属性 b / v を次の仕様に従って構築する：
+
+    4. Attributes（属性）
+    4.1 b — base（基本字形）
+        IVS を含まない UCS コードポイント並び。
+
+    4.2 v — variant（異体字）
+        IVS を含む UCS コードポイント並び。
+        異体字が存在しない場合は v=b。
+
+    処理内容：
+    - workbook.xml から最初のシートを特定
+    - sharedStrings.xml と sheet XML を解析し、セル値を復元
+    - ヘッダー行から列名を取得
+    - base（代表文字）と variant（Moji_Joho コレクション IVS）を仕様に従って構築
+    - font="実装なし" の場合は active=False とする
     """
 
     with zipfile.ZipFile(path, "r") as z:
-        # --- Strict OOXML: 1枚目のシートを特定 ---
         sheet_filename = find_first_sheet_filename(z)
-
-        # --- 行データ抽出（セル参照 A1/B1/C1... を保持） ---
         rows = load_sheet_rows(z, sheet_filename)
-
-        # --- ヘッダー解析（列記号 → 列名） ---
         headers = parse_header(rows)
 
     # --- 必須列チェック ---
@@ -84,13 +98,16 @@ def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
         if glyph_name == "":
             continue
 
-        # font="実装なし" → active=False
+        # --- active 判定（font="実装なし" → False） ---
         font_value = get(row_dict, COL_FONT)
         active = font_value != "実装なし"
         if not active:
             comments.append(font_value)
 
-        # --- base（REP） ---
+        # ------------------------------------------------------------
+        # b — base（基本字形）
+        #   IVS を含まない UCS コードポイント並び
+        # ------------------------------------------------------------
         base_raw = get(row_dict, COL_BASE)
         base = to_uplus_string(base_raw)
 
@@ -101,14 +118,22 @@ def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
 
             comments.append(decode_ucs(base))
 
-            # --- variant（Moji_Joho コレクション IVS） ---
+            # ------------------------------------------------------------
+            # v — variant（異体字）
+            #   IVS を含む UCS コードポイント並び
+            #   異体字が存在しない場合は v=b
+            # ------------------------------------------------------------
             variant_raw = get(row_dict, COL_VARIANT)
+
             if variant_raw == "":
+                # 異体字が存在しない → v=b
                 variant = base
             else:
+                # 複数候補がある場合はコメントに残す
                 if ";" in variant_raw:
                     comments.append(variant_raw)
 
+                # base と rep を比較して適切な UCS を選択
                 variant = pick_ucs_by_rep(variant_raw, base)
 
                 ok, reason = validate_uplus_input(variant)
@@ -116,6 +141,7 @@ def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
                     raise ValueError(f"Invalid variant for {glyph_name}: {reason}")
 
         else:
+            # base が空 → v も空
             base = None
             variant = None
 
