@@ -25,16 +25,17 @@ COL_MJ_NAME = "MJ文字図形名"
 COL_BASE     = "対応するUCS"
 COL_VARIANT  = "実装したMoji_JohoコレクションIVS"
 COL_FONT     = "font"
+COL_NOTE     = "備考"
 
 REQUIRED_COLUMNS = {
     COL_MJ_NAME,
     COL_BASE,
     COL_VARIANT,
     COL_FONT,
+    COL_NOTE,
 }
 
-
-def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
+def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
     """
     mji.00602.xlsx 専用 Strict OOXML ローダー。
 
@@ -74,7 +75,7 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
         return ""
 
     # --- レコード生成 ---
-    records: dict[str, GlyphRecord] = {}
+    records: list[GlyphRecord] = []
 
     for row_dict in rows[1:]:
         comments = []
@@ -86,6 +87,8 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
         # font="実装なし" → active=False
         font_value = get(row_dict, COL_FONT)
         active = font_value != "実装なし"
+        if not active:
+            comments.append(font_value)
 
         # --- base（REP） ---
         base_raw = get(row_dict, COL_BASE)
@@ -124,6 +127,6 @@ def load_mji_00602_xlsx(path: Path) -> dict[str, GlyphRecord]:
             comment=sanitize_comment(" ".join(comments)),
         )
 
-        records[glyph_name] = rec
+        records.append(rec)
 
     return records

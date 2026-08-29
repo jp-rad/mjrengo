@@ -19,7 +19,7 @@ from tools.core.normalize import (
 
 
 # ------------------------------------------------------------
-# 正規化後の正式列名
+# 参照する列名
 # ------------------------------------------------------------
 
 COL_MJ_NAME     = "MJ文字図形名"
@@ -44,16 +44,6 @@ REQUIRED_COLUMNS = {
     COL_NOTE,
 }
 
-# ------------------------------------------------------------
-# カタカナ化されたヘッダーを漢字に戻す正規化マッピング
-# ------------------------------------------------------------
-
-HEADER_NORMALIZE = {
-    "図形ズケイ": "図形",
-    "UCS符号位置フゴウイチ": "UCS符号位置",
-    "字母のUCS符号位置フゴウイチ": "字母のUCS符号位置",
-}
-
 
 # ------------------------------------------------------------
 # ローダー本体
@@ -63,8 +53,7 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
     """
     MJ文字情報一覧表 変体仮名編 Ver.002.01 専用 Strict OOXML ローダー。
 
-    - 1行目セル値をヘッダーとして使用（図形は無視）
-    - カタカナ化されたヘッダーを漢字に正規化
+    - 1行目セル値をヘッダーとして使用
     - b = 字母のUCS符号位置
     - v = UCS符号位置（変体仮名自身）※空欄なら None
     - active = UCS がある場合 True、空欄なら False（統合・廃止）
@@ -75,9 +64,6 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
         sheet_filename = find_first_sheet_filename(z)
         rows = load_sheet_rows(z, sheet_filename)
         headers = parse_header(rows)
-
-    # --- ヘッダー正規化（図形の漢字を復元） ---
-    headers = {col: HEADER_NORMALIZE.get(name, name) for col, name in headers.items()}
 
     # --- 必須列チェック ---
     if not REQUIRED_COLUMNS.issubset(headers.values()):
@@ -133,17 +119,12 @@ def load_mjih_00201_xlsx(path: Path) -> list[GlyphRecord]:
         note  = get(row_dict, COL_NOTE)
 
         comment_parts = [
-            f"字母:{jimo}",
-            f"音価1:{onka1}" if onka1 else "",
-            f"音価2:{onka2}" if onka2 else "",
-            f"音価3:{onka3}" if onka3 else "",
+            jimo,
+            onka1 if onka1 else "",
+            onka2 if onka2 else "",
+            onka3 if onka3 else "",
+            note if note else "",
         ]
-
-        # 統合先の記述がある場合
-        if "統合" in note:
-            # 例: "MJ090061へ統合" → "MJ090061"
-            unified_to = note.replace("へ統合", "").strip()
-            comment_parts.append(f"統合先:{unified_to}")
 
         comment = sanitize_comment(" ".join([p for p in comment_parts if p]))
 
