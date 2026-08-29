@@ -104,7 +104,7 @@
             "problemMatcher": []
         },
         {
-            "label": "compile mjrengo_data_mj",
+            "label": "compile mjrengo.data",
             "type": "shell",
             "command": "python",
             "args": [
@@ -114,7 +114,7 @@
                 // Set the working directory to 'code' folder
                 "cwd": "${workspaceFolder}/code",
                 "env": {
-                    "PYTHONPATH": "${workspaceFolder}/code"
+                    "PYTHONPATH": "${workspaceFolder}/code:${workspaceFolder}/code/mjrengo/src"
                 }
             },
             "problemMatcher": []
@@ -122,9 +122,9 @@
         {
             "label": "rebuild package",
             "dependsOn": [
+                "compile mjrengo.data",
                 "build package mjrengo",
                 "install package mjrengo",
-                "compile mjrengo_data_mj",
                 "build package mjrengo_data_mj",
                 "install package mjrengo_data_mj",
                 "build package mjrengo_data_mj_plus",
