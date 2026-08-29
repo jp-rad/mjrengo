@@ -9,7 +9,7 @@ from tools.core.model import GlyphRecord
 
 
 # ------------------------------------------------------------
-# name の重複チェック
+# glyph name の重複チェック
 # ------------------------------------------------------------
 
 def ensure_unique_names(records: list[GlyphRecord]):
@@ -27,7 +27,7 @@ def ensure_unique_names(records: list[GlyphRecord]):
 
 
 # ------------------------------------------------------------
-# glyph_table.py の書き出し
+# VERSION と GLYPH_TABLE の書き出し
 # ------------------------------------------------------------
 
 def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, records: list[GlyphRecord], sort: bool = False):
@@ -61,19 +61,39 @@ def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, 
 
 
 # ------------------------------------------------------------
-# MJ（漢字）＋ MJIH（変体仮名）を合成して glyph_table を生成
+# 出力先ファイルのフルパス を生成
 # ------------------------------------------------------------
 
-def compile_glyph_table_mj(out_path: Path):
-    base = Path(__file__).resolve().parent.parent
+def make_out_path(code_dir: Path, name_part: str, ver_part: str):
+    return Path(code_dir / "glyph" /
+                f"{name_part}-{ver_part}/src/mjrengo/data/{name_part}/{ver_part}" /
+                f"data_{name_part}_{ver_part}.py")
 
-    version = "6.02.201"
+# ------------------------------------------------------------
+# GLYPH_TABLE を生成
+# ------------------------------------------------------------
+
+def compile_glyph_table_mj_v6_02_201(code_dir: Path):
+    """
+    MJ（漢字）＋ MJIH（変体仮名）を合成して GLYPH_TABLE を生成
+    """
+
+    res_name = "mj"
+    res_ver = "6.02.201"
+
+    xlsx_mj = code_dir / "tools/data" / "mji.00602.xlsx"
+    xlsx_mjih = code_dir / "tools/data" / "MJIH00201.xlsx"
+
+    name_part = res_name
+    ver_part = "v" + res_ver.replace(".", "_")  # v6_02_201
+    out_path = make_out_path(code_dir, name_part, ver_part)
+    
     descriptions = [
         "",
-        "set: mj",
+        f"set: {res_name}",
         "",
-        "file 1: mji.00602.xlsx",
-        "file 2: MJIH00201.xlsx",
+        f"file 1: {xlsx_mj.name}",
+        f"file 2: {xlsx_mjih.name}",
         "",
         # --- IPA 出典情報を追加 ---
         "-----------------------------------------------------------------------------",
@@ -88,15 +108,13 @@ def compile_glyph_table_mj(out_path: Path):
         "Python モジュール形式で再構成したものである。",
         "-----------------------------------------------------------------------------",
     ]
-
+        
     # --- MJ（漢字編） ---
-    xlsx_mj = base / "data" / "mji.00602.xlsx"
     print(f"[compiler] Loading MJ Kanji: {xlsx_mj}")
     records_mj = load_mji_00602_xlsx(xlsx_mj)
     print(f"[compiler] Loaded MJ Kanji: {len(records_mj)} records")
 
     # --- MJIH（変体仮名編） ---
-    xlsx_mjih = base / "data" / "MJIH00201.xlsx"
     print(f"[compiler] Loading MJ Hentaigana: {xlsx_mjih}")
     records_mjih = load_mjih_00201_xlsx(xlsx_mjih)
     print(f"[compiler] Loaded MJ Hentaigana: {len(records_mjih)} records")
@@ -109,7 +127,7 @@ def compile_glyph_table_mj(out_path: Path):
     ensure_unique_names(records)
     print("[compiler] Name uniqueness check passed")
 
-    write_glyph_table_py(out_path, descriptions, version, records)
+    write_glyph_table_py(out_path, descriptions, res_ver, records)
     print(f"[compiler] Wrote: {out_path.resolve()}")
 
 
@@ -118,9 +136,9 @@ def compile_glyph_table_mj(out_path: Path):
 # ------------------------------------------------------------
 
 def main():
-    base = Path(__file__).resolve().parent.parent.parent
-    out_path = Path(base / "glyph" / "mj-v6_02_201" / "src/mjrengo/data" / "mj" / "data_mj.py")
-    compile_glyph_table_mj(out_path)
+    code_dir = Path(__file__).resolve().parent.parent.parent
+
+    compile_glyph_table_mj_v6_02_201(code_dir)
 
 
 if __name__ == "__main__":
