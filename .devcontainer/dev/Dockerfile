@@ -34,6 +34,16 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     # texexec - relatorio
     context
 
+
+# mdbtools provides the CLI utilities (mdb-export, mdb-tables, mdb-sql)
+# required by tools/loaders/load_dwpi_mdb.py for reading Access .mdb files.
+# Version depends on the base image; check available versions with:
+#   apt-cache madison mdbtools
+# For Japanese table names (e.g., "文字属性辞書"), mdbtools >= 0.9.2 is recommended.
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends \
+    mdbtools
+
 # Create directory and set permission
 RUN mkdir /home/vscode/dev \ 
     && chown -R vscode:vscode /home/vscode/dev
