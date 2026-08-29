@@ -33,7 +33,7 @@
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo_data_mj",
+            "label": "build package mjrengo-data-mj-v6_02_201",
             "type": "shell",
             "command": "python",
             "args": [
@@ -41,13 +41,13 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'mjrengo_data_mj' folder
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj",
+                // Set the working directory to 'glyph/mj-v6_02_201' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo_data_mj",
+            "label": "install package mjrengo-data-mj-v6_02_201",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -56,13 +56,13 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'mjrengo_data_mj' folder
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj",
+                // Set the working directory to 'glyph/mj-v6_02_201' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo_data_mj_plus",
+            "label": "build package mjrengo-data-mj-plus-v4_10",
             "type": "shell",
             "command": "python",
             "args": [
@@ -70,13 +70,13 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'mjrengo_data_mj_plus' folder
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus",
+                // Set the working directory to 'mjrengo-data-mj-plus-v4_10' folder
+                "cwd": "${workspaceFolder}/code/mjrengo-data-mj-plus-v4_10",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo_data_mj_plus",
+            "label": "install package mjrengo-data-mj-plus-v4_10",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -85,8 +85,8 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'mjrengo_data_mj_plus' folder
-                "cwd": "${workspaceFolder}/code/mjrengo_data_mj_plus",
+                // Set the working directory to 'mjrengo-data-mj-plus-v4_10' folder
+                "cwd": "${workspaceFolder}/code/mjrengo-data-mj-plus-v4_10",
             },
             "problemMatcher": []
         },
@@ -98,8 +98,8 @@
                 "uninstall",
                 "-y",
                 "mjrengo",
-                "mjrengo_data_mj",
-                "mjrengo_data_mj_plus",
+                "mjrengo-data-mj-v6_02_201",
+                "mjrengo-data-mj-plus-v4_10",
             ],
             "problemMatcher": []
         },
@@ -125,10 +125,10 @@
                 "compile mjrengo.data",
                 "build package mjrengo",
                 "install package mjrengo",
-                "build package mjrengo_data_mj",
-                "install package mjrengo_data_mj",
-                "build package mjrengo_data_mj_plus",
-                "install package mjrengo_data_mj_plus",
+                "build package mjrengo-data-mj-v6_02_201",
+                "install package mjrengo-data-mj-v6_02_201",
+                "build package mjrengo-data-mj-plus-v4_10",
+                "install package mjrengo-data-mj-plus-v4_10",
             ],
             "dependsOrder": "sequence",
             "problemMatcher": [],
