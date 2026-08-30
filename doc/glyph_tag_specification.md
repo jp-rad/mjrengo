@@ -228,12 +228,8 @@ glyph-name を b/v にマッピングする。
 # **7. Glyph Table（仕様）**
 
 ```
-glyph-table = {
-    version: "<date>",
-    set: "<identifier>",
-    entries: {
-        <glyph-name>: { b: "<UCSSeq>", v: "<UCSSeq>", active: <bool> }
-    }
+GLYPH_TABLE = {
+    <glyph-name>: { b: "<UCSSeq>", v: "<UCSSeq>", active: <bool> }
 }
 ```
 
@@ -314,7 +310,8 @@ v = "U+100ABC"
 # **Annex E — フォント実装（IPAMJ明朝／DWPI明朝／DWPIex明朝）**
 
 ### IPAMJ明朝  
-MJ文字の UCS/IVS を実装。
+MJ文字の UCS/IVS を実装。  
+変体仮名を含む。
 
 ### DWPI明朝  
 行政事務標準文字（MJ＋GJ）を実装。  
@@ -339,10 +336,10 @@ Glyph Tag は、独自外字を使用したレガシーシステム間のデー�
 - GJ文字に一致 → b/v を GJ に置換  
 - 一致しない → 暫定的に PUP に割り当て
 
-### ✔ 外部出力  
-- 縮退代替文字  
-- 画像出力  
-- PDF埋め込み  
+### ✔ 外部出力
+- Glyph Tag (glyph-name)  
+- UCS/IVS
+- 基本字形  
 - 合意組織間での外字コードのまま出力
 
 Glyph Tag は、レガシー外字体系を含むあらゆる文字体系を  
