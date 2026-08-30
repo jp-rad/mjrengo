@@ -11,11 +11,13 @@
     //   - settings.json → IntelliSense only
     // These three systems are independent, so paths must be listed in all.
     "python.analysis.extraPaths": [
+        "code",
         "code/mjrengo/src",
-        "code/glyph/test/src",
+        "code/glyph/template-v0_1_0/src",
+        "code/glyph/template-v0_1_0h/src",
         "code/glyph/mj-v6_02_201/src",
-        "code/mjrengo-data-mj-plus-v4_10/src",
-        "code/mjrengo-data-mj-plusx-v1_20/src"
+        "code/glyph/mj_plus-v4_10/src",
+        "code/glyph/mj_plusx-v1_20/src"
     ],
 
     "python.testing.pytestEnabled": true,

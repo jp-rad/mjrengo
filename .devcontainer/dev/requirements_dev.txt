@@ -1,5 +1,9 @@
 pip
 build
+pytest
+pytest-cov
+pydantic
+pydantic-settings
 # tools
 pandas>=2.0
 openpyxl>=3.1
@@ -7,15 +11,11 @@ pyaccess>=0.1.0a4
 # example
 fastapi
 python-multipart
-pydantic
-pydantic-settings
 uvicorn
-pytest
-pytest-cov
 httpx
-docxtpl
-# python_odt_template[standard]
-git+https://github.com/jp-one/python-odt-template-forked.git#egg=python_odt_template[standard]
-# relatorio[chart,fodt]
-git+https://github.com/jp-one/relatorio-forked.git#egg=relatorio[chart,fodt]
-unoserver
+# docxtpl
+# # python_odt_template[standard]
+# git+https://github.com/jp-one/python-odt-template-forked.git#egg=python_odt_template[standard]
+# # relatorio[chart,fodt]
+# git+https://github.com/jp-one/relatorio-forked.git#egg=relatorio[chart,fodt]
+# unoserver

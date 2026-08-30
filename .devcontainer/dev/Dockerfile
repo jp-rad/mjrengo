@@ -25,14 +25,24 @@ RUN rm -f /etc/apt/sources.list.d/yarn.list \
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
 
-# [Optional] Uncomment this section to install additional OS packages.
+# # [Optional] Uncomment this section to install additional OS packages.
+# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+#     && apt-get -y install --no-install-recommends \
+#     libreoffice \
+#     # pycairo - relatorio
+#     libcairo2-dev pkg-config python3-dev \
+#     # texexec - relatorio
+#     context
+
+
+# mdbtools provides the CLI utilities (mdb-export, mdb-tables, mdb-sql)
+# required by tools/loaders/load_dwpi_mdb.py for reading Access .mdb files.
+# Version depends on the base image; check available versions with:
+#   apt-cache madison mdbtools
+# For Japanese table names (e.g., "文字属性辞書"), mdbtools >= 0.9.2 is recommended.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
-    libreoffice \
-    # pycairo - relatorio
-    libcairo2-dev pkg-config python3-dev \
-    # texexec - relatorio
-    context
+    mdbtools
 
 # Create directory and set permission
 RUN mkdir /home/vscode/dev \ 
