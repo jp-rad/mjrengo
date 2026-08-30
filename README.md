@@ -1,19 +1,23 @@
 # mjrengo
 
-mjrengo is a toolkit for UCS and IVS normalization and unified glyph‑data integration.  
-It provides a consistent interface for loading, normalizing, and merging glyph datasets used in MJ and GJ workflows.  
-All dataset modules are distributed as independent Python packages under the `mjrengo.data.*` namespace.
+mjrengo is a toolkit that provides a unified “Glyph Tag abstraction layer”
+for handling large-scale Japanese glyph systems such as MJ and MJ+,  
+both widely used in Japanese government and public documents.
 
-Repository:  
-https://github.com/jp-rad/mjrengo
+In Unicode, a single glyph may correspond to multiple UCS code point sequences (UCSSeq)
+and multiple IVS (Variation Selectors).  
+Furthermore, glyph numbering schemes and attribute systems differ across datasets,
+making consistent management and exchange of glyph information essential.
 
 ## Features
 
-- Deterministic UCS and IVS normalization
-- Unified glyph table compiled from multiple authoritative datasets
-- Loader for DWPI Mincho attribute dictionary
-- Versioned data modules for reproducible builds
-- PEP 420 namespace package layout
+- Abstract glyph specification using Glyph Tags  
+  (glyph-name / UCSSeq / IVS handled in a unified format)
+
+- Stable glyph management and exchange even in environments  
+  that do not support IVS/VDS
+
+- Provides datasets compatible with MJ and MJ+
 
 ## Namespace Package Layout
 
@@ -25,6 +29,7 @@ mjrengo/
     engine/
     normalize/
     replace/
+    builder/
     data/
         mj/
             v6_02_201/
@@ -78,40 +83,44 @@ pip3 uninstall -y mjrengo \
 
 ## Usage Example
 
-### Load a glyph record
+This example shows how to load MJ glyph datasets using `build_engine()`,
+normalize MJ tags, and render final Unicode characters.
 
 ```
-from mjrengo import get_resource
+from mjrengo.builder import build_engine
 
-glyphs = get_resource("mj_plus", version="4_10")
+# Input text containing MJ090001 tags
+text = "'{MJ090001}'"
 
-rec = glyphs["MJ000001"]
-print(rec.b, rec.v, rec.active)
-```
+# ------------------------------------------------------------
+# MJ glyph (base form) version 6.02.201
+# ------------------------------------------------------------
+engine = build_engine("mj", "6.02.201")  # set_name defaults to "mj"
 
-### Normalize UCS / IVS
+norm = engine.normalize_tags(text)
+print(norm.text)
+# Output:
+# '{MJ090001 b=U+5B89 v=U+1B002 set=mj}'
 
-```
-from mjrengo.normalize import normalize_ucs
+rendered = engine.render_text(norm.text, True)
+print(rendered)
+# Output:
+# '<Japanese Character (Kanji)>'
 
-ucs = "U+FA0E"
-base = normalize_ucs(ucs)
-print(base)
-```
+# ------------------------------------------------------------
+# MJ glyph (phonetic form) version 6.02.201h
+# ------------------------------------------------------------
+engine = build_engine("mj", "6.02.201h")
 
-### Example: normalize_tags test
+norm = engine.normalize_tags(text)
+print(norm.text)
+# Output:
+# '{MJ090001 b=U+3042 v=U+1B002 set=mj}'
 
-```
-set_name = "test"
-
-def test_normalize_success():
-    fn = make_replace_fn(glyph_table, set_name)
-    engine = GlyphTagEngine(fn)
-
-    result = engine.normalize_tags("{MJ000001}")
-    assert result.success is True
-    assert result.errors == []
-    assert result.text == "{MJ000001 b=U+3005 v=U+3005 set=test}"
+rendered = engine.render_text(norm.text, True)
+print(rendered)
+# Output:
+# '<Japanese Character (Hiragana)>'
 ```
 
 ## Data Sources
@@ -138,4 +147,3 @@ All datasets retain their original copyright notices.
 - Data modules are versioned independently.
 - The core engine does not embed any dataset.
 - Namespace packages allow multiple datasets to coexist without conflicts.
-```
