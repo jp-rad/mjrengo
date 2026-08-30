@@ -5,6 +5,7 @@ from pathlib import Path
 
 from tools.loaders.load_mji_00602_xlsx import load_mji_00602_xlsx
 from tools.loaders.load_mjih_00201_xlsx import load_mjih_00201_xlsx
+from tools.loaders.load_dwpi_mdb import load_dwpi_mdb
 from tools.core.model import GlyphRecord
 
 
@@ -73,7 +74,7 @@ def make_out_path(code_dir: Path, name_part: str, ver_part: str):
 # GLYPH_TABLE を生成
 # ------------------------------------------------------------
 
-def compile_glyph_table_mj_v6_02_201(code_dir: Path):
+def compile_mj_v6_02_201(code_dir: Path):
     """
     MJ（漢字）＋ MJIH（変体仮名）を合成して GLYPH_TABLE を生成
     """
@@ -95,7 +96,7 @@ def compile_glyph_table_mj_v6_02_201(code_dir: Path):
         f"file 1: {xlsx_mj.name}",
         f"file 2: {xlsx_mjih.name}",
         "",
-        # --- IPA 出典情報を追加 ---
+        # --- 出典情報を追加 ---
         "-----------------------------------------------------------------------------",
         "本データは、IPA（独立行政法人 情報処理推進機構）が公開する「MJ文字情報一覧表」および",
         "「MJ文字情報一覧表 変体仮名編」の XLSX ファイルを基に生成されている。",
@@ -104,7 +105,7 @@ def compile_glyph_table_mj_v6_02_201(code_dir: Path):
         "",
         "    https://moji.or.jp/mojikiban/mjlist/",
         "",
-        "本データは、当該 XLSX の内容を解析し、変体仮名を含めたMJ文字情報の統合テーブルとして",
+        "本データは、当該 XLSX を読み込み、変体仮名を含めたMJ文字情報の統合テーブルとして",
         "Python モジュール形式で再構成したものである。",
         "-----------------------------------------------------------------------------",
     ]
@@ -131,6 +132,101 @@ def compile_glyph_table_mj_v6_02_201(code_dir: Path):
     print(f"[compiler] Wrote: {out_path.resolve()}")
 
 
+def compile_mj_plus_v4_10(code_dir: Path):
+    """
+    DWPI明朝4.10版の GLYPH_TABLE を生成（MJ+対応）
+    """
+
+    res_name = "mj_plus"
+    res_ver = "4.10"
+
+    mdb_path = code_dir / "tools/data" / "deluxe文字選択DWPI明朝4.10版V2.0.mdb"
+
+    name_part = res_name
+    ver_part = "v" + res_ver.replace(".", "_")  # v4_10
+    out_path = make_out_path(code_dir, name_part, ver_part)
+    
+    descriptions = [
+        "",
+        f"set: {res_name}",
+        "",
+        f"file: {mdb_path.name}",
+        "",
+        # --- 出典情報を追加
+        "-----------------------------------------------------------------------------",
+        "本データは、デジタル広域推進機構 が公開する検索システム「Deluxe文字選択（MJ+対応）」",
+        "の mdb ファイルを基に生成されている。",
+        "",
+        "この mdb ファイルは デジタル広域推進機構 の著作物であり、次の公式サイトから取得した:",
+        "",
+        "    https://www.digitalwidearea.org/dwpi_mincho",
+        "",
+        "本データは、当該 mdb を読み込み、行政事務標準文字に対応したテーブル（MJ+対応）として",
+        "Python モジュール形式で再構成したものである。",
+        "-----------------------------------------------------------------------------",
+
+    ]
+
+
+    print("Absolute path:", mdb_path)
+    records = load_dwpi_mdb(mdb_path)
+    print("Total records:", len(records))
+    
+    # --- name の重複チェック ---
+    ensure_unique_names(records)
+    print("[compiler] Name uniqueness check passed")
+
+    write_glyph_table_py(out_path, descriptions, res_ver, records)
+    print(f"[compiler] Wrote: {out_path.resolve()}")
+
+def compile_mj_plusx_v1_20(code_dir: Path):
+    """
+    DWPIex明朝1.2版の GLYPH_TABLE を生成（MJ+対応）
+    """
+
+    res_name = "mj_plusx"
+    res_ver = "1.20"
+
+    mdb_path = code_dir / "tools/data" / "deluxe文字選択DWPIex明朝1.2版.mdb"
+
+    name_part = res_name
+    ver_part = "v" + res_ver.replace(".", "_")  # v1_20
+    out_path = make_out_path(code_dir, name_part, ver_part)
+    
+    descriptions = [
+        "",
+        f"set: {res_name}",
+        "",
+        f"file: {mdb_path.name}",
+        "",
+        # --- 出典情報を追加
+        "-----------------------------------------------------------------------------",
+        "本データは、デジタル広域推進機構 が公開する検索システム「Deluxe文字選択（MJ+対応）」",
+        "の mdb ファイルを基に生成されている。",
+        "",
+        "この mdb ファイルは デジタル広域推進機構 の著作物であり、次の公式サイトから取得した:",
+        "",
+        "    https://www.digitalwidearea.org/dwpi_mincho",
+        "",
+        "本データは、当該 mdb を読み込み、行政事務標準文字に対応したテーブル（MJ+対応）として",
+        "Python モジュール形式で再構成したものである。",
+        "-----------------------------------------------------------------------------",
+
+    ]
+
+
+    print("Absolute path:", mdb_path)
+    records = load_dwpi_mdb(mdb_path)
+    print("Total records:", len(records))
+    
+    # --- name の重複チェック ---
+    ensure_unique_names(records)
+    print("[compiler] Name uniqueness check passed")
+
+    write_glyph_table_py(out_path, descriptions, res_ver, records)
+    print(f"[compiler] Wrote: {out_path.resolve()}")
+
+
 # ------------------------------------------------------------
 # main
 # ------------------------------------------------------------
@@ -138,7 +234,9 @@ def compile_glyph_table_mj_v6_02_201(code_dir: Path):
 def main():
     code_dir = Path(__file__).resolve().parent.parent.parent
 
-    compile_glyph_table_mj_v6_02_201(code_dir)
+    compile_mj_v6_02_201(code_dir)
+    compile_mj_plus_v4_10(code_dir)
+    compile_mj_plusx_v1_20(code_dir)
 
 
 if __name__ == "__main__":

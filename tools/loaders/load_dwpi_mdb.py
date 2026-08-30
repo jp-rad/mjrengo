@@ -17,8 +17,11 @@ from tools.core.normalize import (
 
 def load_dwpi_mdb(mdb_path: Path) -> list[GlyphRecord]:
     """
-    DWPI 明朝 4.10版 V2.0.mdb の「文字属性辞書」テーブルを読み込み、
+    mdb ファイル の「文字属性辞書」テーブルを読み込み、
     list[GlyphRecord] に変換して返す。
+    対応する mdb ファイル：
+    - deluxe文字選択DWPI明朝4.10版V2.0.mdb
+    - deluxe文字選択DWPIex明朝1.2版.mdb
     """
 
     records: list[GlyphRecord] = []
@@ -38,7 +41,7 @@ def load_dwpi_mdb(mdb_path: Path) -> list[GlyphRecord]:
         # --- name（必須）
         glyph_name = row["MJ文字図形名"].strip()
 
-        # --- b / v の正規化（None → None）
+        # base: 代替文字コード または MS明朝コード
         raw_b = row["代替文字コード"]
         if raw_b:
             comments.append(f"代替")
@@ -47,17 +50,16 @@ def load_dwpi_mdb(mdb_path: Path) -> list[GlyphRecord]:
             if raw_b:
                 comments.append("MS明朝")
             else:
-                raw_b = row["異字体"]
-                if raw_b:
-                    raw_b = encode_ucs(raw_b)
-                    comments.append("異字体")
+                comments.append("(基本なし)")
+            
                     
         b = to_uplus_string(raw_b) if raw_b else None
         if b:
             ok, reason = validate_uplus_input(b)
             if not ok:
                 raise ValueError(f"Invalid base for {glyph_name}: {reason}")
-        
+
+        # variant: DWPI明朝コード
         raw_v = row["DWPI明朝コード"]
         v = to_uplus_string(raw_v) if raw_v else None
         if v:
