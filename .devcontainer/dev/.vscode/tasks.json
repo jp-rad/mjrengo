@@ -62,6 +62,35 @@
             "problemMatcher": []
         },
         {
+            "label": "build package mjrengo-data-mj-v6_02_201h",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "build"
+            ],
+            "options": {
+                // Set the working directory to 'glyph/mj-v6_02_201h' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201h",
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "install package mjrengo-data-mj-v6_02_201h",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "--upgrade",
+                ".",
+            ],
+            "options": {
+                // Set the working directory to 'glyph/mj-v6_02_201h' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201h",
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "build package mjrengo-data-mj_plus-v4_10",
             "type": "shell",
             "command": "python",
@@ -128,6 +157,7 @@
                 "-y",
                 "mjrengo",
                 "mjrengo-data-mj-v6_02_201",
+                "mjrengo-data-mj-v6_02_201h",
                 "mjrengo-data-mj_plus-v4_10",
                 "mjrengo-data-mj_plusx-v1_20",
             ],
@@ -157,6 +187,8 @@
                 "install package mjrengo",
                 "build package mjrengo-data-mj-v6_02_201",
                 "install package mjrengo-data-mj-v6_02_201",
+                "build package mjrengo-data-mj-v6_02_201h",
+                "install package mjrengo-data-mj-v6_02_201h",
                 "build package mjrengo-data-mj_plus-v4_10",
                 "install package mjrengo-data-mj_plus-v4_10",
                 "build package mjrengo-data-mj_plusx-v1_20",
