@@ -34,7 +34,7 @@ mjrengo/
         mj/
             v6_02_201/
                 contains GLYPH_TABLE
-            v6_02_201h/
+            v6_02_201_onka/
                 contains GLYPH_TABLE
         mj_plus/
             v4_10/
@@ -78,7 +78,7 @@ pip3 uninstall -y mjrengo \
     mjrengo-data-mj_plus-v4_10 \
     mjrengo-data-mj_plusx-v1_20 \
     mjrengo-data-mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201-onka
+    mjrengo-data-mj-v6_02_201_onka
 ```
 
 ## Usage Example
@@ -93,34 +93,38 @@ from mjrengo.builder import build_engine
 text = "'{MJ090001}'"
 
 # ------------------------------------------------------------
-# MJ glyph (base form) version 6.02.201
+# MJ glyph (source form) version 6.02.201
 # ------------------------------------------------------------
 engine = build_engine("mj", "6.02.201")  # set_name defaults to "mj"
 
 norm = engine.normalize_tags(text)
-print(norm.text)
+
 # Output:
 # '{MJ090001 b=U+5B89 v=U+1B002 set=mj}'
+print(norm.text)
 
 rendered = engine.render_text(norm.text, True)
-print(rendered)
 # Output:
 # '<Japanese Character (Kanji)>'
+print(rendered)
 
 # ------------------------------------------------------------
-# MJ glyph (phonetic form) version 6.02.201h
+# MJ glyph (phonetic form) version 6.02.201-onka
 # ------------------------------------------------------------
-engine = build_engine("mj", "6.02.201h")
+engine = build_engine("mj", "6.02.201-onka", "mj_hira")
 
 norm = engine.normalize_tags(text)
-print(norm.text)
+
 # Output:
-# '{MJ090001 b=U+3042 v=U+1B002 set=mj}'
+# '{MJ090001 b=U+3042 v=U+1B002 set=mj_hira}'
+print(norm.text)
 
 rendered = engine.render_text(norm.text, True)
-print(rendered)
+
 # Output:
 # '<Japanese Character (Hiragana)>'
+print(rendered)
+
 ```
 
 ## Data Sources
