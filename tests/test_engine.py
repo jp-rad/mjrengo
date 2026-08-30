@@ -1,6 +1,7 @@
 import pytest
 from mjrengo.engine import GlyphTagEngine, GlyphError, GlyphResult
 from mjrengo.replace import make_replace_fn
+from mjrengo.builder import build_engine
 from mjrengo.data.template.v0_1_0 import GLYPH_TABLE as glyph_table
 
 set_name = "test"
@@ -131,3 +132,22 @@ def test_complex_text():
     # タグ外の MJ 番号はそのまま
     assert "{MJ022336}を使います。<845B,E0103>" in rend
     assert "{MJ022335}を使います。<845B,E0102>" in rend
+
+def test_builder():
+    text = "変体仮名 {{MJ090001} '{MJ090001}'"
+
+    # MJ文字（変体仮名の字母編）
+    engine = build_engine("mj", "6.02.201")
+    norm = engine.normalize_tags(text)
+    assert norm.success is True
+    assert norm.text == "変体仮名 {{MJ090001} '{MJ090001 b=U+5B89 v=U+1B002 set=mj}'"
+    result = engine.render_text(norm.text, True)
+    assert result == "変体仮名 {MJ090001} '安'"
+
+    # MJ文字（変体仮名の音価編）
+    engine = build_engine("mj", "6.02.201-onka")
+    norm = engine.normalize_tags(text)
+    assert norm.success is True
+    assert norm.text == "変体仮名 {{MJ090001} '{MJ090001 b=U+3042 v=U+1B002 set=mj}'"
+    result = engine.render_text(norm.text, True)
+    assert result == "変体仮名 {MJ090001} 'あ'"
