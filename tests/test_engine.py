@@ -145,7 +145,7 @@ def test_builder():
     assert result == "変体仮名 {MJ090001} '安'"
 
     # MJ文字（変体仮名の音価編）
-    engine = build_engine("mj", "6.02.201h")
+    engine = build_engine("mj", "6.02.201-onka")
     norm = engine.normalize_tags(text)
     assert norm.success is True
     assert norm.text == "変体仮名 {{MJ090001} '{MJ090001 b=U+3042 v=U+1B002 set=mj}'"
