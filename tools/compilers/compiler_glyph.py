@@ -81,13 +81,13 @@ def compile_mj_v6_02_201(code_dir: Path, base_from: Literal['jibo', 'onka']):
     """
 
     res_name = "mj"
-    res_ver = "6.02.201" if base_from == "jibo" else "6.02.201h"
+    res_ver = "6.02.201" if base_from == "jibo" else "6.02.201-onka"
 
     xlsx_mj = code_dir / "tools/data" / "mji.00602.xlsx"
     xlsx_mjih = code_dir / "tools/data" / "MJIH00201.xlsx"
     
     name_part = res_name
-    ver_part = "v" + res_ver.replace(".", "_")  # v6_02_201
+    ver_part = "v" + res_ver.replace(".", "_").replace("-", "_")  # v6_02_201_onka
     out_path = make_out_path(code_dir, name_part, ver_part)
 
     base_from_name = "字母" if base_from == "jibo" else "音価１"
