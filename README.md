@@ -1,35 +1,43 @@
 # mjrengo
 
----
+https://github.com/jp-rad/mjrengo
 
-## Installation
+# Installation
 
-### Install from Remote Repository
+## Install from Remote Repository
 
 To install the latest version directly from GitHub, run:
 
 ```bash
 
-pip3 install --upgrade "mjrengo @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo"
+pip3 install --upgrade \
+    mjrengo@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo \
+    mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
+    mjrengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
+    mjrengo-data-mj-v6_02_201@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201 \
+    mjrengo-data-mj-v6_02_201h@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201h
+
 
 ```
 
+## Installed version
+
 ```bash
 
-pip3 install --upgrade  "mjrengo_data_mj @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_data_mj"
+pip3 list | grep mjrengo
 
 ```
 
-```bash
+## Uninstall
 
-pip3 install --upgrade  "mjrengo_data_mj_plus @ git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo_data_mj_plus"
-
-```
-
-### Uninstall
+To uninstall all, run:
 
 ```bash
 
-pip uninstall -y mjrengo mjrengo_data_mj mjrengo_data_mj_plus
+pip3 uninstall -y mjrengo \
+    mjrengo-data-mj_plus-v4_10 \
+    mjrengo-data-mj_plusx-v1_20 \
+    mjrengo-data-mj-v6_02_201 \
+    mjrengo-data-mj-v6_02_201h
 
 ```
