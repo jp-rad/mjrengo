@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from pathlib import Path
+from typing import Literal
 
 from tools.loaders.load_mji_00602_xlsx import load_mji_00602_xlsx
 from tools.loaders.load_mjih_00201_xlsx import load_mjih_00201_xlsx
@@ -74,27 +75,30 @@ def make_out_path(code_dir: Path, name_part: str, ver_part: str):
 # GLYPH_TABLE を生成
 # ------------------------------------------------------------
 
-def compile_mj_v6_02_201(code_dir: Path):
+def compile_mj_v6_02_201(code_dir: Path, base_from: Literal['jibo', 'onka']):
     """
     MJ（漢字）＋ MJIH（変体仮名）を合成して GLYPH_TABLE を生成
     """
 
     res_name = "mj"
-    res_ver = "6.02.201"
+    res_ver = "6.02.201" if base_from == "jibo" else "6.02.201h"
 
     xlsx_mj = code_dir / "tools/data" / "mji.00602.xlsx"
     xlsx_mjih = code_dir / "tools/data" / "MJIH00201.xlsx"
-
+    
     name_part = res_name
     ver_part = "v" + res_ver.replace(".", "_")  # v6_02_201
     out_path = make_out_path(code_dir, name_part, ver_part)
-    
+
+    base_from_name = "字母" if base_from == "jibo" else "音価１"
+
     descriptions = [
         "",
         f"set: {res_name}",
         "",
         f"file 1: {xlsx_mj.name}",
         f"file 2: {xlsx_mjih.name}",
+        f"        ※ 基本字形：{base_from_name}",
         "",
         # --- 出典情報を追加 ---
         "-----------------------------------------------------------------------------",
@@ -117,7 +121,7 @@ def compile_mj_v6_02_201(code_dir: Path):
 
     # --- MJIH（変体仮名編） ---
     print(f"[compiler] Loading MJ Hentaigana: {xlsx_mjih}")
-    records_mjih = load_mjih_00201_xlsx(xlsx_mjih)
+    records_mjih = load_mjih_00201_xlsx(xlsx_mjih, base_from)
     print(f"[compiler] Loaded MJ Hentaigana: {len(records_mjih)} records")
 
     # --- 合成（list のまま） ---
@@ -234,7 +238,8 @@ def compile_mj_plusx_v1_20(code_dir: Path):
 def main():
     code_dir = Path(__file__).resolve().parent.parent.parent
 
-    compile_mj_v6_02_201(code_dir)
+    compile_mj_v6_02_201(code_dir, "jibo")
+    compile_mj_v6_02_201(code_dir, "onka")
     compile_mj_plus_v4_10(code_dir)
     compile_mj_plusx_v1_20(code_dir)
 
