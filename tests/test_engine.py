@@ -1,10 +1,9 @@
 import pytest
 from mjrengo.engine import GlyphTagEngine, GlyphError, GlyphResult
 from mjrengo.replace import make_replace_fn
-# from mjrengo.data.mj import glyph_table
-from mjrengo.data.mj_plus import glyph_table
+from mjrengo.data.template.v0_1_0 import GLYPH_TABLE as glyph_table
 
-set_name = "mj_plus"
+set_name = "test"
 
 # ------------------------------------------------------------
 # normalize_tags() のテスト
@@ -18,7 +17,7 @@ def test_normalize_success():
     assert isinstance(result, GlyphResult)
     assert result.success is True
     assert result.errors == []
-    assert result.text == "{MJ000001 b=U+3005 v=U+3005 set=mj_plus}"
+    assert result.text == "{MJ000001 b=U+3005 v=U+3005 set=test}"
 
 
 def test_normalize_not_found():
@@ -31,6 +30,7 @@ def test_normalize_not_found():
     assert len(result.errors) == 1
 
     err = result.errors[0]
+    assert isinstance(err, GlyphError)
     assert err.code == "error.glyph.not_found"
     assert "MJ999999" in err.message
     assert err.params["glyph"] == "MJ999999"
@@ -46,6 +46,7 @@ def test_normalize_archived():
     assert len(result.errors) == 1
 
     err = result.errors[0]
+    assert isinstance(err, GlyphError)
     assert err.code == "error.glyph.archived"
     assert err.params["glyph"] == "MJ000012"
 
@@ -101,8 +102,8 @@ def test_complex_text():
     assert len(norm.errors) == 0
 
     # 正規化後のテキストにタグ展開が含まれていること
-    assert "東京都{MJ022336 b=U+845B v=U+845B U+E0103 set=mj_plus}飾区" in norm.text
-    assert "奈良県{MJ022335 b=U+845B v=U+845B U+E0102 set=mj_plus}城市" in norm.text
+    assert "東京都{MJ022336 b=U+845B v=U+845B U+E0103 set=test}飾区" in norm.text
+    assert "奈良県{MJ022335 b=U+845B v=U+845B U+E0102 set=test}城市" in norm.text
 
     # ------------------------------
     # render_text()
