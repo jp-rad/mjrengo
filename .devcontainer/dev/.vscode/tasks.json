@@ -70,13 +70,13 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201h' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201h",
+                // Set the working directory to 'glyph/mj-v6_02_201-onka' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201-onka",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo-data-mj-v6_02_201h",
+            "label": "install package mjrengo-data-mj-v6_02_201-onka",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -85,8 +85,8 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201h' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201h",
+                // Set the working directory to 'glyph/mj-v6_02_201-onka' folder
+                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201-onka",
             },
             "problemMatcher": []
         },
@@ -157,7 +157,7 @@
                 "-y",
                 "mjrengo",
                 "mjrengo-data-mj-v6_02_201",
-                "mjrengo-data-mj-v6_02_201h",
+                "mjrengo-data-mj-v6_02_201-onka",
                 "mjrengo-data-mj_plus-v4_10",
                 "mjrengo-data-mj_plusx-v1_20",
             ],
@@ -187,8 +187,8 @@
                 "install package mjrengo",
                 "build package mjrengo-data-mj-v6_02_201",
                 "install package mjrengo-data-mj-v6_02_201",
-                "build package mjrengo-data-mj-v6_02_201h",
-                "install package mjrengo-data-mj-v6_02_201h",
+                "build package mjrengo-data-mj-v6_02_201-onka",
+                "install package mjrengo-data-mj-v6_02_201-onka",
                 "build package mjrengo-data-mj_plus-v4_10",
                 "install package mjrengo-data-mj_plus-v4_10",
                 "build package mjrengo-data-mj_plusx-v1_20",

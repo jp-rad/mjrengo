@@ -60,7 +60,7 @@ pip3 install --upgrade \
     mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
     mjrengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
     mjrengo-data-mj-v6_02_201@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201h@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201h
+    mjrengo-data-mj-v6_02_201-onka@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201-onka
 ```
 
 ## Check Installed Version
@@ -78,7 +78,7 @@ pip3 uninstall -y mjrengo \
     mjrengo-data-mj_plus-v4_10 \
     mjrengo-data-mj_plusx-v1_20 \
     mjrengo-data-mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201h
+    mjrengo-data-mj-v6_02_201-onka
 ```
 
 ## Usage Example
