@@ -17,12 +17,9 @@ def normalize_version(ver: str) -> str:
         - revision may contain '-' or '_'
         - Examples:
             6.02.201
-            6.02.201h
-            6.02.201-h1
-            6.02.201_h2
-            4.10.0
-            1.20.a
-            1.20.a-2
+            6.02.201-onka
+            4.10
+            1.20
 
     Internal version rules:
         - Prefix 'v'
@@ -30,12 +27,9 @@ def normalize_version(ver: str) -> str:
         - All dots (.) are also normalized to '_' in the final identifier
         - Examples:
             6.02.201       -> v6_02_201
-            6.02.201h      -> v6_02_201h
-            6.02.201-h1    -> v6_02_201_h1
-            6.02.201_h2    -> v6_02_201_h2
-            4.10.0         -> v4_10_0
-            1.20.a         -> v1_20_a
-            1.20.a-2       -> v1_20_a_2
+            6.02.201-onka  -> v6_02_201_onka
+            4.10           -> v4_10
+            1.20           -> v1_20
     """
 
     ver = ver.strip()
@@ -66,10 +60,9 @@ def get_resource(glyph_set: str, version: str, base: str = "mjrengo.data") -> Di
         Revision may contain '-' or '_'.
         Examples:
             6.02.201
-            6.02.201h
-            6.02.201-h1
-            4.10.0
-            1.20.a
+            6.02.201-onka
+            4.10
+            1.20
 
         The version is internally normalized into:
             v<major>_<minor>_<revision>
@@ -89,12 +82,12 @@ def get_resource(glyph_set: str, version: str, base: str = "mjrengo.data") -> Di
 
     Example:
         glyph_set = "mj"
-        version   = "6.02.201-h1"
+        version   = "6.02.201-onka"
         base      = "mjrengo.data"
 
-        internal_version = "v6_02_201_h1"
+        internal_version = "v6_02_201_onka"
 
-        module_name = "mjrengo.data.mj.v6_02_201_h1"
+        module_name = "mjrengo.data.mj.v6_02_201_onka"
 
     Required Module Symbols
     -----------------------
