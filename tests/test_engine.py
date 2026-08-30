@@ -30,6 +30,7 @@ def test_normalize_not_found():
     assert len(result.errors) == 1
 
     err = result.errors[0]
+    assert isinstance(err, GlyphError)
     assert err.code == "error.glyph.not_found"
     assert "MJ999999" in err.message
     assert err.params["glyph"] == "MJ999999"
@@ -45,6 +46,7 @@ def test_normalize_archived():
     assert len(result.errors) == 1
 
     err = result.errors[0]
+    assert isinstance(err, GlyphError)
     assert err.code == "error.glyph.archived"
     assert err.params["glyph"] == "MJ000012"
 

@@ -25,8 +25,8 @@ def _print_first5_last5(items: list[GlyphRecord]):
     print("---- first 5 records ----")
     for i, rec in enumerate(items[:5]):
         print(f"[{i}] {rec.name}")
-        print("  ucs    :", rec.v)
-        print("  rep    :", rec.b)
+        print("  b      :", rec.b)
+        print("  v      :", rec.v)
         print("  active :", rec.active)
         print("  comment:", rec.comment)
         print()
@@ -37,8 +37,8 @@ def _print_first5_last5(items: list[GlyphRecord]):
     for offset, rec in enumerate(last_items):
         i = start_index + offset
         print(f"[{i}] {rec.name}")
-        print("  ucs    :", rec.v)
-        print("  rep    :", rec.b)
+        print("  b      :", rec.b)
+        print("  v      :", rec.v)
         print("  active :", rec.active)
         print("  comment:", rec.comment)
         print()
