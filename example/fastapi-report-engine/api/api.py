@@ -1,7 +1,5 @@
-# code/example/fastapi-report-engine/api/api.py
-
 from fastapi import APIRouter
-from .endpoints import komainu
+from .endpoints import endpoints_router
 
 api_router = APIRouter()
-api_router.include_router(komainu.router)
+api_router.include_router(endpoints_router)
