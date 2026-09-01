@@ -14,7 +14,6 @@ services:
       - ./dev/.vscode:/home/vscode/dev/.vscode:cached
     depends_on:
       - lb
-      - unoserver
     tty: true
     command: bash
   lb:
@@ -24,9 +23,3 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:cached
     ports:
       - 80:80
-  unoserver:
-    image: "unoserver"
-    build:
-      context: "."
-      dockerfile: ./unoserver/Dockerfile
-
