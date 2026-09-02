@@ -28,23 +28,23 @@ jobs:
       # ---------------------------------------------------------
       - name: Build mjrengo
         run: python -m build
-        working-directory: code/mjrengo
+        working-directory: mjrengo
 
       - name: Build mjrengo-data-mj-v6_02_201
         run: python -m build
-        working-directory: code/glyph/mj-v6_02_201
+        working-directory: glyph/mj-v6_02_201
 
       - name: Build mjrengo-data-mj-v6_02_201_onka
         run: python -m build
-        working-directory: code/glyph/mj-v6_02_201_onka
+        working-directory: glyph/mj-v6_02_201_onka
 
       - name: Build mjrengo-data-mj_plus-v4_10
         run: python -m build
-        working-directory: code/glyph/mj_plus-v4_10
+        working-directory: glyph/mj_plus-v4_10
 
       - name: Build mjrengo-data-mj_plusx-v1_20
         run: python -m build
-        working-directory: code/glyph/mj_plusx-v1_20
+        working-directory: glyph/mj_plusx-v1_20
 
       # ---------------------------------------------------------
       # Collect wheels
@@ -52,14 +52,14 @@ jobs:
       - name: Collect wheels
         run: |
           mkdir -p docs/wheels
-          cp code/mjrengo/dist/*.whl docs/wheels/
-          cp code/glyph/mj-v6_02_201/dist/*.whl docs/wheels/
-          cp code/glyph/mj-v6_02_201_onka/dist/*.whl docs/wheels/
-          cp code/glyph/mj_plus-v4_10/dist/*.whl docs/wheels/
-          cp code/glyph/mj_plusx-v1_20/dist/*.whl docs/wheels/
+          cp mjrengo/dist/*.whl docs/wheels/
+          cp glyph/mj-v6_02_201/dist/*.whl docs/wheels/
+          cp glyph/mj-v6_02_201_onka/dist/*.whl docs/wheels/
+          cp glyph/mj_plus-v4_10/dist/*.whl docs/wheels/
+          cp glyph/mj_plusx-v1_20/dist/*.whl docs/wheels/
 
       # ---------------------------------------------------------
-      # Generate PEP503 index
+      # Generate PEP503 index (echo 方式で安全に生成)
       # ---------------------------------------------------------
       - name: Create PEP503 index
         run: |
@@ -85,16 +85,4 @@ jobs:
       - name: Generate pdoc docs
         run: |
           mkdir -p docs/pdoc
-          pdoc --html --output-dir docs/pdoc code/mjrengo/src/mjrengo
-
-          # GitHub Pages のトップページを pdoc にする
-          cp docs/pdoc/mjrengo/index.html docs/index.html
-
-      # ---------------------------------------------------------
-      # Deploy to GitHub Pages
-      # ---------------------------------------------------------
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs
+          pdoc --html --output-dir docs/pdoc mjrengo/src/mjrengo
