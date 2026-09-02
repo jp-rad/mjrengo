@@ -1,0 +1,102 @@
+name: Build Docs and PEP503 Index
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  build-pages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          pip install --upgrade pip
+          pip install pdoc build hatchling
+
+      # ---------------------------------------------------------
+      # Build all packages
+      # ---------------------------------------------------------
+      - name: Build mjrengo
+        working-directory: code/mjrengo
+        run: python -m build
+
+      - name: Build mjrengo-data-mj-v6_02_201
+        working-directory: code/glyph/mj-v6_02_201
+        run: python -m build
+
+      - name: Build mjrengo-data-mj-v6_02_201_onka
+        working-directory: code/glyph/mj-v6_02_201_onka
+        run: python -m build
+
+      - name: Build mjrengo-data-mj_plus-v4_10
+        working-directory: code/glyph/mj_plus-v4_10
+        run: python -m build
+
+      - name: Build mjrengo-data-mj_plusx-v1_20
+        working-directory: code/glyph/mj_plusx-v1_20
+        run: python -m build
+
+      # ---------------------------------------------------------
+      # Collect wheels
+      # ---------------------------------------------------------
+      - name: Collect wheels
+        run: |
+          mkdir -p docs/wheels
+          cp code/mjrengo/dist/*.whl docs/wheels/
+          cp code/glyph/mj-v6_02_201/dist/*.whl docs/wheels/
+          cp code/glyph/mj-v6_02_201_onka/dist/*.whl docs/wheels/
+          cp code/glyph/mj_plus-v4_10/dist/*.whl docs/wheels/
+          cp code/glyph/mj_plusx-v1_20/dist/*.whl docs/wheels/
+
+      # ---------------------------------------------------------
+      # Generate PEP503 index
+      # ---------------------------------------------------------
+      - name: Create PEP503 index
+        run: |
+          mkdir -p docs/simple
+
+          for whl in docs/wheels/*.whl; do
+            fname=$(basename "$whl")
+            pkg=$(echo "$fname" | cut -d'-' -f1)
+
+            mkdir -p docs/simple/$pkg
+
+            cat > docs/simple/$pkg/index.html <<EOF
+<!DOCTYPE html>
+<html>
+  <body>
+    <a href="../../wheels/$fname">$fname</a>
+  </body>
+</html>
+EOF
+          done
+
+      # ---------------------------------------------------------
+      # Generate pdoc documentation
+      # ---------------------------------------------------------
+      - name: Generate pdoc docs
+        run: |
+          mkdir -p docs/pdoc
+          pdoc --html --output-dir docs/pdoc code/mjrengo/src/mjrengo
+
+          # GitHub Pages のトップページを pdoc にする
+          cp docs/pdoc/mjrengo/index.html docs/index.html
+
+      # ---------------------------------------------------------
+      # Deploy to GitHub Pages
+      # ---------------------------------------------------------
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
