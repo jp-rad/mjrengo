@@ -1,18 +1,28 @@
-# code/example/fastapi-report-engine/main.py
-
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import uvicorn
+
 from api import api
 from config import get_settings
 
 settings = get_settings()
 
 app = FastAPI(title=settings.app_name)
+
+# Static files (CSS, JS, fonts, index.html)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# UI entry point
+@app.get("/console", include_in_schema=False)
+def console():
+    return FileResponse("static/index.html")
+
+# Existing API router
 app.include_router(api.api_router)
 
 
 def serve():
-    """Serve the web application."""
     uvicorn.run(app, port=settings.app_port, host=settings.app_host)
 
 

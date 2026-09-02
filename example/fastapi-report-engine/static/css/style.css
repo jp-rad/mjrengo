@@ -1,0 +1,94 @@
+/* Base layout */
+body {
+    margin: 40px;
+    font-family: sans-serif;
+    background: #fafafa;
+    color: #333;
+    font-size: 22px;
+}
+
+/* Section spacing */
+.section {
+    margin-top: 30px;
+}
+
+/* docs リンク */
+#docs_link {
+    font-size: 22px;
+    color: #0078d4;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#docs_link:hover {
+    color: #005fa3;
+    text-decoration: underline;
+}
+
+/* Input (1行テキスト) */
+input[type="text"] {
+    width: 100%;
+    font-size: 24px;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* JSON textarea */
+textarea {
+    width: 100%;
+    font-size: 22px;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    resize: vertical;
+}
+
+/* Variant text は MJ文字の判読性向上のため特に大きく */
+#variant_text {
+    font-size: 28px;
+}
+
+/* Buttons */
+button {
+    padding: 14px 28px;
+    font-size: 22px;
+    border: none;
+    border-radius: 6px;
+    background: #0078d4;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #005fa3;
+}
+
+/* Headings */
+h1 {
+    margin-bottom: 20px;
+    font-size: 36px;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+/* Select box */
+select {
+    padding: 8px;
+    font-size: 22px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Horizontal rule */
+hr {
+    margin: 40px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}

@@ -63,8 +63,8 @@ def render_service(glyph_set: str, normalized_text: str):
         },
         "text": {
             "rendered": {
-                "variant": rendered_variant,
                 "base": rendered_base,
+                "variant": rendered_variant,
             }
         },
         "errors": []
@@ -92,8 +92,8 @@ def convert_service(glyph_set: str, text: str):
             "input": text,
             "normalized": n.text,
             "rendered": {
-                "variant": rendered_variant,
                 "base": rendered_base,
+                "variant": rendered_variant,
             }
         },
         "errors": errors
