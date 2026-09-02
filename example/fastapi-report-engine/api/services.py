@@ -1,8 +1,6 @@
 from mjrengo.builder import build_engine
 
-# ------------------------------------------------------------
-# エンジン情報（set と version）
-# ------------------------------------------------------------
+# Engine definitions (set and version)
 engine_info = {
     "mj":      {"set": "mj",       "version": "6.02.201"},
     "mj-onka": {"set": "mj",       "version": "6.02.201-onka"},
@@ -10,47 +8,36 @@ engine_info = {
     "mj-plusx":{"set": "mj_plusx", "version": "1.20"},
 }
 
-# ------------------------------------------------------------
-# エンジン（engine_info から自動生成）
-# ------------------------------------------------------------
+# Build engines from engine_info
 engines = {
     name: build_engine(info["set"], info["version"])
     for name, info in engine_info.items()
 }
 
-# ------------------------------------------------------------
-# engine_info と engine を同時に返す
-# ------------------------------------------------------------
-def get_engine(name: str):
-    if name not in engine_info:
-        raise ValueError(f"Unknown engine: {name}")
+# Return both engine_info and engine instance
+def get_engine(glyph_set: str):
+    if glyph_set not in engine_info:
+        raise ValueError(f"Unknown engine: {glyph_set}")
 
     return {
-        "info": engine_info[name],   # set / version
-        "engine": engines[name],     # build_engine の実体
+        "info": engine_info[glyph_set],
+        "engine": engines[glyph_set],
     }
 
-
-# ------------------------------------------------------------
 # normalize_service
-# ------------------------------------------------------------
-def normalize_service(engine: str, text: str):
-    e = get_engine(engine)
+def normalize_service(glyph_set: str, text: str):
+    e = get_engine(glyph_set)
     eng = e["engine"]
     info = e["info"]
 
     n = eng.normalize_tags(text)
-
-    errors = [
-        {**err.to_dict()}
-        for err in n.errors
-    ]
+    errors = [err.to_dict() for err in n.errors]
 
     return {
         "service": "normalize",
         "meta": {
-            "engine": engine,
-            "glyph": info,   # set / version をそのまま返す
+            "engine": glyph_set,
+            "glyph": info,
         },
         "text": {
             "input": text,
@@ -59,12 +46,9 @@ def normalize_service(engine: str, text: str):
         "errors": errors
     }
 
-
-# ------------------------------------------------------------
-# render_service（normalize_tags を呼ばない）
-# ------------------------------------------------------------
-def render_service(engine: str, normalized_text: str):
-    e = get_engine(engine)
+# render_service (does not call normalize_tags)
+def render_service(glyph_set: str, normalized_text: str):
+    e = get_engine(glyph_set)
     eng = e["engine"]
     info = e["info"]
 
@@ -74,7 +58,7 @@ def render_service(engine: str, normalized_text: str):
     return {
         "service": "render",
         "meta": {
-            "engine": engine,
+            "engine": glyph_set,
             "glyph": info,
         },
         "text": {
@@ -83,33 +67,25 @@ def render_service(engine: str, normalized_text: str):
                 "base": rendered_base,
             }
         },
-        "errors": []  # render は normalize のエラーを扱わない
+        "errors": []
     }
 
-
-# ------------------------------------------------------------
-# convert_service（normalize → render をまとめて行う）
-# ------------------------------------------------------------
-def convert_service(engine: str, text: str):
-    e = get_engine(engine)
+# convert_service (normalize + render)
+def convert_service(glyph_set: str, text: str):
+    e = get_engine(glyph_set)
     eng = e["engine"]
     info = e["info"]
 
-    # normalize
     n = eng.normalize_tags(text)
-    errors = [
-        {**err.to_dict()}
-        for err in n.errors
-    ]
+    errors = [err.to_dict() for err in n.errors]
 
-    # render
     rendered_variant = eng.render_text(n.text, use_base=False)
     rendered_base = eng.render_text(n.text, use_base=True)
 
     return {
         "service": "convert",
         "meta": {
-            "engine": engine,
+            "engine": glyph_set,
             "glyph": info,
         },
         "text": {
