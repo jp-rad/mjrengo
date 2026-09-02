@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from api.models.mjrengo_request import MjrengoRequest
+from fastapi import APIRouter, Path
+from api.models.mjrengo_request import MjrengoRequest, VALID_GLYPH_SETS
 from .services import (
     normalize_service,
     render_service,
@@ -7,11 +7,21 @@ from .services import (
 )
 
 endpoints_router = APIRouter()
+from fastapi import Path
 
-# GET convert (unchanged)
-@endpoints_router.get("/convert/{engine}/{text:path}")
-def convert(engine: str, text: str):
-    return convert_service(engine, text)
+@endpoints_router.get("/convert/{glyph_set}/{text:path}")
+def convert(
+    glyph_set: str = Path(
+        ...,
+        description="Glyph set to use.",
+        enum=VALID_GLYPH_SETS
+    ),
+    text: str = Path(
+        ...,
+        description="Input text to process."
+    )
+):
+    return convert_service(glyph_set, text)
 
 # POST normalize (use glyph_set instead of engine)
 @endpoints_router.post("/normalize")
