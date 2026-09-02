@@ -27,24 +27,24 @@ jobs:
       # Build all packages
       # ---------------------------------------------------------
       - name: Build mjrengo
-        working-directory: code/mjrengo
         run: python -m build
+        working-directory: code/mjrengo
 
       - name: Build mjrengo-data-mj-v6_02_201
-        working-directory: code/glyph/mj-v6_02_201
         run: python -m build
+        working-directory: code/glyph/mj-v6_02_201
 
       - name: Build mjrengo-data-mj-v6_02_201_onka
-        working-directory: code/glyph/mj-v6_02_201_onka
         run: python -m build
+        working-directory: code/glyph/mj-v6_02_201_onka
 
       - name: Build mjrengo-data-mj_plus-v4_10
-        working-directory: code/glyph/mj_plus-v4_10
         run: python -m build
+        working-directory: code/glyph/mj_plus-v4_10
 
       - name: Build mjrengo-data-mj_plusx-v1_20
-        working-directory: code/glyph/mj_plusx-v1_20
         run: python -m build
+        working-directory: code/glyph/mj_plusx-v1_20
 
       # ---------------------------------------------------------
       # Collect wheels
