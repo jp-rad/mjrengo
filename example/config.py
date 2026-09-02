@@ -1,4 +1,4 @@
-# code/example/fastapi-report-engine/config.py
+# code/example/config.py
 
 from functools import lru_cache
 from pydantic_settings import BaseSettings
@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    app_name: str = "Report Engine"
+    app_name: str = "Example FastAPI"
     app_host: str = "0.0.0.0"
     app_port: int = 8002
 

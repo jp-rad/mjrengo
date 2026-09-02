@@ -30,7 +30,7 @@ Convert Console は、MJ テキスト変換 API を手軽に試すための Web 
 FastAPI サーバーを起動します。
 
 ```bash
-cd code/example/fastapi-report-engine
+cd code/example
 python main.py
 ```
 
