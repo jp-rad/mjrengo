@@ -7,8 +7,8 @@ from .services import (
 )
 
 endpoints_router = APIRouter()
-from fastapi import Path
 
+# GET convert
 @endpoints_router.get("/convert/{glyph_set}/{text:path}")
 def convert(
     glyph_set: str = Path(
@@ -23,12 +23,12 @@ def convert(
 ):
     return convert_service(glyph_set, text)
 
-# POST normalize (use glyph_set instead of engine)
+# POST normalize (uses glyph_set from request body)
 @endpoints_router.post("/normalize")
 def normalize(payload: MjrengoRequest):
     return normalize_service(payload.glyph_set, payload.text)
 
-# POST render (use glyph_set instead of engine)
+# POST render (uses glyph_set from request body)
 @endpoints_router.post("/render")
 def render(payload: MjrengoRequest):
     return render_service(payload.glyph_set, payload.text)
