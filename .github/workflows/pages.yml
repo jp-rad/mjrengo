@@ -71,14 +71,12 @@ jobs:
 
             mkdir -p docs/simple/$pkg
 
-            cat > docs/simple/$pkg/index.html <<EOF
-<!DOCTYPE html>
-<html>
-  <body>
-    <a href="../../wheels/$fname">$fname</a>
-  </body>
-</html>
-EOF
+            echo '<!DOCTYPE html>' > docs/simple/$pkg/index.html
+            echo '<html>' >> docs/simple/$pkg/index.html
+            echo '  <body>' >> docs/simple/$pkg/index.html
+            echo "    <a href=\"../../wheels/$fname\">$fname</a>" >> docs/simple/$pkg/index.html
+            echo '  </body>' >> docs/simple/$pkg/index.html
+            echo '</html>' >> docs/simple/$pkg/index.html
           done
 
       # ---------------------------------------------------------
