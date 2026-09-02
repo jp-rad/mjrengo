@@ -1,86 +1,124 @@
 from mjrengo.builder import build_engine
 
 # ------------------------------------------------------------
-# エンジン（最新版）
+# エンジン情報（set と version）
 # ------------------------------------------------------------
-engines = {
-    "mj":        build_engine("mj", "6.02.201"),
-    "mj-onka":   build_engine("mj", "6.02.201-onka"),
-    "mj-plus":   build_engine("mj_plus", "4.10"),
-    "mj-plusx":  build_engine("mj_plusx", "1.20"),
+engine_info = {
+    "mj":      {"set": "mj",       "version": "6.02.201"},
+    "mj-onka": {"set": "mj",       "version": "6.02.201-onka"},
+    "mj-plus": {"set": "mj_plus",  "version": "4.10"},
+    "mj-plusx":{"set": "mj_plusx", "version": "1.20"},
 }
 
+# ------------------------------------------------------------
+# エンジン（engine_info から自動生成）
+# ------------------------------------------------------------
+engines = {
+    name: build_engine(info["set"], info["version"])
+    for name, info in engine_info.items()
+}
+
+# ------------------------------------------------------------
+# engine_info と engine を同時に返す
+# ------------------------------------------------------------
 def get_engine(name: str):
-    if name not in engines:
+    if name not in engine_info:
         raise ValueError(f"Unknown engine: {name}")
-    return engines[name]
+
+    return {
+        "info": engine_info[name],   # set / version
+        "engine": engines[name],     # build_engine の実体
+    }
 
 
 # ------------------------------------------------------------
-# normalize
+# normalize_service
 # ------------------------------------------------------------
-def normalize_service(engine: str, payload):
+def normalize_service(engine: str, text: str):
     e = get_engine(engine)
-    n = e.normalize_tags(payload.text)
+    eng = e["engine"]
+    info = e["info"]
+
+    n = eng.normalize_tags(text)
 
     errors = [
-        {"stage": "normalize", **err.to_dict()}
+        {**err.to_dict()}
         for err in n.errors
     ]
 
     return {
-        "engine": engine,
-        "input_text": payload.text,
-        "normalized_text": n.text,
+        "service": "normalize",
+        "meta": {
+            "engine": engine,
+            "glyph": info,   # set / version をそのまま返す
+        },
+        "text": {
+            "input": text,
+            "normalized": n.text,
+        },
         "errors": errors
     }
 
 
 # ------------------------------------------------------------
-# render
+# render_service（normalize_tags を呼ばない）
 # ------------------------------------------------------------
-def render_service(engine: str, payload):
+def render_service(engine: str, normalized_text: str):
     e = get_engine(engine)
+    eng = e["engine"]
+    info = e["info"]
 
-    n = e.normalize_tags(payload.text)
-    r = e.render_text(n.text, payload.use_base)
-    r_fallback = e.render_text(n.text, False)
-
-    errors = [
-        {"stage": "normalize", **err.to_dict()}
-        for err in n.errors
-    ]
+    rendered_variant = eng.render_text(normalized_text, use_base=False)
+    rendered_base = eng.render_text(normalized_text, use_base=True)
 
     return {
-        "engine": engine,
-        "input_text": payload.text,
-        "normalized_text": n.text,
-        "rendered_text": r.text,
-        "rendered_text_fallback": r_fallback.text,
-        "errors": errors
+        "service": "render",
+        "meta": {
+            "engine": engine,
+            "glyph": info,
+        },
+        "text": {
+            "rendered": {
+                "variant": rendered_variant,
+                "base": rendered_base,
+            }
+        },
+        "errors": []  # render は normalize のエラーを扱わない
     }
 
 
 # ------------------------------------------------------------
-# convert (GET)
+# convert_service（normalize → render をまとめて行う）
 # ------------------------------------------------------------
-def convert_service(engine: str, text: str, use_base: bool):
+def convert_service(engine: str, text: str):
     e = get_engine(engine)
+    eng = e["engine"]
+    info = e["info"]
 
-    n = e.normalize_tags(text)
-    r = e.render_text(n.text, use_base)
-    r_fallback = e.render_text(n.text, False)
-
+    # normalize
+    n = eng.normalize_tags(text)
     errors = [
-        {"stage": "normalize", **err.to_dict()}
+        {**err.to_dict()}
         for err in n.errors
     ]
 
+    # render
+    rendered_variant = eng.render_text(n.text, use_base=False)
+    rendered_base = eng.render_text(n.text, use_base=True)
+
     return {
-        "engine": engine,
-        "input_text": text,
-        "normalized_text": n.text,
-        "rendered_text": r,
-        "rendered_text_fallback": r_fallback,
+        "service": "convert",
+        "meta": {
+            "engine": engine,
+            "glyph": info,
+        },
+        "text": {
+            "input": text,
+            "normalized": n.text,
+            "rendered": {
+                "variant": rendered_variant,
+                "base": rendered_base,
+            }
+        },
         "errors": errors
     }
