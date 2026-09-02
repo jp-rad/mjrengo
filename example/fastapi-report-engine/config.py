@@ -17,13 +17,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings():
     return Settings()
-
-
-# @lru_cache
-# def get_uno_client_config():
-#     settings = get_settings()
-#     return UnoClientConfig(
-#         server=settings.unoserver_host,
-#         port=settings.unoserver_port,
-#         host_location=settings.unoserver_location,
-#     )
