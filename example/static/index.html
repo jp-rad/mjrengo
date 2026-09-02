@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Convert Console</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/fonts.css">
+
+    <!-- JS -->
+    <script type="module">
+        import { initConsole, doConvert, updateVariantFont } from "/static/js/frontend.js";
+
+        window.doConvert = doConvert;
+        window.updateVariantFont = updateVariantFont;
+
+        window.onload = initConsole;
+    </script>
+</head>
+
+<body>
+
+<h1>Convert Console</h1>
+
+<!-- Glyph set selector -->
+<div class="section">
+    <label for="glyph_set">Glyph Set:</label>
+    <select id="glyph_set" onchange="updateVariantFont()">
+        <option value="mj-plus">mj-plus</option>
+        <option value="mj-plusx">mj-plusx</option>
+        <option value="mj">mj</option>
+        <option value="mj-onka">mj-onka</option>
+    </select>
+</div>
+
+<!-- Single-line input -->
+<div class="section">
+    <label for="text">Input Text:</label><br>
+    <input id="text" type="text" value="東京都{MJ022336}飾区（{{MJ022336}） と 奈良県{MJ022335}城市（{{MJ022335}） と 変体仮名：{MJ090001}">
+</div>
+
+<!-- Convert button + docs link -->
+<div class="section button-row">
+    <button onclick="doConvert()">Convert</button>
+    <a id="docs_link" href="/docs" target="_blank">API Docs (Swagger UI)</a>
+</div>
+
+<hr>
+
+<!-- Base rendered text -->
+<div class="section">
+    <h2>Base Rendered Text</h2>
+    <input id="base_text" type="text" readonly>
+</div>
+
+<!-- Variant rendered text -->
+<div class="section">
+    <h2>Variant Rendered Text</h2>
+    <input id="variant_text" type="text" readonly>
+</div>
+
+<!-- JSON result -->
+<div class="section">
+    <h2>Result JSON</h2>
+    <textarea id="json_result" rows="20" readonly></textarea>
+</div>
+
+</body>
+</html>

@@ -6,10 +6,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Example: Fastapi Report Engine",
+            "name": "Example: Fastapi",
             "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}/code/example/fastapi-report-engine",
+            "cwd": "${workspaceFolder}/code/example",
             "program": "main.py",
             "console": "integratedTerminal"
         },
