@@ -1,179 +1,129 @@
-# Example - FastAPI Report Engine
+# Convert Console
+
+Convert Console は、MJ テキスト変換 API を手軽に試すための Web UI です。  
+1 行のテキストを入力し、グリフセットを選択すると、Base 文字・Variant 文字・JSON レスポンスを確認できます。
+
+---
+
+## 特長
+
+- 1 行テキスト入力  
+- グリフセット選択（`mj-plus`, `mj-plusx`, `mj`, `mj-onka`）  
+- Base レンダリング結果の表示  
+- Variant レンダリング結果の表示（フォント自動切替）  
+- JSON レスポンスの整形表示  
+- Swagger UI へのリンク付き
+
+---
+
+## 必要環境
+
+- Python 3.10+
+- FastAPI
+- Uvicorn
+- `/static` 配下で CSS / JS / フォントを提供できる構成
+
+---
+
+## サーバー起動
+
+FastAPI サーバーを起動します。
 
 ```bash
 cd code/example/fastapi-report-engine
 python main.py
 ```
 
-http://localhost/docs or http://localhost:8002/docs
+UI は以下でアクセスできます。
 
-samples:
-- `./code/example/fastapi-report-engine/tests/samples/odt`
-- `./code/example/fastapi-report-engine/tests/samples/docx`
-- `./code/example/fastapi-report-engine/tests/samples/relatorio`
+```
+https://localhost/console
+```
 
-## odt - simple_template.odt
+API ドキュメント（Swagger UI）は以下です。
 
-- template: `simple_template.odt`
-- medias: (unckecked: `Send empty value`)
-- request:
+```
+https://localhost/docs
+```
+
+
+## UI の使い方
+
+### 1. グリフセットを選択
+Variant 表示に使用するグリフセットを選びます。  
+選択に応じて UI のフォントが自動で切り替わります。
+
+### 2. テキスト入力
+1 行のテキストを入力します。  
+API には以下の形式で送信されます。
+
+```
+GET /convert/{glyph_set}/{text}
+```
+
+### 3. Convert ボタンを押す
+API を呼び出し、結果が UI に反映されます。
+
+### 4. 出力フィールド
+- **Base Rendered Text**  
+  Base グリフのレンダリング結果。
+
+- **Variant Rendered Text**  
+  Variant グリフのレンダリング結果（フォント自動切替）。
+
+- **Result JSON**  
+  API レスポンス全体を整形して表示。
+
+
+## UI が利用する API
+
+UI は以下のエンドポイントを呼び出します。
+
+```
+GET /convert/{glyph_set}/{text}
+```
+
+例：
+
+```
+/convert/mj-plus/あ
+```
+
+レスポンス形式：
 
 ```json
-
 {
-    "context": {
-        "document": {
-            "datetime": "2025/01/23 12:34",
-            "md_sample": "# This is an H1\n## This is an H2\nMarkdown is a lightweight markup language."
-        },
-        "countries": [
-            {
-                "country": "United States",
-                "capital": "Washington",
-                "cities": ["miami", "new york", "california", "texas", "atlanta"]
-            },
-            {"country": "England", "capital": "London", "cities": ["gales"]},
-            {"country": "Japan", "capital": "Tokio", "cities": ["hiroshima", "nagazaki"]},
-            {
-                "country": "Nicaragua",
-                "capital": "Managua",
-                "cities": ["leon", "granada", "masaya"]
-            },
-            {"country": "Argentina", "capital": "Buenos aires"},
-            {"country": "Chile", "capital": "Santiago"},
-            {"country": "Mexico", "capital": "MExico City", "cities": ["puebla", "cancun"]}
-        ]
-    },
-    "file_basename": "renderd_{{document.datetime}}",
-    "convert_to_pdf": true,
-    "pdf_filter_options": {
-        "Watermark": "draft",
-        "SelectPdfVersion": "3"
+  "text": {
+    "rendered": {
+      "base": "...",
+      "variant": "..."
     }
+  }
 }
-
 ```
 
-## odt - template.odt
 
-- template: `template.odt`
-- medias: `writer.png`
-- request:
-
-```json
-
-{
-    "context": {
-        "image":"writer.png"
-    },
-    "file_basename": "rendered_{{image}}",
-    "convert_to_pdf": true,
-    "pdf_filter_options": {}
-}
+## ディレクトリ構成
 
 ```
-
-## docx - order_tpl.docx
-
-- template: `order_tpl.docx`
-- medias: (unckecked: `Send empty value`)
-- request:
-
-```json
-
-{
-    "context": {
-        "customer_name": "Eric",
-        "items": [
-            {"desc": "Python interpreters", "qty": 2, "price": "FREE"},
-            {"desc": "Django projects", "qty": 5403, "price": "FREE"},
-            {"desc": "Guido", "qty": 1, "price": "100,000,000.00"}
-        ],
-        "in_europe": true,
-        "is_paid": false,
-        "company_name": "The World Wide company",
-        "total_price": "100,000,000.00"
-    },
-    "file_basename": "rendered_{{customer_name}}",
-    "convert_to_pdf": true,
-    "pdf_filter_options": {"TiledWatermark": "draft"}
-}
-
+static/
+  css/
+    style.css
+    fonts.css
+  js/
+    frontend.js
+index.html
+main.py
 ```
 
-## docx - replace_picture_tpl.docx
 
-- template: `replace_picture_tpl.docx`
-- medias: `python_logo.png`
-- request:
+## 補足
 
-```json
+- `/console` は API スキーマから除外されており、`/docs` には表示されません。
+- Variant と JSON のフォントはグリフセットに応じて自動で切り替わります。
+- UI の入力欄はすべて 1 行で統一されています（JSON は除く）。
 
-{
-    "context": {
-        "name":"python"
-    },
-    "file_basename": "rendered_{{name}}",
-    "convert_to_pdf": true,
-    "pdf_filter_options": {}
-}
 
-```
+## License
 
-## relatorio - basic.tex, pie_chart.png.cha, vbar_chart.svg.cha
-
-- template: `basic.tex` or `pie_chart.png.cha` or `vbar_chart.svg.cha`
-- medias: (unckecked: `Send empty value`)
-- request:
-
-```json
-
-{
-    "context": {
-        "customer": {
-            "name": "John Bonham",
-            "address": {"street": "Smirnov street", "zip": 1000, "city": "Montreux"}
-        },
-        "lines": [
-            {
-                "item": {"name": "Vodka 70cl", "reference": "VDKA-001", "price": 10.34},
-                "quantity": 7,
-                "amount": 72.38
-            },
-            {
-                "item": {
-                    "name": "Cognac 70cl",
-                    "reference": "CGNC-067",
-                    "price": 13.46
-                },
-                "quantity": 12,
-                "amount": 161.52
-            },
-            {
-                "item": {
-                    "name": "Sparkling water 25cl",
-                    "reference": "WATR-007",
-                    "price": 4
-                },
-                "quantity": 1,
-                "amount": 4
-            },
-            {
-                "item": {
-                    "name": "Good customer",
-                    "reference": "BONM-001",
-                    "price": -20
-                },
-                "quantity": 1,
-                "amount": -20
-            }
-        ],
-        "id": "MZY-20080703",
-        "status": "late"
-    },
-    "file_basename": "relatorio_{{customer.name}}",
-    "convert_to_pdf": false,
-    "pdf_filter_options": {}
-}
-
-```
+MIT
