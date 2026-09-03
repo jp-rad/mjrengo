@@ -12,6 +12,13 @@ body {
     margin-top: 30px;
 }
 
+/* Glyph set selector + Font name inline row */
+.inline-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 /* Convert button + docs link row */
 .button-row {
     display: flex;
