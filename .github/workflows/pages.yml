@@ -59,7 +59,7 @@ jobs:
           cp glyph/mj_plusx-v1_20/dist/*.whl docs/wheels/
 
       # ---------------------------------------------------------
-      # Generate PEP503 index (echo 方式で安全に生成)
+      # Generate PEP503 index
       # ---------------------------------------------------------
       - name: Create PEP503 index
         run: |
@@ -80,9 +80,21 @@ jobs:
           done
 
       # ---------------------------------------------------------
-      # Generate pdoc documentation
+      # Generate pdoc documentation (HTML is default)
       # ---------------------------------------------------------
       - name: Generate pdoc docs
         run: |
           mkdir -p docs/pdoc
-          pdoc --html --output-dir docs/pdoc mjrengo/src/mjrengo
+          pdoc --output-dir docs/pdoc mjrengo/src/mjrengo
+
+          # GitHub Pages のトップページを pdoc にする
+          cp docs/pdoc/mjrengo/index.html docs/index.html
+
+      # ---------------------------------------------------------
+      # Deploy to GitHub Pages
+      # ---------------------------------------------------------
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
