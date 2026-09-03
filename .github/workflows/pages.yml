@@ -1,4 +1,4 @@
-name: Build Docs and PEP503 Index
+name: Build PEP503 Index and Deploy Pages
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
       - name: Install tools
         run: |
           pip install --upgrade pip
-          pip install pdoc build hatchling
+          pip install build hatchling
 
       # ---------------------------------------------------------
       # Build all packages
@@ -80,15 +80,12 @@ jobs:
           done
 
       # ---------------------------------------------------------
-      # Generate pdoc documentation (HTML is default)
+      # Copy pre-generated pdoc (committed in repo)
       # ---------------------------------------------------------
-      - name: Generate pdoc docs
+      - name: Copy pdocs to pdoc
         run: |
-          mkdir -p docs/pdoc
-          pdoc --output-dir docs/pdoc mjrengo
-
-          # GitHub Pages のトップページを pdoc にする
-          cp docs/pdoc/mjrengo/index.html docs/index.html
+          mkdir -p docs
+          cp -r mjrengo/docs/* docs
 
       # ---------------------------------------------------------
       # Deploy to GitHub Pages
