@@ -4,6 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "pdoc3 package mjrengo",
+            "type": "shell",
+            "command": "pdoc",
+            "args": [
+                "mjrengo",
+                "-o",
+                "../docs",
+                "--force",
+                "--html",
+            ],
+            "options": {
+                // Set the working directory to 'mjrengo/src' folder
+                "cwd": "${workspaceFolder}/code/mjrengo/src",
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "build package mjrengo",
             "type": "shell",
             "command": "python",
@@ -183,6 +200,7 @@
             "label": "rebuild package",
             "dependsOn": [
                 "compile mjrengo.data",
+                "pdoc3 package mjrengo",
                 "build package mjrengo",
                 "install package mjrengo",
                 "build package mjrengo-data-mj-v6_02_201",
