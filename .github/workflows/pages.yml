@@ -85,7 +85,7 @@ jobs:
       - name: Generate pdoc docs
         run: |
           mkdir -p docs/pdoc
-          pdoc --output-dir docs/pdoc mjrengo/src/mjrengo
+          pdoc --output-dir docs/pdoc mjrengo
 
           # GitHub Pages のトップページを pdoc にする
           cp docs/pdoc/mjrengo/index.html docs/index.html
