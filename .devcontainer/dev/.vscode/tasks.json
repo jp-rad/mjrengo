@@ -41,6 +41,7 @@
             "args": [
                 "install",
                 "--upgrade",
+                "--no-deps",
                 ".",
             ],
             "options": {
@@ -70,6 +71,7 @@
             "args": [
                 "install",
                 "--upgrade",
+                "--no-deps",
                 ".",
             ],
             "options": {
@@ -99,6 +101,7 @@
             "args": [
                 "install",
                 "--upgrade",
+                "--no-deps",
                 ".",
             ],
             "options": {
@@ -128,6 +131,7 @@
             "args": [
                 "install",
                 "--upgrade",
+                "--no-deps",
                 ".",
             ],
             "options": {
@@ -157,6 +161,7 @@
             "args": [
                 "install",
                 "--upgrade",
+                "--no-deps",
                 ".",
             ],
             "options": {

@@ -50,17 +50,35 @@ mjrengo/
 Each subdirectory under `mjrengo.data.*` represents an independently versioned dataset module.  
 Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
 
+
 ## Installation
 
-Install the latest version directly from GitHub:
+There are **two installation methods** available, depending on how you prefer to obtain the packages:
+
+### **1. Install from GitHub Pages**  
+
+This method uses a PEP 503–compatible simple index hosted on GitHub Pages.  
+Pip downloads pre‑built wheel files, so installation is fast and does not require any build tools.  
 
 ```
-pip3 install --upgrade --index-url https://jp-rad.github.io/mjrengo/simple/ --no-deps \
-    mjrengo
+pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/mjrengo/simple/ \
+    mjrengo \
+    mjrengo-data-mj-plus-v4-10 \
+    mjrengo-data-mj-plusx-v1-20 \
+    mjrengo-data-mj-v6-02-201-onka \
+    mjrengo-data-mj-v6-02-201-onka
 ```
 
+Use this when you want **simple installation**, **no build tools**, and **versioned wheels** directly from the project’s release pipeline.
+
+---
+
+### **2. Install directly from the Git repository**  
+This method pulls the source code from GitHub and builds each package locally.  
+It is useful when you want the **latest commit**, **development versions**, or when testing changes.
+
 ```
-pip3 install --upgrade \
+pip3 install --upgrade --no-deps \
     mjrengo@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo \
     mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
     mjrengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
@@ -68,23 +86,31 @@ pip3 install --upgrade \
     mjrengo-data-mj-v6_02_201_onka@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201_onka
 ```
 
+Choose this when you need **development builds**, **source-level debugging**, or **custom modifications**.
+
+
+
 ## Check Installed Version
 
 ```
 pip3 list | grep mjrengo
 ```
 
+
+
 ## Uninstallation
 
 Remove all mjrengo packages:
 
 ```
-pip3 uninstall -y mjrengo \
+pip3 uninstall -y \
+    mjrengo \
     mjrengo-data-mj_plus-v4_10 \
     mjrengo-data-mj_plusx-v1_20 \
     mjrengo-data-mj-v6_02_201 \
     mjrengo-data-mj-v6_02_201_onka
 ```
+
 
 ## Usage Example
 
