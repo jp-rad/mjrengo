@@ -1,14 +1,12 @@
-import re
 from dataclasses import dataclass, field
 from typing import Protocol, List, Dict, Any, Match
 
-from mjrengo.glyph_utils import (
-    escape_left_brace,
-    unescape_left_brace,
-    render_escape_left_brace,
-    render_unescape_left_brace,
-)
 from mjrengo.ucs import decode_ucs
+from mjrengo.regex_defs import (
+    TAG_PATTERN,
+    RE_ESC_BACKSLASH,
+    RE_ESC_LBRACE,
+)
 
 
 # ============================================================
@@ -58,11 +56,11 @@ class ReplaceFn(Protocol):
 
 def make_replace_fn(glyph_table: Dict[str, Dict[str, Any]], set_name: str) -> ReplaceFn:
     """
-    v0.5.8 Normalization Rules:
+    Normalization Rules:
 
-    - glyph-name を環境の glyph_table で解決
-    - b/v を環境固有の UCSSeq に置き換える
-    - set は必ず環境の set_name に強制置換する
+    - glyph-name を glyph_table で解決
+    - b/v を UCSSeq に置き換える
+    - set は環境の set_name に強制置換
     - active=false の場合は正規化しない
     """
 
@@ -85,7 +83,7 @@ def make_replace_fn(glyph_table: Dict[str, Dict[str, Any]], set_name: str) -> Re
             errors.append(GlyphError(code, f"{code}: {msg}", {"glyph": glyph}))
             return m.group(0)
 
-        # Normalization (v0.5.8)
+        # Normalization
         b = entry.get("b")
         v = entry.get("v")
 
@@ -108,46 +106,55 @@ class GlyphTagEngine:
     Stateless glyph tag processor.
     Tag semantics are fully delegated to replace_fn.
 
-    Syntax (v0.5.8):
+    Syntax:
 
         {<glyph-name> [b=<UCSSeq>] [v=<UCSSeq>] [set=<Identifier>]}
     """
 
-    TAG_PATTERN = re.compile(
-        r'\{(?P<glyph>[A-Za-z0-9]+)'
-        r'(?:\s+b=(?P<b>(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?'
-        r'(?:\s+v=(?P<v>(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?'
-        r'(?:\s+set=(?P<set>[A-Za-z0-9_+\-]+))?'
-        r'\}'
-    )
-
     def __init__(self, replace_fn: ReplaceFn):
         self.replace_fn = replace_fn
+
+    # --------------------------------------------------------
+    # Private: render escape
+    # --------------------------------------------------------
+    def _apply_render_escape(self, text: str) -> str:
+        """
+        Rendering phase:
+        - \\  → \
+        - \{ → {
+        - {{ は変換しない（仕様）
+        """
+        if not text:
+            return ""
+
+        # Important: process \\ first
+        text = RE_ESC_BACKSLASH.sub(r'\\', text)
+
+        # Then \{
+        text = RE_ESC_LBRACE.sub(r'{', text)
+
+        return text
 
     # --------------------------------------------------------
     # normalize_tags()
     # --------------------------------------------------------
     def normalize_tags(self, text: str) -> GlyphResult:
         """
-        Normalization (v0.5.8):
+        Normalization:
 
-        - "{{" → {_ESC_LB_}
+        - エスケープ文字は維持する
         - TAG_PATTERN により b/v/set を正規化
-        - {_ESC_LB_} → "{{"}
-        - {_LB_} はそのまま残す
+        - {{ は変換しない
         """
         if self.replace_fn is None:
             raise ValueError("replace_fn is required")
 
-        text = escape_left_brace(text)
         errors: List[GlyphError] = []
 
-        result_text = self.TAG_PATTERN.sub(
+        result_text = TAG_PATTERN.sub(
             lambda m: self.replace_fn(m, errors),
             text,
         )
-
-        result_text = unescape_left_brace(result_text)
 
         return GlyphResult(
             success=len(errors) == 0,
@@ -160,7 +167,7 @@ class GlyphTagEngine:
     # --------------------------------------------------------
     def render_text(self, text: str, use_base: bool = False, tofu: str = "U+25A1") -> str:
         """
-        Rendering Rules (v0.5.9):
+        Rendering Rules:
 
         mode="v"       → v → b → tofu
         mode="b"       → b → tofu
@@ -169,21 +176,18 @@ class GlyphTagEngine:
         - use_base=False → mode="v"
         """
 
-        expanded = render_escape_left_brace(text)
-
         def _replace(m: Match[str]) -> str:
             b = m.group("b")
             v = m.group("v")
 
             if use_base:
-                # mode="b"
                 seq = b or tofu
             else:
-                # mode="v"
                 seq = v or b or tofu
 
             return decode_ucs(seq)
 
-        rendered = self.TAG_PATTERN.sub(_replace, expanded)
+        rendered = TAG_PATTERN.sub(_replace, text)
+        rendered = self._apply_render_escape(rendered)
 
-        return render_unescape_left_brace(rendered)
+        return rendered
