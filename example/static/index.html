@@ -23,8 +23,8 @@
 
 <h1>Convert Console</h1>
 
-<!-- Glyph set selector -->
-<div class="section">
+<!-- Glyph set selector + Font name -->
+<div class="section inline-row">
     <label for="glyph_set">Glyph Set:</label>
     <select id="glyph_set" onchange="updateVariantFont()">
         <option value="mj-plus">mj-plus</option>
@@ -32,6 +32,9 @@
         <option value="mj">mj</option>
         <option value="mj-onka">mj-onka</option>
     </select>
+
+    <label for="font_name">Font:</label>
+    <span id="font_name"></span>
 </div>
 
 <!-- Single-line input -->
