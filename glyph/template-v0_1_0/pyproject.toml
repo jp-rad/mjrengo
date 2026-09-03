@@ -1,6 +1,6 @@
 # code/glyph/<project folder>/pyproject.toml
 [project]
-name = "mjrengo-data-template-v0_1_0"
+name = "mjrengo_data_template_v0_1_0"
 
 dynamic = ["version"]
 requires-python = ">=3.8"

@@ -55,6 +55,11 @@ Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
 Install the latest version directly from GitHub:
 
 ```
+pip3 install --upgrade --index-url https://jp-rad.github.io/mjrengo/simple/ --no-deps \
+    mjrengo
+```
+
+```
 pip3 install --upgrade \
     mjrengo@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo \
     mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
