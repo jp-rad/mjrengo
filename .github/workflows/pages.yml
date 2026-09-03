@@ -67,7 +67,7 @@ jobs:
           cp glyph/mj_plusx-v1_20/dist/*.whl docs/wheels/
 
       # ---------------------------------------------------------
-      # Generate PEP503 index
+      # Generate PEP503 index (folder name normalized)
       # ---------------------------------------------------------
       - name: Create PEP503 index
         run: |
@@ -75,16 +75,23 @@ jobs:
 
           for whl in docs/wheels/*.whl; do
             fname=$(basename "$whl")
-            pkg=$(echo "$fname" | cut -d'-' -f1)
 
-            mkdir -p docs/simple/$pkg
+            # wheel 名の先頭部分（package 名）を抽出
+            pkg_raw=$(echo "$fname" | cut -d'-' -f1)
 
-            echo '<!DOCTYPE html>' > docs/simple/$pkg/index.html
-            echo '<html>' >> docs/simple/$pkg/index.html
-            echo '  <body>' >> docs/simple/$pkg/index.html
-            echo "    <a href=\"../../wheels/$fname\">$fname</a>" >> docs/simple/$pkg/index.html
-            echo '  </body>' >> docs/simple/$pkg/index.html
-            echo '</html>' >> docs/simple/$pkg/index.html
+            # PEP503 正規化：アンダースコア → ハイフン
+            pkg_norm=$(echo "$pkg_raw" | tr '_' '-')
+
+            mkdir -p docs/simple/$pkg_norm
+
+            {
+              echo '<!DOCTYPE html>'
+              echo '<html>'
+              echo '  <body>'
+              echo "    <a href=\"../../wheels/$fname\">$fname</a>"
+              echo '  </body>'
+              echo '</html>'
+            } > docs/simple/$pkg_norm/index.html
           done
 
       # ---------------------------------------------------------
