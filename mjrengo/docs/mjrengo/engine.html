@@ -54,11 +54,11 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">def make_replace_fn(glyph_table: Dict[str, Dict[str, Any]], set_name: str) -&gt; ReplaceFn:
     &#34;&#34;&#34;
-    v0.5.8 Normalization Rules:
+    Normalization Rules:
 
-    - glyph-name を環境の glyph_table で解決
-    - b/v を環境固有の UCSSeq に置き換える
-    - set は必ず環境の set_name に強制置換する
+    - glyph-name を glyph_table で解決
+    - b/v を UCSSeq に置き換える
+    - set は環境の set_name に強制置換
     - active=false の場合は正規化しない
     &#34;&#34;&#34;
 
@@ -81,7 +81,7 @@ el.replaceWith(d);
             errors.append(GlyphError(code, f&#34;{code}: {msg}&#34;, {&#34;glyph&#34;: glyph}))
             return m.group(0)
 
-        # Normalization (v0.5.8)
+        # Normalization
         b = entry.get(&#34;b&#34;)
         v = entry.get(&#34;v&#34;)
 
@@ -94,11 +94,11 @@ el.replaceWith(d);
 
     return replace_fn</code></pre>
 </details>
-<div class="desc"><p>v0.5.8 Normalization Rules:</p>
+<div class="desc"><p>Normalization Rules:</p>
 <ul>
-<li>glyph-name を環境の glyph_table で解決</li>
-<li>b/v を環境固有の UCSSeq に置き換える</li>
-<li>set は必ず環境の set_name に強制置換する</li>
+<li>glyph-name を glyph_table で解決</li>
+<li>b/v を UCSSeq に置き換える</li>
+<li>set は環境の set_name に強制置換</li>
 <li>active=false の場合は正規化しない</li>
 </ul></div>
 </dd>
@@ -239,46 +239,55 @@ class GlyphResult:
     Stateless glyph tag processor.
     Tag semantics are fully delegated to replace_fn.
 
-    Syntax (v0.5.8):
+    Syntax:
 
         {&lt;glyph-name&gt; [b=&lt;UCSSeq&gt;] [v=&lt;UCSSeq&gt;] [set=&lt;Identifier&gt;]}
     &#34;&#34;&#34;
 
-    TAG_PATTERN = re.compile(
-        r&#39;\{(?P&lt;glyph&gt;[A-Za-z0-9]+)&#39;
-        r&#39;(?:\s+b=(?P&lt;b&gt;(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?&#39;
-        r&#39;(?:\s+v=(?P&lt;v&gt;(?:U\+[0-9A-Fa-f]{4,6}(?:\s+U\+[0-9A-Fa-f]{4,6})*)))?&#39;
-        r&#39;(?:\s+set=(?P&lt;set&gt;[A-Za-z0-9_+\-]+))?&#39;
-        r&#39;\}&#39;
-    )
-
     def __init__(self, replace_fn: ReplaceFn):
         self.replace_fn = replace_fn
+
+    # --------------------------------------------------------
+    # Private: render escape
+    # --------------------------------------------------------
+    def _apply_render_escape(self, text: str) -&gt; str:
+        &#34;&#34;&#34;
+        Rendering phase:
+        - \\  → \
+        - \{ → {
+        - {{ は変換しない（仕様）
+        &#34;&#34;&#34;
+        if not text:
+            return &#34;&#34;
+
+        # Important: process \\ first
+        text = RE_ESC_BACKSLASH.sub(r&#39;\\&#39;, text)
+
+        # Then \{
+        text = RE_ESC_LBRACE.sub(r&#39;{&#39;, text)
+
+        return text
 
     # --------------------------------------------------------
     # normalize_tags()
     # --------------------------------------------------------
     def normalize_tags(self, text: str) -&gt; GlyphResult:
         &#34;&#34;&#34;
-        Normalization (v0.5.8):
+        Normalization:
 
-        - &#34;{{&#34; → {_ESC_LB_}
+        - エスケープ文字は維持する
         - TAG_PATTERN により b/v/set を正規化
-        - {_ESC_LB_} → &#34;{{&#34;}
-        - {_LB_} はそのまま残す
+        - {{ は変換しない
         &#34;&#34;&#34;
         if self.replace_fn is None:
             raise ValueError(&#34;replace_fn is required&#34;)
 
-        text = escape_left_brace(text)
         errors: List[GlyphError] = []
 
-        result_text = self.TAG_PATTERN.sub(
+        result_text = TAG_PATTERN.sub(
             lambda m: self.replace_fn(m, errors),
             text,
         )
-
-        result_text = unescape_left_brace(result_text)
 
         return GlyphResult(
             success=len(errors) == 0,
@@ -291,7 +300,7 @@ class GlyphResult:
     # --------------------------------------------------------
     def render_text(self, text: str, use_base: bool = False, tofu: str = &#34;U+25A1&#34;) -&gt; str:
         &#34;&#34;&#34;
-        Rendering Rules (v0.5.9):
+        Rendering Rules:
 
         mode=&#34;v&#34;       → v → b → tofu
         mode=&#34;b&#34;       → b → tofu
@@ -300,37 +309,27 @@ class GlyphResult:
         - use_base=False → mode=&#34;v&#34;
         &#34;&#34;&#34;
 
-        expanded = render_escape_left_brace(text)
-
         def _replace(m: Match[str]) -&gt; str:
             b = m.group(&#34;b&#34;)
             v = m.group(&#34;v&#34;)
 
             if use_base:
-                # mode=&#34;b&#34;
                 seq = b or tofu
             else:
-                # mode=&#34;v&#34;
                 seq = v or b or tofu
 
             return decode_ucs(seq)
 
-        rendered = self.TAG_PATTERN.sub(_replace, expanded)
+        rendered = TAG_PATTERN.sub(_replace, text)
+        rendered = self._apply_render_escape(rendered)
 
-        return render_unescape_left_brace(rendered)</code></pre>
+        return rendered</code></pre>
 </details>
 <div class="desc"><p>Stateless glyph tag processor.
 Tag semantics are fully delegated to replace_fn.</p>
-<p>Syntax (v0.5.8):</p>
-<pre><code>{&lt;glyph-name&gt; [b=&lt;UCSSeq&gt;] [v=&lt;UCSSeq&gt;] [set=&lt;Identifier&gt;]}
-</code></pre></div>
-<h3>Class variables</h3>
-<dl>
-<dt id="mjrengo.engine.GlyphTagEngine.TAG_PATTERN"><code class="name">var <span class="ident">TAG_PATTERN</span></code></dt>
-<dd>
-<div class="desc"><p>The type of the None singleton.</p></div>
-</dd>
-</dl>
+<p>Syntax
+-----=</p>
+<p>{<glyph-name> [b=<UCSSeq>] [v=<UCSSeq>] [set=<Identifier>]}</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="mjrengo.engine.GlyphTagEngine.normalize_tags"><code class="name flex">
@@ -343,25 +342,21 @@ Tag semantics are fully delegated to replace_fn.</p>
 </summary>
 <pre><code class="python">def normalize_tags(self, text: str) -&gt; GlyphResult:
     &#34;&#34;&#34;
-    Normalization (v0.5.8):
+    Normalization:
 
-    - &#34;{{&#34; → {_ESC_LB_}
+    - エスケープ文字は維持する
     - TAG_PATTERN により b/v/set を正規化
-    - {_ESC_LB_} → &#34;{{&#34;}
-    - {_LB_} はそのまま残す
+    - {{ は変換しない
     &#34;&#34;&#34;
     if self.replace_fn is None:
         raise ValueError(&#34;replace_fn is required&#34;)
 
-    text = escape_left_brace(text)
     errors: List[GlyphError] = []
 
-    result_text = self.TAG_PATTERN.sub(
+    result_text = TAG_PATTERN.sub(
         lambda m: self.replace_fn(m, errors),
         text,
     )
-
-    result_text = unescape_left_brace(result_text)
 
     return GlyphResult(
         success=len(errors) == 0,
@@ -369,12 +364,11 @@ Tag semantics are fully delegated to replace_fn.</p>
         errors=errors,
     )</code></pre>
 </details>
-<div class="desc"><p>Normalization (v0.5.8):</p>
+<div class="desc"><p>Normalization:</p>
 <ul>
-<li>"{{" → {<em>ESC_LB</em>}</li>
+<li>エスケープ文字は維持する</li>
 <li>TAG_PATTERN により b/v/set を正規化</li>
-<li>{<em>ESC_LB</em>} → "{{"}</li>
-<li>{<em>LB</em>} はそのまま残す</li>
+<li>{{ は変換しない</li>
 </ul></div>
 </dd>
 <dt id="mjrengo.engine.GlyphTagEngine.render_text"><code class="name flex">
@@ -387,7 +381,7 @@ Tag semantics are fully delegated to replace_fn.</p>
 </summary>
 <pre><code class="python">def render_text(self, text: str, use_base: bool = False, tofu: str = &#34;U+25A1&#34;) -&gt; str:
     &#34;&#34;&#34;
-    Rendering Rules (v0.5.9):
+    Rendering Rules:
 
     mode=&#34;v&#34;       → v → b → tofu
     mode=&#34;b&#34;       → b → tofu
@@ -396,26 +390,23 @@ Tag semantics are fully delegated to replace_fn.</p>
     - use_base=False → mode=&#34;v&#34;
     &#34;&#34;&#34;
 
-    expanded = render_escape_left_brace(text)
-
     def _replace(m: Match[str]) -&gt; str:
         b = m.group(&#34;b&#34;)
         v = m.group(&#34;v&#34;)
 
         if use_base:
-            # mode=&#34;b&#34;
             seq = b or tofu
         else:
-            # mode=&#34;v&#34;
             seq = v or b or tofu
 
         return decode_ucs(seq)
 
-    rendered = self.TAG_PATTERN.sub(_replace, expanded)
+    rendered = TAG_PATTERN.sub(_replace, text)
+    rendered = self._apply_render_escape(rendered)
 
-    return render_unescape_left_brace(rendered)</code></pre>
+    return rendered</code></pre>
 </details>
-<div class="desc"><p>Rendering Rules (v0.5.9):</p>
+<div class="desc"><p>Rendering Rules:</p>
 <p>mode="v"
 → v → b → tofu
 mode="b"
@@ -514,7 +505,6 @@ Protocol classes can be generic, they are defined as::</p>
 <li>
 <h4><code><a title="mjrengo.engine.GlyphTagEngine" href="#mjrengo.engine.GlyphTagEngine">GlyphTagEngine</a></code></h4>
 <ul class="">
-<li><code><a title="mjrengo.engine.GlyphTagEngine.TAG_PATTERN" href="#mjrengo.engine.GlyphTagEngine.TAG_PATTERN">TAG_PATTERN</a></code></li>
 <li><code><a title="mjrengo.engine.GlyphTagEngine.normalize_tags" href="#mjrengo.engine.GlyphTagEngine.normalize_tags">normalize_tags</a></code></li>
 <li><code><a title="mjrengo.engine.GlyphTagEngine.render_text" href="#mjrengo.engine.GlyphTagEngine.render_text">render_text</a></code></li>
 </ul>
