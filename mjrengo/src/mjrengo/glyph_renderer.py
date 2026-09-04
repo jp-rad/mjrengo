@@ -1,21 +1,39 @@
+"""
+Glyph Tag renderer module for the tofurengo library.
+
+This module provides the `GlyphRenderer` class, which converts normalized Glyph Tags
+into resolved Unicode character strings or fallback placeholder representations (tofu).
+"""
+
 import re
 from typing import Optional
 
-from mjrengo.ucs import ucs_to_str
-from mjrengo.tag_parser import TagParser
+from tofurengo.tag_parser import TagParser
+from tofurengo.ucs import ucs_to_str
 
 
 class GlyphRenderer:
-    """正規化済みタグを Unicode 文字へ変換・描画するエンジン"""
+    """
+    Rendering engine for resolving normalized Glyph Tags into Unicode strings.
+
+    Converts tags containing base (`b=`) or variant (`v=`) UCS attributes into
+    actual characters. If specified glyph sequences cannot be resolved, a fallback
+    string (tofu) is rendered instead.
+    """
 
     def __init__(
         self,
         use_base: bool = False,
         tofu: str = "U+25A1",
-    ):
+    ) -> None:
         """
-        :param use_base: デフォルトで基底文字(b)を優先するかどうか
-        :param tofu: 該当文字がない場合の代替文字列 (デフォルト: "U+25A1")
+        Initialize the GlyphRenderer.
+
+        Args:
+            use_base (bool): If True, prioritizes base character attributes (`b=`)
+                over implementation-specific variant attributes (`v=`). Defaults to False.
+            tofu (str): Fallback UCS sequence or literal character used when a glyph
+                cannot be resolved. Defaults to "U+25A1" (White Square □).
         """
         self.use_base = use_base
         self.tofu = tofu
@@ -27,30 +45,36 @@ class GlyphRenderer:
         tofu: Optional[str] = None,
     ) -> str:
         """
-        正規化済みテキストを描画（Unicode変換 & アンエスケープ）する
+        Render normalized text into a final Unicode string.
 
-        :param text: 正規化済みテキスト
-        :param use_base: 一時的に use_base 設定を上書き指定（任意）
-        :param tofu: 一時的に tofu 設定を上書き指定（任意）
-        :return: 描画完了テキスト
+        Resolves Glyph Tags to characters based on prioritization rules and
+        unescapes double-brace sequences (`{{`) into literal single braces (`{`).
+
+        Args:
+            text (str): Normalized input text containing Glyph Tags.
+            use_base (Optional[bool]): Temporarily override the instance `use_base` preference.
+            tofu (Optional[str]): Temporarily override the instance `tofu` fallback string.
+
+        Returns:
+            str: Rendered output text with resolved Unicode characters and unescaped braces.
         """
         if not text:
             return ""
 
-        # 引数が指定されていればそれを優先し、None ならインスタンスのデフォルト値を使用
         actual_use_base = self.use_base if use_base is None else use_base
         actual_tofu = self.tofu if tofu is None else tofu
 
-        def _render_tag(m: re.Match) -> str:
-            b = m.group("b")
-            v = m.group("v")
+        def _render_tag(match: re.Match) -> str:
+            b_attr = match.group("b")
+            v_attr = match.group("v")
 
             if actual_use_base:
-                seq = b or actual_tofu
+                target_seq = b_attr or actual_tofu
             else:
-                seq = v or b or actual_tofu
+                target_seq = v_attr or b_attr or actual_tofu
 
-            return ucs_to_str(seq)
+            return ucs_to_str(target_seq)
 
-        # 描画時: エスケープ表記を解除する (unescape=True)
+        # Execute processing pipeline with unescaping enabled (unescape=True)
         return TagParser.process_pipeline(text, _render_tag, unescape=True)
+
