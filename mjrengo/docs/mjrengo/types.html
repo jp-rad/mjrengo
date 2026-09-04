@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
-<title>mjrengo.builder API documentation</title>
+<title>mjrengo.types API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
@@ -33,7 +33,7 @@ el.replaceWith(d);
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>mjrengo.builder</code></h1>
+<h1 class="title">Module <code>mjrengo.types</code></h1>
 </header>
 <section id="section-intro">
 </section>
@@ -42,66 +42,174 @@ el.replaceWith(d);
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="mjrengo.builder.build_normalizer"><code class="name flex">
-<span>def <span class="ident">build_normalizer</span></span>(<span>glyph_set: str,<br>version: str,<br>set_name: str | None = None,<br>base: str = 'mjrengo.data') ‑> <a title="mjrengo.glyph_normalizer.GlyphNormalizer" href="glyph_normalizer.html#mjrengo.glyph_normalizer.GlyphNormalizer">GlyphNormalizer</a></span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def build_normalizer(
-    glyph_set: str,
-    version: str,
-    set_name: str | None = None,
-    base: str = &#34;mjrengo.data&#34;,
-) -&gt; GlyphNormalizer:
-    &#34;&#34;&#34;
-    Build a GlyphNormalizer instance using get_resource() and make_replace_fn().
-
-    If set_name is not provided, glyph_set is used as the default.
-    &#34;&#34;&#34;
-    if set_name is None:
-        set_name = glyph_set
-
-    res = get_resource(glyph_set, version, base=base)
-    glyph_table = res[&#34;GLYPH_TABLE&#34;]
-
-    fn = make_replace_fn(glyph_table, set_name)
-    return GlyphNormalizer(replace_fn=fn)</code></pre>
-</details>
-<div class="desc"><p>Build a GlyphNormalizer instance using get_resource() and make_replace_fn().</p>
-<p>If set_name is not provided, glyph_set is used as the default.</p></div>
-</dd>
-<dt id="mjrengo.builder.build_renderer"><code class="name flex">
-<span>def <span class="ident">build_renderer</span></span>(<span>use_base: bool = False, tofu: str = 'U+25A1') ‑> <a title="mjrengo.glyph_renderer.GlyphRenderer" href="glyph_renderer.html#mjrengo.glyph_renderer.GlyphRenderer">GlyphRenderer</a></span>
-</code></dt>
-<dd>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def build_renderer(
-    use_base: bool = False,
-    tofu: str = &#34;U+25A1&#34;,
-) -&gt; GlyphRenderer:
-    &#34;&#34;&#34;
-    Build a GlyphRenderer instance with specified rendering options.
-
-    Note: GlyphRenderer operates statelessly on normalized tags and
-    does not require a dataset resource or glyph_table.
-    &#34;&#34;&#34;
-    return GlyphRenderer(use_base=use_base, tofu=tofu)</code></pre>
-</details>
-<div class="desc"><p>Build a GlyphRenderer instance with specified rendering options.</p>
-<p>Note: GlyphRenderer operates statelessly on normalized tags and
-does not require a dataset resource or glyph_table.</p></div>
-</dd>
-</dl>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="mjrengo.types.GlyphError"><code class="flex name class">
+<span>class <span class="ident">GlyphError</span></span>
+<span>(</span><span>code: str, message: str, params: Dict[str, Any] = &lt;factory&gt;)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class GlyphError:
+    code: str
+    message: str
+    params: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -&gt; Dict[str, Any]:
+        return {
+            &#34;code&#34;: self.code,
+            &#34;message&#34;: self.message,
+            &#34;params&#34;: self.params,
+        }</code></pre>
+</details>
+<div class="desc"><p>GlyphError(code: str, message: str, params: Dict[str, Any] = <factory>)</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="mjrengo.types.GlyphError.code"><code class="name">var <span class="ident">code</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.types.GlyphError.message"><code class="name">var <span class="ident">message</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.types.GlyphError.params"><code class="name">var <span class="ident">params</span> : Dict[str, Any]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="mjrengo.types.GlyphError.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+    return {
+        &#34;code&#34;: self.code,
+        &#34;message&#34;: self.message,
+        &#34;params&#34;: self.params,
+    }</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="mjrengo.types.GlyphResult"><code class="flex name class">
+<span>class <span class="ident">GlyphResult</span></span>
+<span>(</span><span>success: bool,<br>text: str,<br>errors: List[<a title="mjrengo.types.GlyphError" href="#mjrengo.types.GlyphError">GlyphError</a>] = &lt;factory&gt;)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class GlyphResult:
+    success: bool
+    text: str
+    errors: List[GlyphError] = field(default_factory=list)
+
+    def to_dict(self) -&gt; Dict[str, Any]:
+        return {
+            &#34;success&#34;: self.success,
+            &#34;text&#34;: self.text,
+            &#34;errors&#34;: [e.to_dict() for e in self.errors],
+        }</code></pre>
+</details>
+<div class="desc"><p>GlyphResult(success: bool, text: str, errors: List[mjrengo.types.GlyphError] = <factory>)</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="mjrengo.types.GlyphResult.errors"><code class="name">var <span class="ident">errors</span> : List[<a title="mjrengo.types.GlyphError" href="#mjrengo.types.GlyphError">GlyphError</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.types.GlyphResult.success"><code class="name">var <span class="ident">success</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.types.GlyphResult.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="mjrengo.types.GlyphResult.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> Dict[str, Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self) -&gt; Dict[str, Any]:
+    return {
+        &#34;success&#34;: self.success,
+        &#34;text&#34;: self.text,
+        &#34;errors&#34;: [e.to_dict() for e in self.errors],
+    }</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="mjrengo.types.ReplaceFn"><code class="flex name class">
+<span>class <span class="ident">ReplaceFn</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ReplaceFn(Protocol):
+    def __call__(self, m: Match[str], errors: List[GlyphError]) -&gt; str:
+        ...</code></pre>
+</details>
+<div class="desc"><p>Base class for protocol classes.</p>
+<p>Protocol classes are defined as::</p>
+<pre><code>class Proto(Protocol):
+    def meth(self) -&gt; int:
+        ...
+</code></pre>
+<p>Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing).</p>
+<p>For example::</p>
+<pre><code>class C:
+    def meth(self) -&gt; int:
+        return 0
+
+def func(x: Proto) -&gt; int:
+    return x.meth()
+
+func(C())  # Passes static type check
+</code></pre>
+<p>See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::</p>
+<pre><code>class GenProto[T](Protocol):
+    def meth(self) -&gt; T:
+        ...
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -114,10 +222,29 @@ does not require a dataset resource or glyph_table.</p></div>
 <li><code><a title="mjrengo" href="index.html">mjrengo</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-functions">Functions</a></h3>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mjrengo.types.GlyphError" href="#mjrengo.types.GlyphError">GlyphError</a></code></h4>
 <ul class="">
-<li><code><a title="mjrengo.builder.build_normalizer" href="#mjrengo.builder.build_normalizer">build_normalizer</a></code></li>
-<li><code><a title="mjrengo.builder.build_renderer" href="#mjrengo.builder.build_renderer">build_renderer</a></code></li>
+<li><code><a title="mjrengo.types.GlyphError.code" href="#mjrengo.types.GlyphError.code">code</a></code></li>
+<li><code><a title="mjrengo.types.GlyphError.message" href="#mjrengo.types.GlyphError.message">message</a></code></li>
+<li><code><a title="mjrengo.types.GlyphError.params" href="#mjrengo.types.GlyphError.params">params</a></code></li>
+<li><code><a title="mjrengo.types.GlyphError.to_dict" href="#mjrengo.types.GlyphError.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="mjrengo.types.GlyphResult" href="#mjrengo.types.GlyphResult">GlyphResult</a></code></h4>
+<ul class="">
+<li><code><a title="mjrengo.types.GlyphResult.errors" href="#mjrengo.types.GlyphResult.errors">errors</a></code></li>
+<li><code><a title="mjrengo.types.GlyphResult.success" href="#mjrengo.types.GlyphResult.success">success</a></code></li>
+<li><code><a title="mjrengo.types.GlyphResult.text" href="#mjrengo.types.GlyphResult.text">text</a></code></li>
+<li><code><a title="mjrengo.types.GlyphResult.to_dict" href="#mjrengo.types.GlyphResult.to_dict">to_dict</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="mjrengo.types.ReplaceFn" href="#mjrengo.types.ReplaceFn">ReplaceFn</a></code></h4>
+</li>
 </ul>
 </li>
 </ul>
