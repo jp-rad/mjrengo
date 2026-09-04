@@ -1,0 +1,22 @@
+{
+  "name": "mjrengo-js",
+  "version": "1.0.0",
+  "description": "MJ glyph tag parser and renderer for JavaScript.",
+  "type": "module",
+  "main": "src/glyphRenderer.js",
+  "exports": {
+    ".": "./src/glyphRenderer.js",
+    "/render": "./src/glyphRenderer.js",
+    "/normalize": "./src/glyphNormalizer.js",
+    "/utils": "./src/glyphUtils.js"
+  },
+  "keywords": [
+    "mj",
+    "glyph",
+    "renderer",
+    "parser",
+    "normalize",
+    "japanese"
+  ],
+  "license": "MIT"
+}

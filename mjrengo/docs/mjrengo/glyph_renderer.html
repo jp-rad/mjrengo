@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
-<title>mjrengo API documentation</title>
+<title>mjrengo.glyph_renderer API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
@@ -33,52 +33,135 @@ el.replaceWith(d);
 <main>
 <article id="content">
 <header>
-<h1 class="title">Namespace <code>mjrengo</code></h1>
+<h1 class="title">Module <code>mjrengo.glyph_renderer</code></h1>
 </header>
 <section id="section-intro">
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt><code class="name"><a title="mjrengo.builder" href="builder.html">mjrengo.builder</a></code></dt>
+<dt id="mjrengo.glyph_renderer.GlyphRenderer"><code class="flex name class">
+<span>class <span class="ident">GlyphRenderer</span></span>
+<span>(</span><span>use_base: bool = False, tofu: str = 'U+25A1')</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.factories" href="factories.html">mjrengo.factories</a></code></dt>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GlyphRenderer:
+    &#34;&#34;&#34;正規化済みタグを Unicode 文字へ変換・描画するエンジン&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        use_base: bool = False,
+        tofu: str = &#34;U+25A1&#34;,
+    ):
+        &#34;&#34;&#34;
+        :param use_base: デフォルトで基底文字(b)を優先するかどうか
+        :param tofu: 該当文字がない場合の代替文字列 (デフォルト: &#34;U+25A1&#34;)
+        &#34;&#34;&#34;
+        self.use_base = use_base
+        self.tofu = tofu
+
+    def render(
+        self,
+        text: str,
+        use_base: Optional[bool] = None,
+        tofu: Optional[str] = None,
+    ) -&gt; str:
+        &#34;&#34;&#34;
+        正規化済みテキストを描画（Unicode変換 &amp; アンエスケープ）する
+
+        :param text: 正規化済みテキスト
+        :param use_base: 一時的に use_base 設定を上書き指定（任意）
+        :param tofu: 一時的に tofu 設定を上書き指定（任意）
+        :return: 描画完了テキスト
+        &#34;&#34;&#34;
+        if not text:
+            return &#34;&#34;
+
+        # 引数が指定されていればそれを優先し、None ならインスタンスのデフォルト値を使用
+        actual_use_base = self.use_base if use_base is None else use_base
+        actual_tofu = self.tofu if tofu is None else tofu
+
+        def _render_tag(m: re.Match) -&gt; str:
+            b = m.group(&#34;b&#34;)
+            v = m.group(&#34;v&#34;)
+
+            if actual_use_base:
+                seq = b or actual_tofu
+            else:
+                seq = v or b or actual_tofu
+
+            return decode_ucs(seq)
+
+        # 描画時: エスケープ表記を解除する (unescape=True)
+        return GlyphUtils.process_pipeline(text, _render_tag, unescape=True)</code></pre>
+</details>
+<div class="desc"><p>正規化済みタグを Unicode 文字へ変換・描画するエンジン</p>
+<p>:param use_base: デフォルトで基底文字(b)を優先するかどうか
+:param tofu: 該当文字がない場合の代替文字列 (デフォルト: "U+25A1")</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="mjrengo.glyph_renderer.GlyphRenderer.render"><code class="name flex">
+<span>def <span class="ident">render</span></span>(<span>self, text: str, use_base: bool | None = None, tofu: str | None = None) ‑> str</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_normalizer" href="glyph_normalizer.html">mjrengo.glyph_normalizer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_renderer" href="glyph_renderer.html">mjrengo.glyph_renderer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_utils" href="glyph_utils.html">mjrengo.glyph_utils</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.resource" href="resource.html">mjrengo.resource</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.types" href="types.html">mjrengo.types</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.ucs" href="ucs.html">mjrengo.ucs</a></code></dt>
-<dd>
-<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def render(
+    self,
+    text: str,
+    use_base: Optional[bool] = None,
+    tofu: Optional[str] = None,
+) -&gt; str:
+    &#34;&#34;&#34;
+    正規化済みテキストを描画（Unicode変換 &amp; アンエスケープ）する
+
+    :param text: 正規化済みテキスト
+    :param use_base: 一時的に use_base 設定を上書き指定（任意）
+    :param tofu: 一時的に tofu 設定を上書き指定（任意）
+    :return: 描画完了テキスト
+    &#34;&#34;&#34;
+    if not text:
+        return &#34;&#34;
+
+    # 引数が指定されていればそれを優先し、None ならインスタンスのデフォルト値を使用
+    actual_use_base = self.use_base if use_base is None else use_base
+    actual_tofu = self.tofu if tofu is None else tofu
+
+    def _render_tag(m: re.Match) -&gt; str:
+        b = m.group(&#34;b&#34;)
+        v = m.group(&#34;v&#34;)
+
+        if actual_use_base:
+            seq = b or actual_tofu
+        else:
+            seq = v or b or actual_tofu
+
+        return decode_ucs(seq)
+
+    # 描画時: エスケープ表記を解除する (unescape=True)
+    return GlyphUtils.process_pipeline(text, _render_tag, unescape=True)</code></pre>
+</details>
+<div class="desc"><p>正規化済みテキストを描画（Unicode変換 &amp; アンエスケープ）する</p>
+<p>:param text: 正規化済みテキスト
+:param use_base: 一時的に use_base 設定を上書き指定（任意）
+:param tofu: 一時的に tofu 設定を上書き指定（任意）
+:return: 描画完了テキスト</p></div>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -86,16 +169,19 @@ el.replaceWith(d);
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="mjrengo.builder" href="builder.html">mjrengo.builder</a></code></li>
-<li><code><a title="mjrengo.factories" href="factories.html">mjrengo.factories</a></code></li>
-<li><code><a title="mjrengo.glyph_normalizer" href="glyph_normalizer.html">mjrengo.glyph_normalizer</a></code></li>
-<li><code><a title="mjrengo.glyph_renderer" href="glyph_renderer.html">mjrengo.glyph_renderer</a></code></li>
-<li><code><a title="mjrengo.glyph_utils" href="glyph_utils.html">mjrengo.glyph_utils</a></code></li>
-<li><code><a title="mjrengo.resource" href="resource.html">mjrengo.resource</a></code></li>
-<li><code><a title="mjrengo.types" href="types.html">mjrengo.types</a></code></li>
-<li><code><a title="mjrengo.ucs" href="ucs.html">mjrengo.ucs</a></code></li>
+<li><code><a title="mjrengo" href="index.html">mjrengo</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mjrengo.glyph_renderer.GlyphRenderer" href="#mjrengo.glyph_renderer.GlyphRenderer">GlyphRenderer</a></code></h4>
+<ul class="">
+<li><code><a title="mjrengo.glyph_renderer.GlyphRenderer.render" href="#mjrengo.glyph_renderer.GlyphRenderer.render">render</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
