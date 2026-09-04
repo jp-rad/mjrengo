@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
-<title>mjrengo API documentation</title>
+<title>mjrengo.glyph_normalizer API documentation</title>
 <meta name="description" content="">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
@@ -33,52 +33,131 @@ el.replaceWith(d);
 <main>
 <article id="content">
 <header>
-<h1 class="title">Namespace <code>mjrengo</code></h1>
+<h1 class="title">Module <code>mjrengo.glyph_normalizer</code></h1>
 </header>
 <section id="section-intro">
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt><code class="name"><a title="mjrengo.builder" href="builder.html">mjrengo.builder</a></code></dt>
+<dt id="mjrengo.glyph_normalizer.GlyphNormalizer"><code class="flex name class">
+<span>class <span class="ident">GlyphNormalizer</span></span>
+<span>(</span><span>replace_fn: <a title="mjrengo.types.ReplaceFn" href="types.html#mjrengo.types.ReplaceFn">ReplaceFn</a> | None = None)</span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.factories" href="factories.html">mjrengo.factories</a></code></dt>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GlyphNormalizer:
+    &#34;&#34;&#34;
+    ステートレスな正規化クラス。
+    タグ解析および置換の実装詳細は replace_fn コールバックへ委任する。
+
+    `replace_fn` はコンストラクタでの事前設定、または `normalize()` 実行時の動的指定の両方に対応。
+    &#34;&#34;&#34;
+
+    def __init__(self, replace_fn: Optional[ReplaceFn] = None):
+        &#34;&#34;&#34;
+        :param replace_fn: デフォルトで利用する ReplaceFn（任意）
+        &#34;&#34;&#34;
+        self.replace_fn = replace_fn
+
+    def normalize(
+        self, 
+        text: str, 
+        replace_fn: Optional[ReplaceFn] = None
+    ) -&gt; GlyphResult:
+        &#34;&#34;&#34;
+        正規化メイン処理
+
+        :param text: 対象テキスト
+        :param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）
+        &#34;&#34;&#34;
+        if not text:
+            return GlyphResult(success=True, text=&#34;&#34;, errors=[])
+
+        # 優先順位: 引数の replace_fn &gt; インスタンスの self.replace_fn
+        fn = replace_fn or self.replace_fn
+        if fn is None:
+            raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
+
+        errors: List[GlyphError] = []
+
+        # GlyphUtils.process_pipeline で「退避 -&gt; 置換 -&gt; {{ }} 復元」を一括実行
+        normalized_text = GlyphUtils.process_pipeline(
+            text=text,
+            replacer=lambda m: fn(m, errors),
+            unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
+        )
+
+        return GlyphResult(
+            success=len(errors) == 0,
+            text=normalized_text,
+            errors=errors,
+        )</code></pre>
+</details>
+<div class="desc"><p>ステートレスな正規化クラス。
+タグ解析および置換の実装詳細は replace_fn コールバックへ委任する。</p>
+<p><code>replace_fn</code> はコンストラクタでの事前設定、または <code>normalize()</code> 実行時の動的指定の両方に対応。</p>
+<p>:param replace_fn: デフォルトで利用する ReplaceFn（任意）</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="mjrengo.glyph_normalizer.GlyphNormalizer.normalize"><code class="name flex">
+<span>def <span class="ident">normalize</span></span>(<span>self,<br>text: str,<br>replace_fn: <a title="mjrengo.types.ReplaceFn" href="types.html#mjrengo.types.ReplaceFn">ReplaceFn</a> | None = None) ‑> <a title="mjrengo.types.GlyphResult" href="types.html#mjrengo.types.GlyphResult">GlyphResult</a></span>
+</code></dt>
 <dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_normalizer" href="glyph_normalizer.html">mjrengo.glyph_normalizer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_renderer" href="glyph_renderer.html">mjrengo.glyph_renderer</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.glyph_utils" href="glyph_utils.html">mjrengo.glyph_utils</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.resource" href="resource.html">mjrengo.resource</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.types" href="types.html">mjrengo.types</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="mjrengo.ucs" href="ucs.html">mjrengo.ucs</a></code></dt>
-<dd>
-<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normalize(
+    self, 
+    text: str, 
+    replace_fn: Optional[ReplaceFn] = None
+) -&gt; GlyphResult:
+    &#34;&#34;&#34;
+    正規化メイン処理
+
+    :param text: 対象テキスト
+    :param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）
+    &#34;&#34;&#34;
+    if not text:
+        return GlyphResult(success=True, text=&#34;&#34;, errors=[])
+
+    # 優先順位: 引数の replace_fn &gt; インスタンスの self.replace_fn
+    fn = replace_fn or self.replace_fn
+    if fn is None:
+        raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
+
+    errors: List[GlyphError] = []
+
+    # GlyphUtils.process_pipeline で「退避 -&gt; 置換 -&gt; {{ }} 復元」を一括実行
+    normalized_text = GlyphUtils.process_pipeline(
+        text=text,
+        replacer=lambda m: fn(m, errors),
+        unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
+    )
+
+    return GlyphResult(
+        success=len(errors) == 0,
+        text=normalized_text,
+        errors=errors,
+    )</code></pre>
+</details>
+<div class="desc"><p>正規化メイン処理</p>
+<p>:param text: 対象テキスト
+:param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）</p></div>
 </dd>
 </dl>
-</section>
-<section>
-</section>
-<section>
-</section>
-<section>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -86,16 +165,19 @@ el.replaceWith(d);
 <ul></ul>
 </div>
 <ul id="index">
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<li><h3>Super-module</h3>
 <ul>
-<li><code><a title="mjrengo.builder" href="builder.html">mjrengo.builder</a></code></li>
-<li><code><a title="mjrengo.factories" href="factories.html">mjrengo.factories</a></code></li>
-<li><code><a title="mjrengo.glyph_normalizer" href="glyph_normalizer.html">mjrengo.glyph_normalizer</a></code></li>
-<li><code><a title="mjrengo.glyph_renderer" href="glyph_renderer.html">mjrengo.glyph_renderer</a></code></li>
-<li><code><a title="mjrengo.glyph_utils" href="glyph_utils.html">mjrengo.glyph_utils</a></code></li>
-<li><code><a title="mjrengo.resource" href="resource.html">mjrengo.resource</a></code></li>
-<li><code><a title="mjrengo.types" href="types.html">mjrengo.types</a></code></li>
-<li><code><a title="mjrengo.ucs" href="ucs.html">mjrengo.ucs</a></code></li>
+<li><code><a title="mjrengo" href="index.html">mjrengo</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="mjrengo.glyph_normalizer.GlyphNormalizer" href="#mjrengo.glyph_normalizer.GlyphNormalizer">GlyphNormalizer</a></code></h4>
+<ul class="">
+<li><code><a title="mjrengo.glyph_normalizer.GlyphNormalizer.normalize" href="#mjrengo.glyph_normalizer.GlyphNormalizer.normalize">normalize</a></code></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

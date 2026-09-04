@@ -1,36 +1,36 @@
-from mjrengo.builder import build_engine
+from mjrengo.builder import build_normalizer, build_renderer
+from mjrengo.glyph_normalizer import GlyphNormalizer
 
-# Engine definitions (set and version)
-engine_info = {
+glyph_set_info = {
     "mj":      {"set": "mj",       "version": "6.02.201"},
     "mj-onka": {"set": "mj",       "version": "6.02.201-onka"},
     "mj-plus": {"set": "mj_plus",  "version": "4.10"},
     "mj-plusx":{"set": "mj_plusx", "version": "1.20"},
 }
 
-# Build engines from engine_info
-engines = {
-    name: build_engine(info["set"], info["version"])
-    for name, info in engine_info.items()
+normalizers = {
+    name: build_normalizer(info["set"], info["version"])
+    for name, info in glyph_set_info.items()
 }
 
-# Return both engine_info and engine instance
-def get_engine(glyph_set: str):
-    if glyph_set not in engine_info:
-        raise ValueError(f"Unknown engine: {glyph_set}")
+renderer = build_renderer()
+
+def get_normalizer(glyph_set: str):
+    if glyph_set not in glyph_set_info:
+        raise ValueError(f"Unknown normalizer: {glyph_set}")
 
     return {
-        "info": engine_info[glyph_set],
-        "engine": engines[glyph_set],
+        "info": glyph_set_info[glyph_set],
+        "engine": normalizers[glyph_set],
     }
 
 # normalize_service
 def normalize_service(glyph_set: str, text: str):
-    e = get_engine(glyph_set)
-    eng = e["engine"]
+    e = get_normalizer(glyph_set)
+    eng: GlyphNormalizer = e["engine"]
     info = e["info"]
 
-    n = eng.normalize_tags(text)
+    n = eng.normalize(text)
     errors = [err.to_dict() for err in n.errors]
 
     return {
@@ -48,12 +48,10 @@ def normalize_service(glyph_set: str, text: str):
 
 # render_service (does not call normalize_tags)
 def render_service(glyph_set: str, normalized_text: str):
-    e = get_engine(glyph_set)
-    eng = e["engine"]
-    info = e["info"]
+    info = glyph_set_info[glyph_set]
 
-    rendered_variant = eng.render_text(normalized_text, use_base=False)
-    rendered_base = eng.render_text(normalized_text, use_base=True)
+    rendered_variant = renderer.render(normalized_text, use_base=False)
+    rendered_base = renderer.render(normalized_text, use_base=True)
 
     return {
         "service": "render",
@@ -72,15 +70,15 @@ def render_service(glyph_set: str, normalized_text: str):
 
 # convert_service (normalize + render)
 def convert_service(glyph_set: str, text: str):
-    e = get_engine(glyph_set)
-    eng = e["engine"]
+    e = get_normalizer(glyph_set)
+    eng: GlyphNormalizer = e["engine"]
     info = e["info"]
 
-    n = eng.normalize_tags(text)
+    n = eng.normalize(text)
     errors = [err.to_dict() for err in n.errors]
 
-    rendered_variant = eng.render_text(n.text, use_base=False)
-    rendered_base = eng.render_text(n.text, use_base=True)
+    rendered_variant = renderer.render(n.text, use_base=False)
+    rendered_base = renderer.render(n.text, use_base=True)
 
     return {
         "service": "convert",

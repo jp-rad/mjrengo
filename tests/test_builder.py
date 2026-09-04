@@ -4,8 +4,8 @@ import types
 import sys
 import pytest
 
-from mjrengo.builder import build_engine
 from mjrengo.resource import ResourceError
+from mjrengo.builder import build_normalizer
 
 
 def create_fake_module(fullname, glyph_table, version, packages):
@@ -17,7 +17,7 @@ def create_fake_module(fullname, glyph_table, version, packages):
     return mod
 
 
-def test_build_engine_default_set_name():
+def test_build_normalizer_default_set_name():
     """
     set_name=None → glyph_set が使われることを確認する
     """
@@ -34,14 +34,14 @@ def test_build_engine_default_set_name():
 
     create_fake_module(fullname, glyph_table, version, packages)
 
-    engine = build_engine(glyph_set, version_external)
+    normalizer = build_normalizer(glyph_set, version_external)
 
-    result = engine.normalize_tags("{MJ000001}")
+    result = normalizer.normalize("{MJ000001}")
     assert result.success is True
     assert "set=template" in result.text
 
 
-def test_build_engine_custom_set_name():
+def test_build_normalizer_custom_set_name():
     """
     set_name を明示指定した場合
     """
@@ -58,17 +58,17 @@ def test_build_engine_custom_set_name():
 
     create_fake_module(fullname, glyph_table, version, packages)
 
-    engine = build_engine(glyph_set, version_external, set_name="test")
+    normalizer = build_normalizer(glyph_set, version_external, set_name="test")
 
-    result = engine.normalize_tags("{MJ000001}")
+    result = normalizer.normalize("{MJ000001}")
     assert result.success is True
     assert "set=test" in result.text
 
 
-def test_build_engine_missing_module():
+def test_build_normalizer_missing_module():
     """
     モジュールが存在しない場合は ResourceError
     """
 
     with pytest.raises(ResourceError):
-        build_engine("unknown", "1.00.0")
+        build_normalizer("unknown", "1.00.0")
