@@ -16,7 +16,7 @@ TAG_PATTERN = re.compile(
 )
 
 
-class GlyphUtils:
+class TagParser:
     """{{ }} によるエスケープ退避・復元およびタグパースを行うユーティリティ"""
 
     @staticmethod

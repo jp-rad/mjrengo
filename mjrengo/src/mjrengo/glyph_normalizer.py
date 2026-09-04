@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from mjrengo.types import GlyphError, GlyphResult, ReplaceFn
-from mjrengo.glyph_utils import GlyphUtils
+from mjrengo.tag_parser import TagParser
 
 
 class GlyphNormalizer:
@@ -40,7 +40,7 @@ class GlyphNormalizer:
         errors: List[GlyphError] = []
 
         # GlyphUtils.process_pipeline で「退避 -> 置換 -> {{ }} 復元」を一括実行
-        normalized_text = GlyphUtils.process_pipeline(
+        normalized_text = TagParser.process_pipeline(
             text=text,
             replacer=lambda m: fn(m, errors),
             unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
