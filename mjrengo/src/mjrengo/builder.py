@@ -1,32 +1,37 @@
-# mjrengo/builder.py
-
 from mjrengo.resource import get_resource
-from mjrengo.replace import make_replace_fn
-from mjrengo.engine import GlyphTagEngine
+from mjrengo.factories import make_replace_fn
+from mjrengo.glyph_normalizer import GlyphNormalizer
+from mjrengo.glyph_renderer import GlyphRenderer
 
-
-def build_engine(
+def build_normalizer(
     glyph_set: str,
     version: str,
     set_name: str | None = None,
     base: str = "mjrengo.data",
-) -> GlyphTagEngine:
+) -> GlyphNormalizer:
     """
-    Build a GlyphTagEngine instance using get_resource() and make_replace_fn().
+    Build a GlyphNormalizer instance using get_resource() and make_replace_fn().
 
     If set_name is not provided, glyph_set is used as the default.
     """
-
-    # Default set_name = glyph_set
     if set_name is None:
         set_name = glyph_set
 
-    # Load dataset module
     res = get_resource(glyph_set, version, base=base)
     glyph_table = res["GLYPH_TABLE"]
 
-    # Create replace function
     fn = make_replace_fn(glyph_table, set_name)
+    return GlyphNormalizer(replace_fn=fn)
 
-    # Build engine
-    return GlyphTagEngine(fn)
+
+def build_renderer(
+    use_base: bool = False,
+    tofu: str = "U+25A1",
+) -> GlyphRenderer:
+    """
+    Build a GlyphRenderer instance with specified rendering options.
+
+    Note: GlyphRenderer operates statelessly on normalized tags and
+    does not require a dataset resource or glyph_table.
+    """
+    return GlyphRenderer(use_base=use_base, tofu=tofu)

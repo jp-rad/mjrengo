@@ -1,7 +1,17 @@
-from mjrengo.engine import GlyphError
+from typing import Dict, Any, List, Match
+from mjrengo.types import GlyphError, ReplaceFn
 
-def make_replace_fn(glyph_table, set_name):
-    def replace_fn(m, errors):
+
+def make_replace_fn(glyph_table: Dict[str, Dict[str, Any]], set_name: str) -> ReplaceFn:
+    """
+    Normalization Rules:
+    - glyph-name を glyph_table で解決
+    - b/v を UCSSeq に置き換える
+    - set は環境の set_name に強制置換
+    - active=false の場合は正規化しない
+    """
+
+    def replace_fn(m: Match[str], errors: List[GlyphError]) -> str:
         glyph = m.group("glyph")
 
         # Not found
@@ -13,7 +23,7 @@ def make_replace_fn(glyph_table, set_name):
 
         entry = glyph_table[glyph]
 
-        # Archived
+        # Archived / Inactive
         if not entry.get("active", True):
             code = "error.glyph.archived"
             msg = f"Glyph '{glyph}' is archived."
@@ -21,10 +31,13 @@ def make_replace_fn(glyph_table, set_name):
             return m.group(0)
 
         # Normalization
+        b = entry.get("b")
+        v = entry.get("v")
+
         return "{%s b=%s v=%s set=%s}" % (
             glyph,
-            entry["b"],
-            entry["v"],
+            b,
+            v,
             set_name,
         )
 
