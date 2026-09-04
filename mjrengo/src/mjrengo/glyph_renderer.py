@@ -1,7 +1,7 @@
 import re
 from typing import Optional
 
-from mjrengo.ucs import decode_ucs
+from mjrengo.ucs import ucs_to_str
 from mjrengo.tag_parser import TagParser
 
 
@@ -50,7 +50,7 @@ class GlyphRenderer:
             else:
                 seq = v or b or actual_tofu
 
-            return decode_ucs(seq)
+            return ucs_to_str(seq)
 
         # 描画時: エスケープ表記を解除する (unescape=True)
         return TagParser.process_pipeline(text, _render_tag, unescape=True)

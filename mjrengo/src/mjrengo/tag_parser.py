@@ -70,4 +70,4 @@ class TagParser:
         else:
             s = cls.restore_tokens_keep_escape(s)
         return s
-    
+
