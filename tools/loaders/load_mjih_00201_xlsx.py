@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 import zipfile
 
-from mjrengo.ucs import encode_ucs
+from mjrengo.ucs import str_to_ucs
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
@@ -119,7 +119,7 @@ def load_mjih_00201_xlsx(path: Path, base_from: Literal["jibo", "onka"]) -> list
         else:  # "phonetic"
             b_col = COL_ONKA1
             b_char = get(row_dict, b_col)
-            b_raw = encode_ucs(b_char)
+            b_raw = str_to_ucs(b_char)
         
         b = to_uplus_string(b_raw)
         ok, reason = validate_uplus_input(b)
