@@ -2,7 +2,7 @@ import re
 from typing import Optional
 
 from mjrengo.ucs import decode_ucs
-from mjrengo.glyph_utils import GlyphUtils
+from mjrengo.tag_parser import TagParser
 
 
 class GlyphRenderer:
@@ -53,4 +53,4 @@ class GlyphRenderer:
             return decode_ucs(seq)
 
         # 描画時: エスケープ表記を解除する (unescape=True)
-        return GlyphUtils.process_pipeline(text, _render_tag, unescape=True)
+        return TagParser.process_pipeline(text, _render_tag, unescape=True)
