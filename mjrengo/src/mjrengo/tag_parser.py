@@ -77,6 +77,7 @@ class ParsedTag:
         v (str | None): Value of the 'v' (variation) property if present.
         set (str | None): Value of the 'set' property if present.
         properties (dict[str, str]): All extracted key-value pairs.
+        raw_content (str): The original unparsed tag inner content string.
     """
 
     glyph_name: str
@@ -84,6 +85,7 @@ class ParsedTag:
     v: str | None = None
     set: str | None = None
     properties: dict[str, str] = field(default_factory=dict)
+    raw_content: str = ""
 
     @classmethod
     def from_content(cls, content: str) -> "ParsedTag":
@@ -96,9 +98,10 @@ class ParsedTag:
         Returns:
             ParsedTag: Structured object with shortcut accessors for b, v, and set.
         """
-        tokens = content.strip().split()
+        raw_str = content.strip()
+        tokens = raw_str.split()
         if not tokens:
-            return cls(glyph_name="")
+            return cls(glyph_name="", raw_content=raw_str)
 
         glyph_name = tokens[0]
         properties: dict[str, str] = {}
@@ -113,6 +116,7 @@ class ParsedTag:
             v=properties.get("v"),
             set=properties.get("set"),
             properties=properties,
+            raw_content=raw_str,
         )
 
 
@@ -120,17 +124,17 @@ class ReplaceFn(Protocol):
     """
     Protocol definition for tag match-replacement closures.
 
-    Implementations are callable objects that accept a regex match object and a mutable
-    issue list, returning a replacement string while appending any encountered issues.
+    Implementations are callable objects that accept a structured `ParsedTag`
+    and a mutable issue list, returning a replacement string while appending any
+    encountered issues.
     """
 
-    def __call__(self, match: re.Match[str], issues: list[TagIssue]) -> str:
+    def __call__(self, tag: ParsedTag, issues: list[TagIssue]) -> str:
         """
-        Process a regex tag match and record any non-fatal processing issues.
+        Process a parsed tag object and record any non-fatal processing issues.
 
         Args:
-            match (re.Match[str]): The regex match object representing a tag.
-                Use `match.group("content")` to retrieve the raw inner tag string.
+            tag (ParsedTag): Structured representation of the tag to process.
             issues (list[TagIssue]): Mutable list to collect encountered issues.
 
         Returns:
@@ -187,22 +191,6 @@ class TagParser:
         """
         return text.replace(MARK_LB, "{")
 
-    @staticmethod
-    def parse_tag_content(content: str) -> tuple[str, dict[str, str]]:
-        """
-        Extract the primary glyph name and key-value properties from tag content.
-
-        Args:
-            content (str): Raw string inside a tag.
-
-        Returns:
-            tuple[str, dict[str, str]]: A tuple containing:
-                - `glyph_name` (str): Primary identifier token (empty string if missing).
-                - `properties` (dict[str, str]): Key-value pairs parsed from `key=value` tokens.
-        """
-        tag = ParsedTag.from_content(content)
-        return tag.glyph_name, tag.properties
-
     @classmethod
     def process_pipeline(
         cls,
@@ -229,7 +217,9 @@ class TagParser:
         escaped = cls.escape_tokens(text)
 
         def sub_callback(match: re.Match[str]) -> str:
-            return replacer(match, issue_list)
+            content = match.group("content")
+            tag = ParsedTag.from_content(content)
+            return replacer(tag, issue_list)
 
         substituted = TAG_PATTERN.sub(sub_callback, escaped)
 
