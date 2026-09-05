@@ -23,7 +23,7 @@ TAG_PATTERN: re.Pattern[str] = re.compile(
 
 
 @dataclass
-class TagError:
+class TagIssue:
     """
     Represents an error encountered during tag parsing, lookup, or transformation.
 
@@ -59,7 +59,7 @@ class ReplaceFn(Protocol):
     error list, returning a replacement string while appending any encountered errors.
     """
 
-    def __call__(self, match: re.Match[str], errors: list[TagError]) -> str:
+    def __call__(self, match: re.Match[str], errors: list[TagIssue]) -> str:
         """
         Process a regex tag match and record any non-fatal processing errors.
 
@@ -153,7 +153,7 @@ class TagParser:
         text: str,
         replacer: ReplaceFn,
         unescape: bool = True,
-        errors: list[TagError] | None = None,
+        errors: list[TagIssue] | None = None,
     ) -> str:
         """
         Execute the full transformation pipeline: escape -> substitute -> restore.
