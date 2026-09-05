@@ -3,7 +3,7 @@
 from pathlib import Path
 import zipfile
 
-from mjrengo.ucs import ucs_to_str
+from mjrengo.ucs import ucs_to_glyph
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
@@ -115,7 +115,7 @@ def load_mji_00602_xlsx(path: Path) -> list[GlyphRecord]:
             if not ok:
                 raise ValueError(f"Invalid base for {glyph_name}: {reason}")
 
-            comments.append(ucs_to_str(base))
+            comments.append(ucs_to_glyph(base))
 
             # ------------------------------------------------------------
             # v — variant（異体字）

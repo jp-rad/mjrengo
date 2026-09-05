@@ -9,7 +9,7 @@ import re
 from typing import Optional
 
 from mjrengo.tag_parser import TagParser
-from mjrengo.ucs import ucs_to_str
+from mjrengo.ucs import ucs_to_glyph
 
 
 class GlyphRenderer:
@@ -73,7 +73,7 @@ class GlyphRenderer:
             else:
                 target_seq = v_attr or b_attr or actual_tofu
 
-            return ucs_to_str(target_seq)
+            return ucs_to_glyph(target_seq)
 
         # Execute processing pipeline with unescaping enabled (unescape=True)
         return TagParser.process_pipeline(text, _render_tag, unescape=True)
