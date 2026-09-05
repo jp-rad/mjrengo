@@ -9,7 +9,7 @@ from collections.abc import Callable
 import re
 from typing import Any
 
-from mjrengo.types import NormalizeError, ReplaceFn
+from mjrengo.types import TagError, ReplaceFn
 
 
 def make_replace_fn(
@@ -42,7 +42,7 @@ def make_replace_fn(
         >>> # replace_fn(match, errors) -> "{MJ012345 b=U+4E00 v=v6_02 set=mj}"
     """
 
-    def replace_fn(match: re.Match[str], errors: list[NormalizeError]) -> str:
+    def replace_fn(match: re.Match[str], errors: list[TagError]) -> str:
         """
         Process a regex tag match, performing lookup, validation, and tag normalization.
 
@@ -67,7 +67,7 @@ def make_replace_fn(
             code = "error.glyph.not_found"
             msg = f"Glyph '{glyph}' does not exist in dataset '{set_name}'."
             errors.append(
-                NormalizeError(
+                TagError(
                     code=code,
                     message=f"{code}: {msg}",
                     details={"glyph": glyph, "set": set_name},
@@ -82,7 +82,7 @@ def make_replace_fn(
             code = "error.glyph.archived"
             msg = f"Glyph '{glyph}' is archived or inactive."
             errors.append(
-                NormalizeError(
+                TagError(
                     code=code,
                     message=f"{code}: {msg}",
                     details={"glyph": glyph, "set": set_name},
