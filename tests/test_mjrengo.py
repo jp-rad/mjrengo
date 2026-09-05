@@ -2,7 +2,7 @@ import pytest
 from mjrengo.tag_parser import TagParser
 from mjrengo.glyph_normalizer import GlyphNormalizer
 from mjrengo.glyph_renderer import GlyphRenderer
-from mjrengo.factories import make_replace_fn
+from mjrengo.replacer import make_replace_fn
 
 
 # --- テスト用フィクスチャ（共通データ） ---

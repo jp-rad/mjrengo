@@ -8,8 +8,8 @@ into resolved Unicode character strings or fallback placeholder representations 
 import re
 from typing import Optional
 
-from tofurengo.tag_parser import TagParser
-from tofurengo.ucs import ucs_to_str
+from mjrengo.tag_parser import TagParser
+from mjrengo.ucs import ucs_to_str
 
 
 class GlyphRenderer:
