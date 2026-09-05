@@ -2,11 +2,12 @@
 Tag parsing, replacement protocols, and placeholder escaping utilities.
 
 This module provides data models and utilities for tag-based string processing,
-including `TagError` for capturing validation issues, the `ReplaceFn` protocol
-for substitution callbacks, and `TagParser` for managing double-brace escaping.
+including `TagIssue` for capturing validation warnings and errors, the `ReplaceFn`
+protocol for substitution callbacks, and `TagParser` for managing double-brace escaping.
 """
 
 from dataclasses import dataclass, field
+from enum import Enum
 import re
 from typing import Any, Protocol
 
@@ -22,31 +23,43 @@ TAG_PATTERN: re.Pattern[str] = re.compile(
 )
 
 
+class IssueLevel(str, Enum):
+    """
+    Severity levels for tag processing diagnostics.
+    """
+
+    WARNING = "warning"
+    ERROR = "error"
+
+
 @dataclass
 class TagIssue:
     """
-    Represents an error encountered during tag parsing, lookup, or transformation.
+    Represents a warning or error encountered during tag processing.
 
     Attributes:
-        code (str): Machine-readable error category identifier.
-        message (str): Human-readable error message explaining failure details.
-        details (dict[str, Any]): Additional contextual metadata regarding the error.
+        code (str): Machine-readable issue category identifier.
+        message (str): Human-readable message explaining failure details.
+        level (IssueLevel): Severity level (`IssueLevel.WARNING` or `IssueLevel.ERROR`).
+        details (dict[str, Any]): Additional contextual metadata regarding the issue.
     """
 
     code: str
     message: str
+    level: IssueLevel = IssueLevel.ERROR
     details: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Convert the error instance into a JSON-serializable dictionary.
+        Convert the issue instance into a JSON-serializable dictionary.
 
         Returns:
-            dict[str, Any]: Dictionary representation of the tag error.
+            dict[str, Any]: Dictionary representation of the tag issue.
         """
         return {
             "code": self.code,
             "message": self.message,
+            "level": self.level.value,
             "details": self.details,
         }
 
@@ -56,16 +69,16 @@ class ReplaceFn(Protocol):
     Protocol definition for tag match-replacement closures.
 
     Implementations are callable objects that accept a regex match object and a mutable
-    error list, returning a replacement string while appending any encountered errors.
+    issue list, returning a replacement string while appending any encountered issues.
     """
 
-    def __call__(self, match: re.Match[str], errors: list[TagIssue]) -> str:
+    def __call__(self, match: re.Match[str], issues: list[TagIssue]) -> str:
         """
-        Process a regex tag match and record any non-fatal processing errors.
+        Process a regex tag match and record any non-fatal processing issues.
 
         Args:
             match (re.Match[str]): The regex match object representing a tag.
-            errors (list[TagError]): Mutable list to collect encountered errors.
+            issues (list[TagIssue]): Mutable list to collect encountered issues.
 
         Returns:
             str: The replacement string to substitute into target text.
@@ -153,7 +166,7 @@ class TagParser:
         text: str,
         replacer: ReplaceFn,
         unescape: bool = True,
-        errors: list[TagIssue] | None = None,
+        issues: list[TagIssue] | None = None,
     ) -> str:
         """
         Execute the full transformation pipeline: escape -> substitute -> restore.
@@ -163,17 +176,17 @@ class TagParser:
             replacer (ReplaceFn): Replacement callback implementing `ReplaceFn`.
             unescape (bool): If `True`, converts preserved placeholders to `{`.
                 If `False`, preserves them as `{{`. Defaults to `True`.
-            errors (list[TagError] | None): Optional mutable list to collect errors
+            issues (list[TagIssue] | None): Optional mutable list to collect issues
                 encountered during substitution. If `None`, an internal list is used.
 
         Returns:
             str: Transformed output text after tag substitution and brace restoration.
         """
-        error_list = errors if errors is not None else []
+        issue_list = issues if issues is not None else []
         escaped = cls.escape_tokens(text)
 
         def sub_callback(match: re.Match[str]) -> str:
-            return replacer(match, error_list)
+            return replacer(match, issue_list)
 
         substituted = TAG_PATTERN.sub(sub_callback, escaped)
 

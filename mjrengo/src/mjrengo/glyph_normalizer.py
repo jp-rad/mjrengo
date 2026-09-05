@@ -10,8 +10,8 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 # TODO: mjrengo を tofurengo に統合する際に、以下の import 文を元に戻す
-# from tofurengo.tag_parser import ReplaceFn, TagError, TagParser
-from mjrengo.tag_parser import ReplaceFn, TagIssue, TagParser
+# from tofurengo.tag_parser import IssueLevel, ReplaceFn, TagError, TagParser
+from mjrengo.tag_parser import IssueLevel, ReplaceFn, TagIssue, TagParser
 
 
 @dataclass
@@ -20,28 +20,47 @@ class NormalizeResult:
     Encapsulates the final outcome of a tag normalization pipeline operation.
 
     Attributes:
-        success (bool): Indicates whether the process completed without validation errors.
+        success (bool): Indicates whether the process completed without error-level issues.
         text (str): The transformed or normalized output string.
-        errors (list[TagError]): List of non-fatal validation errors collected
-            during the normalization process.
+        issues (list[TagIssue]): List of collected warnings and errors.
     """
 
     success: bool
     text: str
-    errors: list[TagIssue] = field(default_factory=list)
+    issues: list[TagIssue] = field(default_factory=list)
+
+    @property
+    def errors(self) -> list[TagIssue]:
+        """
+        Filter and return only error-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.ERROR`.
+        """
+        return [i for i in self.issues if i.level == IssueLevel.ERROR]
+
+    @property
+    def warnings(self) -> list[TagIssue]:
+        """
+        Filter and return only warning-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.WARNING`.
+        """
+        return [i for i in self.issues if i.level == IssueLevel.WARNING]
 
     def to_dict(self) -> dict[str, Any]:
         """
-        Convert the result object and its collected errors into a dictionary.
+        Convert the result object and its collected issues into a dictionary.
 
         Returns:
             dict[str, Any]: Serialized dictionary containing status, output text,
-                and error dictionaries.
+                and issue dictionaries.
         """
         return {
             "success": self.success,
             "text": self.text,
-            "errors": [e.to_dict() for e in self.errors],
+            "issues": [i.to_dict() for i in self.issues],
         }
 
 
@@ -81,30 +100,32 @@ class GlyphNormalizer:
 
         Returns:
             NormalizeResult: Result object containing the normalized text, success status,
-                and any accumulated errors.
+                and any accumulated warnings or errors.
 
         Raises:
             ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
         """
         if not text:
-            return NormalizeResult(success=True, text="", errors=[])
+            return NormalizeResult(success=True, text="", issues=[])
 
         fn = replace_fn or self.replace_fn
         if fn is None:
             raise ValueError("replace_fn is required in __init__ or normalize()")
 
-        errors: list[TagIssue] = []
+        issues: list[TagIssue] = []
 
         normalized_text = TagParser.process_pipeline(
             text=text,
             replacer=fn,
             unescape=False,  # Retain '{{' escape sequences during normalization
-            errors=errors,
+            issues=issues,
         )
 
+        has_errors = any(i.level == IssueLevel.ERROR for i in issues)
+
         return NormalizeResult(
-            success=len(errors) == 0,
+            success=not has_errors,
             text=normalized_text,
-            errors=errors,
+            issues=issues,
         )
 
