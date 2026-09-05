@@ -2,7 +2,7 @@
 Replacer and normalization closures for glyph tags.
 
 This module provides factory functions such as `make_replace_fn` to generate
-regex substitution callbacks used during text processing and normalization pipelines.
+regex substitution callbacks used during tag normalization pipelines.
 """
 
 from collections.abc import Callable
@@ -23,7 +23,7 @@ def make_replace_fn(
     the provided `glyph_table`, validates their active status, and formats them into
     canonical tag strings: `{<glyph> b=<b> v=<v> set=<set_name>}`.
 
-    If validation fails (glyph missing or inactive), an appropriate `GlyphError`
+    If validation fails (glyph missing or inactive), an appropriate `NormalizeError`
     is appended to the mutable `errors` list, and the match is left unmodified.
 
     Args:
@@ -32,7 +32,7 @@ def make_replace_fn(
         set_name (str): The target dataset/set identifier assigned to normalized tags.
 
     Returns:
-        ReplaceFn: A callback closure with signature `(re.Match[str], list[GlyphError]) -> str`.
+        ReplaceFn: A closure with signature `(re.Match[str], list[NormalizeError]) -> str`.
 
     Examples:
         >>> table = {"MJ012345": {"b": "U+4E00", "v": "v6_02", "active": True}}
@@ -44,11 +44,11 @@ def make_replace_fn(
 
     def replace_fn(match: re.Match[str], errors: list[NormalizeError]) -> str:
         """
-        Process a regex tag match, performing lookup, validation, and string normalization.
+        Process a regex tag match, performing lookup, validation, and tag normalization.
 
         Args:
             match (re.Match[str]): Regex match object corresponding to a tag.
-            errors (list[GlyphError]): Mutable list to store encountered validation errors.
+            errors (list[NormalizeError]): Mutable list to store encountered validation errors.
 
         Returns:
             str: Normalized tag string if valid; original matched text otherwise.
