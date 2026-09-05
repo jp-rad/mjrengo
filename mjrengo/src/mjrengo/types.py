@@ -12,7 +12,7 @@ from typing import Any, Protocol
 
 
 @dataclass
-class NormalizeError:
+class TagError:
     """
     Represents an error encountered during tag lookup, validation, or normalization.
 
@@ -60,7 +60,7 @@ class NormalizeResult:
 
     success: bool
     text: str
-    errors: list[NormalizeError] = field(default_factory=list)
+    errors: list[TagError] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """
@@ -90,7 +90,7 @@ class ReplaceFn(Protocol):
     error list, returning a normalized replacement string while appending encountered errors.
     """
 
-    def __call__(self, match: re.Match[str], errors: list[NormalizeError]) -> str:
+    def __call__(self, match: re.Match[str], errors: list[TagError]) -> str:
         """
         Process a regex tag match and record any non-fatal validation errors.
 
