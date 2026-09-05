@@ -8,7 +8,7 @@ of Glyph Tags using a delegated callback function (`ReplaceFn`).
 from typing import List, Optional
 
 from mjrengo.tag_parser import TagParser
-from mjrengo.types import GlyphError, GlyphResult, ReplaceFn
+from mjrengo.types import NormalizeError, NormalizeResult, ReplaceFn
 
 
 class GlyphNormalizer:
@@ -33,7 +33,7 @@ class GlyphNormalizer:
         self,
         text: str,
         replace_fn: Optional[ReplaceFn] = None
-    ) -> GlyphResult:
+    ) -> NormalizeResult:
         """
         Execute normalization on the input text.
 
@@ -53,13 +53,13 @@ class GlyphNormalizer:
             ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
         """
         if not text:
-            return GlyphResult(success=True, text="", errors=[])
+            return NormalizeResult(success=True, text="", errors=[])
 
         fn = replace_fn or self.replace_fn
         if fn is None:
             raise ValueError("replace_fn is required in __init__ or normalize()")
 
-        errors: List[GlyphError] = []
+        errors: List[NormalizeError] = []
 
         normalized_text = TagParser.process_pipeline(
             text=text,
@@ -67,7 +67,7 @@ class GlyphNormalizer:
             unescape=False,  # Retain '{{' escape sequences during normalization
         )
 
-        return GlyphResult(
+        return NormalizeResult(
             success=len(errors) == 0,
             text=normalized_text,
             errors=errors,
