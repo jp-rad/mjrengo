@@ -95,31 +95,33 @@ using a delegated callback function (<code>ReplaceFn</code>).</p>
 
         Returns:
             NormalizeResult: Result object containing the normalized text, success status,
-                and any accumulated errors.
+                and any accumulated warnings or errors.
 
         Raises:
             ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
         &#34;&#34;&#34;
         if not text:
-            return NormalizeResult(success=True, text=&#34;&#34;, errors=[])
+            return NormalizeResult(success=True, text=&#34;&#34;, issues=[])
 
         fn = replace_fn or self.replace_fn
         if fn is None:
             raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
 
-        errors: list[TagIssue] = []
+        issues: list[TagIssue] = []
 
         normalized_text = TagParser.process_pipeline(
             text=text,
             replacer=fn,
             unescape=False,  # Retain &#39;{{&#39; escape sequences during normalization
-            errors=errors,
+            issues=issues,
         )
 
+        has_errors = any(i.level == IssueLevel.ERROR for i in issues)
+
         return NormalizeResult(
-            success=len(errors) == 0,
+            success=not has_errors,
             text=normalized_text,
-            errors=errors,
+            issues=issues,
         )</code></pre>
 </details>
 <div class="desc"><p>Stateless normalization engine for processing text containing Glyph Tags.</p>
@@ -161,31 +163,33 @@ during the <code>normalize()</code> method call.</p>
 
     Returns:
         NormalizeResult: Result object containing the normalized text, success status,
-            and any accumulated errors.
+            and any accumulated warnings or errors.
 
     Raises:
         ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
     &#34;&#34;&#34;
     if not text:
-        return NormalizeResult(success=True, text=&#34;&#34;, errors=[])
+        return NormalizeResult(success=True, text=&#34;&#34;, issues=[])
 
     fn = replace_fn or self.replace_fn
     if fn is None:
         raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
 
-    errors: list[TagIssue] = []
+    issues: list[TagIssue] = []
 
     normalized_text = TagParser.process_pipeline(
         text=text,
         replacer=fn,
         unescape=False,  # Retain &#39;{{&#39; escape sequences during normalization
-        errors=errors,
+        issues=issues,
     )
 
+    has_errors = any(i.level == IssueLevel.ERROR for i in issues)
+
     return NormalizeResult(
-        success=len(errors) == 0,
+        success=not has_errors,
         text=normalized_text,
-        errors=errors,
+        issues=issues,
     )</code></pre>
 </details>
 <div class="desc"><p>Execute normalization on the input text.</p>
@@ -203,7 +207,7 @@ Overrides instance <code>self.replace_fn</code> if provided.</dd>
 <dt>-----=</dt>
 <dt><code><a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></code></dt>
 <dd>Result object containing the normalized text, success status,
-and any accumulated errors.</dd>
+and any accumulated warnings or errors.</dd>
 <dt>Raises</dt>
 <dt>-----=</dt>
 <dt><code>ValueError</code></dt>
@@ -214,7 +218,7 @@ and any accumulated errors.</dd>
 </dd>
 <dt id="mjrengo.glyph_normalizer.NormalizeResult"><code class="flex name class">
 <span>class <span class="ident">NormalizeResult</span></span>
-<span>(</span><span>success: bool,<br>text: str,<br>errors: list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>] = &lt;factory&gt;)</span>
+<span>(</span><span>success: bool,<br>text: str,<br>issues: list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>] = &lt;factory&gt;)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -227,28 +231,47 @@ class NormalizeResult:
     Encapsulates the final outcome of a tag normalization pipeline operation.
 
     Attributes:
-        success (bool): Indicates whether the process completed without validation errors.
+        success (bool): Indicates whether the process completed without error-level issues.
         text (str): The transformed or normalized output string.
-        errors (list[TagError]): List of non-fatal validation errors collected
-            during the normalization process.
+        issues (list[TagIssue]): List of collected warnings and errors.
     &#34;&#34;&#34;
 
     success: bool
     text: str
-    errors: list[TagIssue] = field(default_factory=list)
+    issues: list[TagIssue] = field(default_factory=list)
+
+    @property
+    def errors(self) -&gt; list[TagIssue]:
+        &#34;&#34;&#34;
+        Filter and return only error-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.ERROR`.
+        &#34;&#34;&#34;
+        return [i for i in self.issues if i.level == IssueLevel.ERROR]
+
+    @property
+    def warnings(self) -&gt; list[TagIssue]:
+        &#34;&#34;&#34;
+        Filter and return only warning-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.WARNING`.
+        &#34;&#34;&#34;
+        return [i for i in self.issues if i.level == IssueLevel.WARNING]
 
     def to_dict(self) -&gt; dict[str, Any]:
         &#34;&#34;&#34;
-        Convert the result object and its collected errors into a dictionary.
+        Convert the result object and its collected issues into a dictionary.
 
         Returns:
             dict[str, Any]: Serialized dictionary containing status, output text,
-                and error dictionaries.
+                and issue dictionaries.
         &#34;&#34;&#34;
         return {
             &#34;success&#34;: self.success,
             &#34;text&#34;: self.text,
-            &#34;errors&#34;: [e.to_dict() for e in self.errors],
+            &#34;issues&#34;: [i.to_dict() for i in self.issues],
         }</code></pre>
 </details>
 <div class="desc"><p>Encapsulates the final outcome of a tag normalization pipeline operation.</p>
@@ -256,16 +279,39 @@ class NormalizeResult:
 <dt>Attributes</dt>
 <dt>-----=</dt>
 <dt><strong><code>success</code></strong> :&ensp;<code>bool</code></dt>
-<dd>Indicates whether the process completed without validation errors.</dd>
+<dd>Indicates whether the process completed without error-level issues.</dd>
 <dt><strong><code>text</code></strong> :&ensp;<code>str</code></dt>
 <dd>The transformed or normalized output string.</dd>
-<dt><strong><code>errors</code></strong> :&ensp;<code>list[TagError]</code></dt>
-<dd>List of non-fatal validation errors collected
-during the normalization process.</dd>
+<dt><strong><code>issues</code></strong> :&ensp;<code>list[TagIssue]</code></dt>
+<dd>List of collected warnings and errors.</dd>
 </dl></div>
 <h3>Instance variables</h3>
 <dl>
-<dt id="mjrengo.glyph_normalizer.NormalizeResult.errors"><code class="name">var <span class="ident">errors</span> : list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>]</code></dt>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.errors"><code class="name">prop <span class="ident">errors</span> : list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def errors(self) -&gt; list[TagIssue]:
+    &#34;&#34;&#34;
+    Filter and return only error-level issues.
+
+    Returns:
+        list[TagIssue]: List of issues with `IssueLevel.ERROR`.
+    &#34;&#34;&#34;
+    return [i for i in self.issues if i.level == IssueLevel.ERROR]</code></pre>
+</details>
+<div class="desc"><p>Filter and return only error-level issues.</p>
+<dl>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>list[TagIssue]</code></dt>
+<dd>List of issues with <code>IssueLevel.ERROR</code>.</dd>
+</dl></div>
+</dd>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.issues"><code class="name">var <span class="ident">issues</span> : list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>]</code></dt>
 <dd>
 <div class="desc"><p>The type of the None singleton.</p></div>
 </dd>
@@ -276,6 +322,30 @@ during the normalization process.</dd>
 <dt id="mjrengo.glyph_normalizer.NormalizeResult.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
 <dd>
 <div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.warnings"><code class="name">prop <span class="ident">warnings</span> : list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>]</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def warnings(self) -&gt; list[TagIssue]:
+    &#34;&#34;&#34;
+    Filter and return only warning-level issues.
+
+    Returns:
+        list[TagIssue]: List of issues with `IssueLevel.WARNING`.
+    &#34;&#34;&#34;
+    return [i for i in self.issues if i.level == IssueLevel.WARNING]</code></pre>
+</details>
+<div class="desc"><p>Filter and return only warning-level issues.</p>
+<dl>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>list[TagIssue]</code></dt>
+<dd>List of issues with <code>IssueLevel.WARNING</code>.</dd>
+</dl></div>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -290,25 +360,25 @@ during the normalization process.</dd>
 </summary>
 <pre><code class="python">def to_dict(self) -&gt; dict[str, Any]:
     &#34;&#34;&#34;
-    Convert the result object and its collected errors into a dictionary.
+    Convert the result object and its collected issues into a dictionary.
 
     Returns:
         dict[str, Any]: Serialized dictionary containing status, output text,
-            and error dictionaries.
+            and issue dictionaries.
     &#34;&#34;&#34;
     return {
         &#34;success&#34;: self.success,
         &#34;text&#34;: self.text,
-        &#34;errors&#34;: [e.to_dict() for e in self.errors],
+        &#34;issues&#34;: [i.to_dict() for i in self.issues],
     }</code></pre>
 </details>
-<div class="desc"><p>Convert the result object and its collected errors into a dictionary.</p>
+<div class="desc"><p>Convert the result object and its collected issues into a dictionary.</p>
 <dl>
 <dt>Returns</dt>
 <dt>-----=</dt>
 <dt><code>dict[str, Any]</code></dt>
 <dd>Serialized dictionary containing status, output text,
-and error dictionaries.</dd>
+and issue dictionaries.</dd>
 </dl></div>
 </dd>
 </dl>
@@ -336,11 +406,13 @@ and error dictionaries.</dd>
 </li>
 <li>
 <h4><code><a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.errors" href="#mjrengo.glyph_normalizer.NormalizeResult.errors">errors</a></code></li>
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.issues" href="#mjrengo.glyph_normalizer.NormalizeResult.issues">issues</a></code></li>
 <li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.success" href="#mjrengo.glyph_normalizer.NormalizeResult.success">success</a></code></li>
 <li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.text" href="#mjrengo.glyph_normalizer.NormalizeResult.text">text</a></code></li>
 <li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.to_dict" href="#mjrengo.glyph_normalizer.NormalizeResult.to_dict">to_dict</a></code></li>
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.warnings" href="#mjrengo.glyph_normalizer.NormalizeResult.warnings">warnings</a></code></li>
 </ul>
 </li>
 </ul>

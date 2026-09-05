@@ -64,9 +64,12 @@ class GlyphRenderer:
         actual_use_base = self.use_base if use_base is None else use_base
         actual_tofu = self.tofu if tofu is None else tofu
 
-        def _render_tag(m: re.Match[str], issues=None) -> str:            
-            b_attr = m.group("b")
-            v_attr = m.group("v")
+        def _render_tag(m: re.Match[str], issues=None) -> str:# 1. 波カッコの中身を取得
+            content = m.group("content")
+            _, properties = TagParser.parse_tag_content(content)
+            
+            b_attr = properties.get("b")
+            v_attr = properties.get("v")
 
             if actual_use_base:
                 target_seq = b_attr or actual_tofu
