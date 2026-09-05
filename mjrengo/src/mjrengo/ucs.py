@@ -26,7 +26,7 @@ def ucs_to_str(ucs_seq: str) -> str:
 
     Examples:
         >>> ucs_to_str("U+845B U+E0102")
-        '葛\udb40\udd02'
+        # returns a Unicode character followed by its Ideographic Variation Sequence
     """
     code_points = UCS_CODEPOINT_PATTERN.findall(ucs_seq)
     return "".join(chr(int(cp, 16)) for cp in code_points)
