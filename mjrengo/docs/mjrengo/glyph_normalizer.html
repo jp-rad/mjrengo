@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
 <title>mjrengo.glyph_normalizer API documentation</title>
-<meta name="description" content="">
+<meta name="description" content="Glyph Tag normalization models and processing engine for the tofurengo library …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,6 +36,10 @@ el.replaceWith(d);
 <h1 class="title">Module <code>mjrengo.glyph_normalizer</code></h1>
 </header>
 <section id="section-intro">
+<p>Glyph Tag normalization models and processing engine for the tofurengo library.</p>
+<p>This module provides data models for tracking normalization results (<code><a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></code>)
+and the <code><a title="mjrengo.glyph_normalizer.GlyphNormalizer" href="#mjrengo.glyph_normalizer.GlyphNormalizer">GlyphNormalizer</a></code> class, which handles the normalization phase of Glyph Tags
+using a delegated callback function (<code>ReplaceFn</code>).</p>
 </section>
 <section>
 </section>
@@ -48,7 +52,7 @@ el.replaceWith(d);
 <dl>
 <dt id="mjrengo.glyph_normalizer.GlyphNormalizer"><code class="flex name class">
 <span>class <span class="ident">GlyphNormalizer</span></span>
-<span>(</span><span>replace_fn: <a title="mjrengo.types.ReplaceFn" href="types.html#mjrengo.types.ReplaceFn">ReplaceFn</a> | None = None)</span>
+<span>(</span><span>replace_fn: <a title="mjrengo.tag_parser.ReplaceFn" href="tag_parser.html#mjrengo.tag_parser.ReplaceFn">ReplaceFn</a> | None = None)</span>
 </code></dt>
 <dd>
 <details class="source">
@@ -57,60 +61,82 @@ el.replaceWith(d);
 </summary>
 <pre><code class="python">class GlyphNormalizer:
     &#34;&#34;&#34;
-    ステートレスな正規化クラス。
-    タグ解析および置換の実装詳細は replace_fn コールバックへ委任する。
+    Stateless normalization engine for processing text containing Glyph Tags.
 
-    `replace_fn` はコンストラクタでの事前設定、または `normalize()` 実行時の動的指定の両方に対応。
+    Delegates tag lookup and attribute reconstruction details to a `ReplaceFn` callback.
+    The `replace_fn` can be provided either during initialization or dynamically
+    during the `normalize()` method call.
     &#34;&#34;&#34;
 
-    def __init__(self, replace_fn: Optional[ReplaceFn] = None):
+    def __init__(self, replace_fn: Optional[ReplaceFn] = None) -&gt; None:
         &#34;&#34;&#34;
-        :param replace_fn: デフォルトで利用する ReplaceFn（任意）
+        Initialize the GlyphNormalizer.
+
+        Args:
+            replace_fn (Optional[ReplaceFn]): Default replacement callback function.
         &#34;&#34;&#34;
         self.replace_fn = replace_fn
 
     def normalize(
-        self, 
-        text: str, 
-        replace_fn: Optional[ReplaceFn] = None
-    ) -&gt; GlyphResult:
+        self,
+        text: str,
+        replace_fn: Optional[ReplaceFn] = None,
+    ) -&gt; NormalizeResult:
         &#34;&#34;&#34;
-        正規化メイン処理
+        Execute normalization on the input text.
 
-        :param text: 対象テキスト
-        :param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）
+        Replaces Glyph Tags with their canonical attributes while preserving
+        the opening escape tokens (`{{`).
+
+        Args:
+            text (str): Input text containing Glyph Tags.
+            replace_fn (Optional[ReplaceFn]): Replacement callback to use for this call.
+                Overrides instance `self.replace_fn` if provided.
+
+        Returns:
+            NormalizeResult: Result object containing the normalized text, success status,
+                and any accumulated errors.
+
+        Raises:
+            ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
         &#34;&#34;&#34;
         if not text:
-            return GlyphResult(success=True, text=&#34;&#34;, errors=[])
+            return NormalizeResult(success=True, text=&#34;&#34;, errors=[])
 
-        # 優先順位: 引数の replace_fn &gt; インスタンスの self.replace_fn
         fn = replace_fn or self.replace_fn
         if fn is None:
             raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
 
-        errors: List[GlyphError] = []
+        errors: list[TagIssue] = []
 
-        # GlyphUtils.process_pipeline で「退避 -&gt; 置換 -&gt; {{ }} 復元」を一括実行
-        normalized_text = GlyphUtils.process_pipeline(
+        normalized_text = TagParser.process_pipeline(
             text=text,
-            replacer=lambda m: fn(m, errors),
-            unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
+            replacer=fn,
+            unescape=False,  # Retain &#39;{{&#39; escape sequences during normalization
+            errors=errors,
         )
 
-        return GlyphResult(
+        return NormalizeResult(
             success=len(errors) == 0,
             text=normalized_text,
             errors=errors,
         )</code></pre>
 </details>
-<div class="desc"><p>ステートレスな正規化クラス。
-タグ解析および置換の実装詳細は replace_fn コールバックへ委任する。</p>
-<p><code>replace_fn</code> はコンストラクタでの事前設定、または <code>normalize()</code> 実行時の動的指定の両方に対応。</p>
-<p>:param replace_fn: デフォルトで利用する ReplaceFn（任意）</p></div>
+<div class="desc"><p>Stateless normalization engine for processing text containing Glyph Tags.</p>
+<p>Delegates tag lookup and attribute reconstruction details to a <code>ReplaceFn</code> callback.
+The <code>replace_fn</code> can be provided either during initialization or dynamically
+during the <code>normalize()</code> method call.</p>
+<p>Initialize the GlyphNormalizer.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>replace_fn</code></strong> :&ensp;<code>Optional[ReplaceFn]</code></dt>
+<dd>Default replacement callback function.</dd>
+</dl></div>
 <h3>Methods</h3>
 <dl>
 <dt id="mjrengo.glyph_normalizer.GlyphNormalizer.normalize"><code class="name flex">
-<span>def <span class="ident">normalize</span></span>(<span>self,<br>text: str,<br>replace_fn: <a title="mjrengo.types.ReplaceFn" href="types.html#mjrengo.types.ReplaceFn">ReplaceFn</a> | None = None) ‑> <a title="mjrengo.types.GlyphResult" href="types.html#mjrengo.types.GlyphResult">GlyphResult</a></span>
+<span>def <span class="ident">normalize</span></span>(<span>self,<br>text: str,<br>replace_fn: <a title="mjrengo.tag_parser.ReplaceFn" href="tag_parser.html#mjrengo.tag_parser.ReplaceFn">ReplaceFn</a> | None = None) ‑> <a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></span>
 </code></dt>
 <dd>
 <details class="source">
@@ -118,42 +144,172 @@ el.replaceWith(d);
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def normalize(
-    self, 
-    text: str, 
-    replace_fn: Optional[ReplaceFn] = None
-) -&gt; GlyphResult:
+    self,
+    text: str,
+    replace_fn: Optional[ReplaceFn] = None,
+) -&gt; NormalizeResult:
     &#34;&#34;&#34;
-    正規化メイン処理
+    Execute normalization on the input text.
 
-    :param text: 対象テキスト
-    :param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）
+    Replaces Glyph Tags with their canonical attributes while preserving
+    the opening escape tokens (`{{`).
+
+    Args:
+        text (str): Input text containing Glyph Tags.
+        replace_fn (Optional[ReplaceFn]): Replacement callback to use for this call.
+            Overrides instance `self.replace_fn` if provided.
+
+    Returns:
+        NormalizeResult: Result object containing the normalized text, success status,
+            and any accumulated errors.
+
+    Raises:
+        ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
     &#34;&#34;&#34;
     if not text:
-        return GlyphResult(success=True, text=&#34;&#34;, errors=[])
+        return NormalizeResult(success=True, text=&#34;&#34;, errors=[])
 
-    # 優先順位: 引数の replace_fn &gt; インスタンスの self.replace_fn
     fn = replace_fn or self.replace_fn
     if fn is None:
         raise ValueError(&#34;replace_fn is required in __init__ or normalize()&#34;)
 
-    errors: List[GlyphError] = []
+    errors: list[TagIssue] = []
 
-    # GlyphUtils.process_pipeline で「退避 -&gt; 置換 -&gt; {{ }} 復元」を一括実行
-    normalized_text = GlyphUtils.process_pipeline(
+    normalized_text = TagParser.process_pipeline(
         text=text,
-        replacer=lambda m: fn(m, errors),
-        unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
+        replacer=fn,
+        unescape=False,  # Retain &#39;{{&#39; escape sequences during normalization
+        errors=errors,
     )
 
-    return GlyphResult(
+    return NormalizeResult(
         success=len(errors) == 0,
         text=normalized_text,
         errors=errors,
     )</code></pre>
 </details>
-<div class="desc"><p>正規化メイン処理</p>
-<p>:param text: 対象テキスト
-:param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）</p></div>
+<div class="desc"><p>Execute normalization on the input text.</p>
+<p>Replaces Glyph Tags with their canonical attributes while preserving
+the opening escape tokens (<code>{{</code>).</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>text</code></strong> :&ensp;<code>str</code></dt>
+<dd>Input text containing Glyph Tags.</dd>
+<dt><strong><code>replace_fn</code></strong> :&ensp;<code>Optional[ReplaceFn]</code></dt>
+<dd>Replacement callback to use for this call.
+Overrides instance <code>self.replace_fn</code> if provided.</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code><a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></code></dt>
+<dd>Result object containing the normalized text, success status,
+and any accumulated errors.</dd>
+<dt>Raises</dt>
+<dt>-----=</dt>
+<dt><code>ValueError</code></dt>
+<dd>If no <code>replace_fn</code> is provided in either <code>__init__</code> or <code>normalize()</code>.</dd>
+</dl></div>
+</dd>
+</dl>
+</dd>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult"><code class="flex name class">
+<span>class <span class="ident">NormalizeResult</span></span>
+<span>(</span><span>success: bool,<br>text: str,<br>errors: list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>] = &lt;factory&gt;)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass
+class NormalizeResult:
+    &#34;&#34;&#34;
+    Encapsulates the final outcome of a tag normalization pipeline operation.
+
+    Attributes:
+        success (bool): Indicates whether the process completed without validation errors.
+        text (str): The transformed or normalized output string.
+        errors (list[TagError]): List of non-fatal validation errors collected
+            during the normalization process.
+    &#34;&#34;&#34;
+
+    success: bool
+    text: str
+    errors: list[TagIssue] = field(default_factory=list)
+
+    def to_dict(self) -&gt; dict[str, Any]:
+        &#34;&#34;&#34;
+        Convert the result object and its collected errors into a dictionary.
+
+        Returns:
+            dict[str, Any]: Serialized dictionary containing status, output text,
+                and error dictionaries.
+        &#34;&#34;&#34;
+        return {
+            &#34;success&#34;: self.success,
+            &#34;text&#34;: self.text,
+            &#34;errors&#34;: [e.to_dict() for e in self.errors],
+        }</code></pre>
+</details>
+<div class="desc"><p>Encapsulates the final outcome of a tag normalization pipeline operation.</p>
+<dl>
+<dt>Attributes</dt>
+<dt>-----=</dt>
+<dt><strong><code>success</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Indicates whether the process completed without validation errors.</dd>
+<dt><strong><code>text</code></strong> :&ensp;<code>str</code></dt>
+<dd>The transformed or normalized output string.</dd>
+<dt><strong><code>errors</code></strong> :&ensp;<code>list[TagError]</code></dt>
+<dd>List of non-fatal validation errors collected
+during the normalization process.</dd>
+</dl></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.errors"><code class="name">var <span class="ident">errors</span> : list[<a title="mjrengo.tag_parser.TagIssue" href="tag_parser.html#mjrengo.tag_parser.TagIssue">TagIssue</a>]</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.success"><code class="name">var <span class="ident">success</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
+<dd>
+<div class="desc"><p>The type of the None singleton.</p></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="mjrengo.glyph_normalizer.NormalizeResult.to_dict"><code class="name flex">
+<span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict[str, typing.Any]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_dict(self) -&gt; dict[str, Any]:
+    &#34;&#34;&#34;
+    Convert the result object and its collected errors into a dictionary.
+
+    Returns:
+        dict[str, Any]: Serialized dictionary containing status, output text,
+            and error dictionaries.
+    &#34;&#34;&#34;
+    return {
+        &#34;success&#34;: self.success,
+        &#34;text&#34;: self.text,
+        &#34;errors&#34;: [e.to_dict() for e in self.errors],
+    }</code></pre>
+</details>
+<div class="desc"><p>Convert the result object and its collected errors into a dictionary.</p>
+<dl>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>dict[str, Any]</code></dt>
+<dd>Serialized dictionary containing status, output text,
+and error dictionaries.</dd>
+</dl></div>
 </dd>
 </dl>
 </dd>
@@ -176,6 +332,15 @@ el.replaceWith(d);
 <h4><code><a title="mjrengo.glyph_normalizer.GlyphNormalizer" href="#mjrengo.glyph_normalizer.GlyphNormalizer">GlyphNormalizer</a></code></h4>
 <ul class="">
 <li><code><a title="mjrengo.glyph_normalizer.GlyphNormalizer.normalize" href="#mjrengo.glyph_normalizer.GlyphNormalizer.normalize">normalize</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="mjrengo.glyph_normalizer.NormalizeResult" href="#mjrengo.glyph_normalizer.NormalizeResult">NormalizeResult</a></code></h4>
+<ul class="">
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.errors" href="#mjrengo.glyph_normalizer.NormalizeResult.errors">errors</a></code></li>
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.success" href="#mjrengo.glyph_normalizer.NormalizeResult.success">success</a></code></li>
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.text" href="#mjrengo.glyph_normalizer.NormalizeResult.text">text</a></code></li>
+<li><code><a title="mjrengo.glyph_normalizer.NormalizeResult.to_dict" href="#mjrengo.glyph_normalizer.NormalizeResult.to_dict">to_dict</a></code></li>
 </ul>
 </li>
 </ul>

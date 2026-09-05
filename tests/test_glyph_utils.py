@@ -13,16 +13,16 @@ class TestGlyphUtilsTokenEscape:
 
     def test_escape_tokens(self):
         input_text = "Text with {{escaped}} and {normal} tags."
-        expected = f"Text with {MARK_LB}escaped}} and {normal} tags."
+        expected = "Text with " + MARK_LB + "escaped}} and {normal} tags."
         assert TagParser.escape_tokens(input_text) == expected
 
     def test_restore_tokens_keep_escape(self):
-        input_text = f"Text with {MARK_LB}escaped}} and tags."
+        input_text = f"Text with {MARK_LB}escaped}}}} and tags."
         expected = "Text with {{escaped}} and tags."
-        assert TagParser.restore_tokens_keep_escape(input_text) == expected
+        assert TagParser.restore_tokens_preserve_escape(input_text) == expected
 
     def test_restore_tokens_unescape(self):
-        input_text = f"Text with {MARK_LB}escaped}} and tags."
+        input_text = f"Text with {MARK_LB}escaped}}}} and tags."
         expected = "Text with {escaped}} and tags."
         assert TagParser.restore_tokens_unescape(input_text) == expected
 
@@ -64,7 +64,7 @@ class TestGlyphUtilsProcessPipeline:
         """normalize モード (unescape=False): {{ }} が維持され、{ } のみが置換される"""
         text = "Hello {GJ000001} and {{GJ000002}}!"
 
-        def dummy_replacer(m: re.Match) -> str:
+        def dummy_replacer(m: re.Match[str], issues=None) -> str:
             content = m.group(1)
             glyph, _ = TagParser.parse_tag_content(content)
             return f"[{glyph}_NORMALIZED]"
@@ -74,9 +74,9 @@ class TestGlyphUtilsProcessPipeline:
 
     def test_pipeline_render_mode_unescape(self):
         """render モード (unescape=True): {{ }} が { } にアンエスケープされる"""
-        text = "Hello {GJ000001} and {{GJ000002}}!"
+        text = "Hello {GJ000001} and {{GJ000002}!"
 
-        def dummy_replacer(m: re.Match) -> str:
+        def dummy_replacer(m: re.Match[str], issues=None) -> str:
             content = m.group(1)
             glyph, _ = TagParser.parse_tag_content(content)
             return f"[{glyph}_RENDERED]"
