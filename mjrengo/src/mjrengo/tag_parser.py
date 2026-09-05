@@ -2,8 +2,9 @@
 Tag parsing, replacement protocols, and placeholder escaping utilities.
 
 This module provides data models and utilities for tag-based string processing,
-including `TagIssue` for capturing validation warnings and errors, the `ReplaceFn`
-protocol for substitution callbacks, and `TagParser` for managing double-brace escaping.
+including `TagIssue` for capturing validation warnings and errors, `ParsedTag` for
+structured tag attribute access, `ReplaceFn` for substitution callbacks,
+and `TagParser` for managing double-brace escaping.
 """
 
 from dataclasses import dataclass, field
@@ -63,6 +64,56 @@ class TagIssue:
             "level": self.level.value,
             "details": self.details,
         }
+
+
+@dataclass
+class ParsedTag:
+    """
+    Structured representation of a parsed glyph tag's contents.
+
+    Attributes:
+        glyph_name (str): The primary glyph identifier (e.g., 'MJ000001').
+        b (str | None): Value of the 'b' (base UCS) property if present.
+        v (str | None): Value of the 'v' (variation) property if present.
+        set (str | None): Value of the 'set' property if present.
+        properties (dict[str, str]): All extracted key-value pairs.
+    """
+
+    glyph_name: str
+    b: str | None = None
+    v: str | None = None
+    set: str | None = None
+    properties: dict[str, str] = field(default_factory=dict)
+
+    @classmethod
+    def from_content(cls, content: str) -> "ParsedTag":
+        """
+        Construct a `ParsedTag` instance directly from raw tag inner content.
+
+        Args:
+            content (str): Raw string extracted from inside a tag.
+
+        Returns:
+            ParsedTag: Structured object with shortcut accessors for b, v, and set.
+        """
+        tokens = content.strip().split()
+        if not tokens:
+            return cls(glyph_name="")
+
+        glyph_name = tokens[0]
+        properties: dict[str, str] = {}
+        for token in tokens[1:]:
+            if "=" in token:
+                key, value = token.split("=", 1)
+                properties[key] = value
+
+        return cls(
+            glyph_name=glyph_name,
+            b=properties.get("b"),
+            v=properties.get("v"),
+            set=properties.get("set"),
+            properties=properties,
+        )
 
 
 class ReplaceFn(Protocol):
@@ -142,25 +193,15 @@ class TagParser:
         Extract the primary glyph name and key-value properties from tag content.
 
         Args:
-            content (str): Raw string inside a tag (e.g., extracted via `match.group("content")`).
+            content (str): Raw string inside a tag.
 
         Returns:
             tuple[str, dict[str, str]]: A tuple containing:
                 - `glyph_name` (str): Primary identifier token (empty string if missing).
                 - `properties` (dict[str, str]): Key-value pairs parsed from `key=value` tokens.
         """
-        tokens = content.strip().split()
-        if not tokens:
-            return "", {}
-
-        glyph_name = tokens[0]
-        properties: dict[str, str] = {}
-        for token in tokens[1:]:
-            if "=" in token:
-                key, value = token.split("=", 1)
-                properties[key] = value
-
-        return glyph_name, properties
+        tag = ParsedTag.from_content(content)
+        return tag.glyph_name, tag.properties
 
     @classmethod
     def process_pipeline(
