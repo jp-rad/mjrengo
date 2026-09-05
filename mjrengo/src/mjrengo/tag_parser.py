@@ -15,6 +15,7 @@ from typing import Any, Protocol
 MARK_LB: str = "\u0002"
 
 # Matches a single tag enclosed in single braces: {glyph_name key=value ...}
+# Captures the raw tag body inside the "content" named group.
 TAG_PATTERN: re.Pattern[str] = re.compile(
     r"\{"
     r"(?P<content>[^\}]+)"
@@ -78,6 +79,7 @@ class ReplaceFn(Protocol):
 
         Args:
             match (re.Match[str]): The regex match object representing a tag.
+                Use `match.group("content")` to retrieve the raw inner tag string.
             issues (list[TagIssue]): Mutable list to collect encountered issues.
 
         Returns:
@@ -140,7 +142,7 @@ class TagParser:
         Extract the primary glyph name and key-value properties from tag content.
 
         Args:
-            content (str): Raw string inside a tag.
+            content (str): Raw string inside a tag (e.g., extracted via `match.group("content")`).
 
         Returns:
             tuple[str, dict[str, str]]: A tuple containing:
