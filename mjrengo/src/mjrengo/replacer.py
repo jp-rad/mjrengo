@@ -8,7 +8,7 @@ regex substitution callbacks used during tag normalization pipelines.
 import re
 from typing import Any
 
-from mjrengo.tag_parser import TagError, ReplaceFn
+from mjrengo.tag_parser import TagIssue, ReplaceFn
 
 
 def make_replace_fn(
@@ -41,7 +41,7 @@ def make_replace_fn(
         >>> # replace_fn(match, errors) -> "{MJ012345 b=U+4E00 v=v6_02 set=mj}"
     """
 
-    def replace_fn(match: re.Match[str], errors: list[TagError]) -> str:
+    def replace_fn(match: re.Match[str], errors: list[TagIssue]) -> str:
         """
         Process a regex tag match, performing lookup, validation, and tag normalization.
 
@@ -66,7 +66,7 @@ def make_replace_fn(
             code = "error.glyph.not_found"
             msg = f"Glyph '{glyph}' does not exist in dataset '{set_name}'."
             errors.append(
-                TagError(
+                TagIssue(
                     code=code,
                     message=f"{code}: {msg}",
                     details={"glyph": glyph, "set": set_name},
@@ -81,7 +81,7 @@ def make_replace_fn(
             code = "error.glyph.archived"
             msg = f"Glyph '{glyph}' is archived or inactive."
             errors.append(
-                TagError(
+                TagIssue(
                     code=code,
                     message=f"{code}: {msg}",
                     details={"glyph": glyph, "set": set_name},
