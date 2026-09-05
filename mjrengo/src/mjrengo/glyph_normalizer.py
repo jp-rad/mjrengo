@@ -7,8 +7,8 @@ of Glyph Tags using a delegated callback function (`ReplaceFn`).
 
 from typing import List, Optional
 
-from mjrengo.tag_parser import TagParser
-from mjrengo.types import TagError, NormalizeResult, ReplaceFn
+from mjrengo.tag_parser import TagError, ReplaceFn, TagParser
+from mjrengo.types import NormalizeResult
 
 
 class GlyphNormalizer:
