@@ -5,11 +5,10 @@ This module provides factory functions such as `make_replace_fn` to generate
 regex substitution callbacks used during tag normalization pipelines.
 """
 
-from collections.abc import Callable
 import re
 from typing import Any
 
-from mjrengo.types import TagError, ReplaceFn
+from mjrengo.tag_parser import TagError, ReplaceFn
 
 
 def make_replace_fn(
@@ -48,7 +47,7 @@ def make_replace_fn(
 
         Args:
             match (re.Match[str]): Regex match object corresponding to a tag.
-            errors (list[NormalizeError]): Mutable list to store encountered validation errors.
+            errors (list[TagError]): Mutable list to store encountered validation errors.
 
         Returns:
             str: Normalized tag string if valid; original matched text otherwise.
