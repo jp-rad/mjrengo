@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
 <title>mjrengo.ucs API documentation</title>
-<meta name="description" content="">
+<meta name="description" content="Unicode and UCS code point conversion utilities for glyph processing …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,6 +36,9 @@ el.replaceWith(d);
 <h1 class="title">Module <code>mjrengo.ucs</code></h1>
 </header>
 <section id="section-intro">
+<p>Unicode and UCS code point conversion utilities for glyph processing.</p>
+<p>This module provides bidirectional conversion functions between native Python
+glyph character representations and formatted UCS code point sequences.</p>
 </section>
 <section>
 </section>
@@ -44,40 +47,80 @@ el.replaceWith(d);
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="mjrengo.ucs.decode_ucs"><code class="name flex">
-<span>def <span class="ident">decode_ucs</span></span>(<span>seq: str) ‑> str</span>
+<dt id="mjrengo.ucs.glyph_to_ucs"><code class="name flex">
+<span>def <span class="ident">glyph_to_ucs</span></span>(<span>glyph: str) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decode_ucs(seq: str) -&gt; str:
+<pre><code class="python">def glyph_to_ucs(glyph: str) -&gt; str:
     &#34;&#34;&#34;
-    Decode a UCS codepoint sequence into a Unicode string.
-    Supports BMP + Supplementary Plane + IVS.
+    Convert a native Unicode glyph representation into a space-separated UCS string.
+
+    Encodes characters (including surrogate pairs and Ideographic Variation Sequences)
+    into formatted &#34;U+XXXX&#34; hexadecimal code point strings.
+
+    Args:
+        glyph (str): Native Unicode string representing a single glyph or IVS sequence.
+
+    Returns:
+        str: Space-separated UCS code point sequence formatted as &#34;U+XXXX&#34;.
     &#34;&#34;&#34;
-    cps = re.findall(r&#34;U\+([0-9A-Fa-f]{4,6})&#34;, seq)
-    return &#34;&#34;.join(chr(int(cp, 16)) for cp in cps)</code></pre>
+    return &#34; &#34;.join(f&#34;U+{ord(char):X}&#34; for char in glyph)</code></pre>
 </details>
-<div class="desc"><p>Decode a UCS codepoint sequence into a Unicode string.
-Supports BMP + Supplementary Plane + IVS.</p></div>
+<div class="desc"><p>Convert a native Unicode glyph representation into a space-separated UCS string.</p>
+<p>Encodes characters (including surrogate pairs and Ideographic Variation Sequences)
+into formatted "U+XXXX" hexadecimal code point strings.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>glyph</code></strong> :&ensp;<code>str</code></dt>
+<dd>Native Unicode string representing a single glyph or IVS sequence.</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>str</code></dt>
+<dd>Space-separated UCS code point sequence formatted as "U+XXXX".</dd>
+</dl></div>
 </dd>
-<dt id="mjrengo.ucs.encode_ucs"><code class="name flex">
-<span>def <span class="ident">encode_ucs</span></span>(<span>char: str) ‑> str</span>
+<dt id="mjrengo.ucs.ucs_to_glyph"><code class="name flex">
+<span>def <span class="ident">ucs_to_glyph</span></span>(<span>ucs_seq: str) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def encode_ucs(char: str) -&gt; str:
+<pre><code class="python">def ucs_to_glyph(ucs_seq: str) -&gt; str:
     &#34;&#34;&#34;
-    Encode a Unicode string (including IVS) into a UCSSeq.
+    Convert a space-separated UCS code point sequence into a native Unicode glyph string.
+
+    Decodes formatted &#34;U+XXXX&#34; hexadecimal strings back into standard Unicode characters,
+    handling supplementary planes and Ideographic Variation Sequences (IVS).
+
+    Args:
+        ucs_seq (str): Space-separated UCS code point string (e.g., &#34;U+845B U+E0102&#34;).
+
+    Returns:
+        str: Decoded native Unicode glyph string.
     &#34;&#34;&#34;
-    return &#34; &#34;.join(f&#34;U+{ord(c):X}&#34; for c in char)</code></pre>
+    code_points = UCS_CODEPOINT_PATTERN.findall(ucs_seq)
+    return &#34;&#34;.join(chr(int(cp, 16)) for cp in code_points)</code></pre>
 </details>
-<div class="desc"><p>Encode a Unicode string (including IVS) into a UCSSeq.</p></div>
+<div class="desc"><p>Convert a space-separated UCS code point sequence into a native Unicode glyph string.</p>
+<p>Decodes formatted "U+XXXX" hexadecimal strings back into standard Unicode characters,
+handling supplementary planes and Ideographic Variation Sequences (IVS).</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>ucs_seq</code></strong> :&ensp;<code>str</code></dt>
+<dd>Space-separated UCS code point string (e.g., "U+845B U+E0102").</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>str</code></dt>
+<dd>Decoded native Unicode glyph string.</dd>
+</dl></div>
 </dd>
 </dl>
 </section>
@@ -96,8 +139,8 @@ Supports BMP + Supplementary Plane + IVS.</p></div>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="mjrengo.ucs.decode_ucs" href="#mjrengo.ucs.decode_ucs">decode_ucs</a></code></li>
-<li><code><a title="mjrengo.ucs.encode_ucs" href="#mjrengo.ucs.encode_ucs">encode_ucs</a></code></li>
+<li><code><a title="mjrengo.ucs.glyph_to_ucs" href="#mjrengo.ucs.glyph_to_ucs">glyph_to_ucs</a></code></li>
+<li><code><a title="mjrengo.ucs.ucs_to_glyph" href="#mjrengo.ucs.ucs_to_glyph">ucs_to_glyph</a></code></li>
 </ul>
 </li>
 </ul>
