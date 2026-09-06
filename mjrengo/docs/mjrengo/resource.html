@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
 <title>mjrengo.resource API documentation</title>
-<meta name="description" content="">
+<meta name="description" content="Dynamic dataset resource loader module for the tofurengo library …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,6 +36,10 @@ el.replaceWith(d);
 <h1 class="title">Module <code>mjrengo.resource</code></h1>
 </header>
 <section id="section-intro">
+<p>Dynamic dataset resource loader module for the tofurengo library.</p>
+<p>This module provides mechanisms to dynamically import glyph data modules and datasets
+based on glyph set names and external version string identifiers, resolving their
+corresponding wheel distribution library names dynamically.</p>
 </section>
 <section>
 </section>
@@ -52,80 +56,52 @@ el.replaceWith(d);
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_resource(glyph_set: str, version: str, base: str = &#34;mjrengo.data&#34;) -&gt; Dict[str, Any]:
+<pre><code class="python">def get_resource(
+    glyph_set: str,
+    version: str,
+    base: str = DEFAULT_BASE_NAMESPACE,
+) -&gt; Dict[str, Any]:
     &#34;&#34;&#34;
-    Dynamically load a glyph information system module.
+    Dynamically load and retrieve dataset attributes from a glyph information module.
 
-    Parameters
-    ----------
-    glyph_set : str
-        Name of the glyph information system.
-        This value is not restricted and may grow in the future.
-        Examples:
-            mj
-            mj_plus
-            mj_plusx
-            template
-            any_new_set
+    Constructs the target module path dynamically using `&lt;base&gt;.&lt;glyph_set&gt;.&lt;internal_version&gt;`
+    and verifies that required data symbols (`GLYPH_TABLE`, `VERSION`) exist.
 
-    version : str
-        External version string.
-        Must follow the major.minor.revision structure.
-        Revision may contain &#39;-&#39; or &#39;_&#39;.
-        Examples:
-            6.02.201
-            6.02.201-onka
-            4.10
-            1.20
+    Args:
+        glyph_set (str): Name of the glyph information system (e.g., &#34;mj&#34;, &#34;mj_plus&#34;, &#34;mj_plusx&#34;).
+        version (str): External version string following major.minor.revision conventions.
+        base (str): Base module namespace. Defaults to &#34;tofurengo.data&#34;.
 
-        The version is internally normalized into:
-            v&lt;major&gt;_&lt;minor&gt;_&lt;revision&gt;
+    Returns:
+        Dict[str, Any]: Dictionary containing exported module attributes:
+            - `&#34;GLYPH_TABLE&#34;` (dict): Map of glyph identifiers to character properties.
+            - `&#34;VERSION&#34;` (str): Module version string.
+            - `&#34;LIBRARY_NAME&#34;` (str): Specific wheel (.whl) distribution package name housing the dataset.
 
-    base : str
-        Base namespace for dataset modules.
-        Default: &#34;mjrengo.data&#34;
-        May be replaced with any ASCII namespace:
-            myproject.datasets
-            example.glyph.data
+    Raises:
+        ResourceError: If the target module does not exist or lacks required symbols.
 
-    Module Path
-    -----------
-    The module path constructed is:
+    Examples:
+        &gt;&gt;&gt; # 1. Standard MJ dataset
+        &gt;&gt;&gt; res_mj = get_resource(&#34;mj&#34;, &#34;6.02.201&#34;)
+        &gt;&gt;&gt; res_mj[&#34;LIBRARY_NAME&#34;]
+        &#39;tofurengo-mj-v6-02-201&#39;
 
-        &lt;base&gt;.&lt;glyph_set&gt;.&lt;internal_version&gt;
+        &gt;&gt;&gt; # 2. MJ dataset with revision suffix (-onka)
+        &gt;&gt;&gt; res_onka = get_resource(&#34;mj&#34;, &#34;6.02.201-onka&#34;)
+        &gt;&gt;&gt; res_onka[&#34;LIBRARY_NAME&#34;]
+        &#39;tofurengo-mj-v6-02-201-onka&#39;
 
-    Example:
-        glyph_set = &#34;mj&#34;
-        version   = &#34;6.02.201-onka&#34;
-        base      = &#34;mjrengo.data&#34;
+        &gt;&gt;&gt; # 3. Extended MJ Plus dataset
+        &gt;&gt;&gt; res_plus = get_resource(&#34;mj_plus&#34;, &#34;4.10&#34;)
+        &gt;&gt;&gt; res_plus[&#34;LIBRARY_NAME&#34;]
+        &#39;tofurengo-mj-plus-v4-10&#39;
 
-        internal_version = &#34;v6_02_201_onka&#34;
-
-        module_name = &#34;mjrengo.data.mj.v6_02_201_onka&#34;
-
-    Required Module Symbols
-    -----------------------
-    Each module must define:
-
-        PACKAGES      (in __init__.py)
-        VERSION       (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
-        GLYPH_TABLE   (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
-
-    Returns
-    -------
-    dict
-        {
-            &#34;GLYPH_TABLE&#34;: &lt;dict&gt;,
-            &#34;VERSION&#34;: &lt;str&gt;,
-            &#34;PACKAGES&#34;: &lt;any&gt;
-        }
-
-    Raises
-    ------
-    ResourceError
-        If the module does not exist or required symbols are missing.
+        &gt;&gt;&gt; # 4. Experimental MJ PlusX dataset
+        &gt;&gt;&gt; res_plusx = get_resource(&#34;mj_plusx&#34;, &#34;1.20&#34;)
+        &gt;&gt;&gt; res_plusx[&#34;LIBRARY_NAME&#34;]
+        &#39;tofurengo-mj-plusx-v1-20&#39;
     &#34;&#34;&#34;
-
     gs = glyph_set.strip()
     ver_norm = normalize_version(version)
     base_ns = base.strip()
@@ -134,152 +110,174 @@ el.replaceWith(d);
 
     try:
         mod = importlib.import_module(module_name)
-    except ModuleNotFoundError as e:
-        raise ResourceError(f&#34;dataset module not found: {module_name}&#34;) from e
+    except ModuleNotFoundError as err:
+        raise ResourceError(f&#34;Dataset module not found: &#39;{module_name}&#39;&#34;) from err
 
-    required = [&#34;GLYPH_TABLE&#34;, &#34;VERSION&#34;, &#34;PACKAGES&#34;]
-    missing = [name for name in required if not hasattr(mod, name)]
+    required_symbols = [&#34;GLYPH_TABLE&#34;, &#34;VERSION&#34;]
+    missing_symbols = [sym for sym in required_symbols if not hasattr(mod, sym)]
 
-    if missing:
+    if missing_symbols:
         raise ResourceError(
-            f&#34;dataset module {module_name} is missing required symbols: {missing}&#34;
+            f&#34;Dataset module &#39;{module_name}&#39; is missing required symbols: {missing_symbols}&#34;
         )
+
+    # Resolve specific wheel distribution package name dynamically
+    library_name = get_wheel_library_name(mod.__name__)
 
     return {
         &#34;GLYPH_TABLE&#34;: getattr(mod, &#34;GLYPH_TABLE&#34;),
         &#34;VERSION&#34;: getattr(mod, &#34;VERSION&#34;),
-        &#34;PACKAGES&#34;: getattr(mod, &#34;PACKAGES&#34;),
+        &#34;LIBRARY_NAME&#34;: library_name,
     }</code></pre>
 </details>
-<div class="desc"><p>Dynamically load a glyph information system module.</p>
-<h2 id="parameters">Parameters</h2>
+<div class="desc"><p>Dynamically load and retrieve dataset attributes from a glyph information module.</p>
+<p>Constructs the target module path dynamically using <code>&lt;base&gt;.&lt;glyph_set&gt;.&lt;internal_version&gt;</code>
+and verifies that required data symbols (<code>GLYPH_TABLE</code>, <code>VERSION</code>) exist.</p>
 <dl>
+<dt>Args</dt>
+<dt>-----=</dt>
 <dt><strong><code>glyph_set</code></strong> :&ensp;<code>str</code></dt>
-<dd>Name of the glyph information system.
-This value is not restricted and may grow in the future.
-Examples:
-mj
-mj_plus
-mj_plusx
-template
-any_new_set</dd>
+<dd>Name of the glyph information system (e.g., "mj", "mj_plus", "mj_plusx").</dd>
 <dt><strong><code>version</code></strong> :&ensp;<code>str</code></dt>
-<dd>
-<p>External version string.
-Must follow the major.minor.revision structure.
-Revision may contain '-' or '_'.
-Examples:
-6.02.201
-6.02.201-onka
-4.10
-1.20</p>
-<p>The version is internally normalized into:
-v<major><em><minor></em><revision></p>
-</dd>
+<dd>External version string following major.minor.revision conventions.</dd>
 <dt><strong><code>base</code></strong> :&ensp;<code>str</code></dt>
-<dd>Base namespace for dataset modules.
-Default: "mjrengo.data"
-May be replaced with any ASCII namespace:
-myproject.datasets
-example.glyph.data</dd>
-</dl>
-<h2 id="module-path">Module Path</h2>
-<p>The module path constructed is:</p>
-<pre><code>&lt;base&gt;.&lt;glyph_set&gt;.&lt;internal_version&gt;
-</code></pre>
-<p>Example
------=
-glyph_set = "mj"
-version
-= "6.02.201-onka"
-base
-= "mjrengo.data"</p>
-<p>internal_version = "v6_02_201_onka"</p>
-<p>module_name = "mjrengo.data.mj.v6_02_201_onka"</p>
-<h2 id="required-module-symbols">Required Module Symbols</h2>
-<p>Each module must define:</p>
-<pre><code>PACKAGES      (in __init__.py)
-VERSION       (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
-GLYPH_TABLE   (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
-</code></pre>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>dict</code></dt>
-<dd>{
-"GLYPH_TABLE": <dict>,
-"VERSION": <str>,
-"PACKAGES": <any>
-}</dd>
-</dl>
-<h2 id="raises">Raises</h2>
-<dl>
+<dd>Base module namespace. Defaults to "tofurengo.data".</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>Dict[str, Any]</code></dt>
+<dd>Dictionary containing exported module attributes:
+- <code>"GLYPH_TABLE"</code> (dict): Map of glyph identifiers to character properties.
+- <code>"VERSION"</code> (str): Module version string.
+- <code>"LIBRARY_NAME"</code> (str): Specific wheel (.whl) distribution package name housing the dataset.</dd>
+<dt>Raises</dt>
+<dt>-----=</dt>
 <dt><code><a title="mjrengo.resource.ResourceError" href="#mjrengo.resource.ResourceError">ResourceError</a></code></dt>
-<dd>If the module does not exist or required symbols are missing.</dd>
-</dl></div>
+<dd>If the target module does not exist or lacks required symbols.</dd>
+</dl>
+<p>Examples
+-----=</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # 1. Standard MJ dataset
+&gt;&gt;&gt; res_mj = get_resource(&quot;mj&quot;, &quot;6.02.201&quot;)
+&gt;&gt;&gt; res_mj[&quot;LIBRARY_NAME&quot;]
+'tofurengo-mj-v6-02-201'
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # 2. MJ dataset with revision suffix (-onka)
+&gt;&gt;&gt; res_onka = get_resource(&quot;mj&quot;, &quot;6.02.201-onka&quot;)
+&gt;&gt;&gt; res_onka[&quot;LIBRARY_NAME&quot;]
+'tofurengo-mj-v6-02-201-onka'
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # 3. Extended MJ Plus dataset
+&gt;&gt;&gt; res_plus = get_resource(&quot;mj_plus&quot;, &quot;4.10&quot;)
+&gt;&gt;&gt; res_plus[&quot;LIBRARY_NAME&quot;]
+'tofurengo-mj-plus-v4-10'
+</code></pre>
+<pre><code class="language-python-repl">&gt;&gt;&gt; # 4. Experimental MJ PlusX dataset
+&gt;&gt;&gt; res_plusx = get_resource(&quot;mj_plusx&quot;, &quot;1.20&quot;)
+&gt;&gt;&gt; res_plusx[&quot;LIBRARY_NAME&quot;]
+'tofurengo-mj-plusx-v1-20'
+</code></pre></div>
 </dd>
-<dt id="mjrengo.resource.normalize_version"><code class="name flex">
-<span>def <span class="ident">normalize_version</span></span>(<span>ver: str) ‑> str</span>
+<dt id="mjrengo.resource.get_wheel_library_name"><code class="name flex">
+<span>def <span class="ident">get_wheel_library_name</span></span>(<span>full_module_name: str) ‑> str</span>
 </code></dt>
 <dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def normalize_version(ver: str) -&gt; str:
+<pre><code class="python">def get_wheel_library_name(full_module_name: str) -&gt; str:
     &#34;&#34;&#34;
-    Normalize an external version string into an internal module identifier.
+    Resolve the installed wheel (.whl) distribution package name for a specific full module path.
 
-    External version rules:
-        - ASCII only
-        - Format: major.minor.revision
-        - major, minor, revision are separated by dots (.)
-        - revision may contain &#39;-&#39; or &#39;_&#39;
-        - Examples:
-            6.02.201
-            6.02.201-onka
-            4.10
-            1.20
+    Args:
+        full_module_name (str): Full Python import module path
+            (e.g., &#34;tofurengo.data.mj.v6_02_201&#34;).
 
-    Internal version rules:
-        - Prefix &#39;v&#39;
-        - All separators inside revision (&#39;-&#39;, &#39;_&#39;) are normalized to &#39;_&#39;
-        - All dots (.) are also normalized to &#39;_&#39; in the final identifier
-        - Examples:
-            6.02.201       -&gt; v6_02_201
-            6.02.201-onka  -&gt; v6_02_201_onka
-            4.10           -&gt; v4_10
-            1.20           -&gt; v1_20
+    Returns:
+        str: Installed wheel distribution name (e.g., &#34;tofurengo-mj-v6-02-201&#34;).
+             Falls back to a normalized hyphenated representation if metadata lookup fails.
     &#34;&#34;&#34;
+    try:
+        dist_map = packages_distributions()
 
-    ver = ver.strip()
-    # Replace all separators with underscores
-    ver = ver.replace(&#34;.&#34;, &#34;_&#34;).replace(&#34;-&#34;, &#34;_&#34;).replace(&#34;_&#34;, &#34;_&#34;)
-    return &#34;v&#34; + ver</code></pre>
+        # Check full module path first, then parent namespaces
+        parts = full_module_name.split(&#34;.&#34;)
+        for i in range(len(parts), 0, -1):
+            target_namespace = &#34;.&#34;.join(parts[:i])
+            distributions = dist_map.get(target_namespace)
+            if distributions:
+                return distributions[0]
+    except Exception:
+        pass
+
+    # Fallback heuristic: convert module path dots and underscores to hyphens
+    return full_module_name.replace(&#34;.&#34;, &#34;-&#34;).replace(&#34;_&#34;, &#34;-&#34;)</code></pre>
 </details>
-<div class="desc"><p>Normalize an external version string into an internal module identifier.</p>
-<p>External version rules:
-- ASCII only
-- Format: major.minor.revision
-- major, minor, revision are separated by dots (.)
-- revision may contain '-' or '_'
-- Examples:
-6.02.201
-6.02.201-onka
-4.10
-1.20</p>
-<p>Internal version rules:
-- Prefix 'v'
-- All separators inside revision ('-', '<em>') are normalized to '</em>'
-- All dots (.) are also normalized to '_' in the final identifier
-- Examples:
-6.02.201
--&gt; v6_02_201
-6.02.201-onka
--&gt; v6_02_201_onka
-4.10
--&gt; v4_10
-1.20
--&gt; v1_20</p></div>
+<div class="desc"><p>Resolve the installed wheel (.whl) distribution package name for a specific full module path.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>full_module_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Full Python import module path
+(e.g., "tofurengo.data.mj.v6_02_201").</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>str</code></dt>
+<dd>Installed wheel distribution name (e.g., "tofurengo-mj-v6-02-201").
+Falls back to a normalized hyphenated representation if metadata lookup fails.</dd>
+</dl></div>
+</dd>
+<dt id="mjrengo.resource.normalize_version"><code class="name flex">
+<span>def <span class="ident">normalize_version</span></span>(<span>version: str) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def normalize_version(version: str) -&gt; str:
+    &#34;&#34;&#34;
+    Normalize an external version string into a valid Python module version identifier.
+
+    Converts version strings separated by dots, hyphens, or underscores into a
+    standardized `v&lt;major&gt;_&lt;minor&gt;_&lt;revision&gt;` format.
+
+    Args:
+        version (str): External version string (e.g., &#34;6.02.201&#34;, &#34;6.02.201-onka&#34;).
+
+    Returns:
+        str: Normalized internal version identifier starting with &#39;v&#39; (e.g., &#34;v6_02_201_onka&#34;).
+
+    Examples:
+        &gt;&gt;&gt; normalize_version(&#34;6.02.201&#34;)
+        &#39;v6_02_201&#39;
+        &gt;&gt;&gt; normalize_version(&#34;6.02.201-onka&#34;)
+        &#39;v6_02_201_onka&#39;
+    &#34;&#34;&#34;
+    clean_ver = version.strip()
+    normalized = re.sub(r&#34;[.\-]&#34;, &#34;_&#34;, clean_ver)
+    return f&#34;v{normalized}&#34;</code></pre>
+</details>
+<div class="desc"><p>Normalize an external version string into a valid Python module version identifier.</p>
+<p>Converts version strings separated by dots, hyphens, or underscores into a
+standardized <code>v&lt;major&gt;_&lt;minor&gt;_&lt;revision&gt;</code> format.</p>
+<dl>
+<dt>Args</dt>
+<dt>-----=</dt>
+<dt><strong><code>version</code></strong> :&ensp;<code>str</code></dt>
+<dd>External version string (e.g., "6.02.201", "6.02.201-onka").</dd>
+<dt>Returns</dt>
+<dt>-----=</dt>
+<dt><code>str</code></dt>
+<dd>Normalized internal version identifier starting with 'v' (e.g., "v6_02_201_onka").</dd>
+</dl>
+<p>Examples
+-----=</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; normalize_version(&quot;6.02.201&quot;)
+'v6_02_201'
+&gt;&gt;&gt; normalize_version(&quot;6.02.201-onka&quot;)
+'v6_02_201_onka'
+</code></pre></div>
 </dd>
 </dl>
 </section>
@@ -296,9 +294,11 @@ GLYPH_TABLE   (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ResourceError(Exception):
+    &#34;&#34;&#34;Exception raised when a dataset module or required symbol cannot be loaded.&#34;&#34;&#34;
+
     pass</code></pre>
 </details>
-<div class="desc"><p>Common base class for all non-exit exceptions.</p></div>
+<div class="desc"><p>Exception raised when a dataset module or required symbol cannot be loaded.</p></div>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>builtins.Exception</li>
@@ -321,6 +321,7 @@ GLYPH_TABLE   (in data_&lt;glyph_set&gt;_&lt;internal_version&gt;.py)
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="mjrengo.resource.get_resource" href="#mjrengo.resource.get_resource">get_resource</a></code></li>
+<li><code><a title="mjrengo.resource.get_wheel_library_name" href="#mjrengo.resource.get_wheel_library_name">get_wheel_library_name</a></code></li>
 <li><code><a title="mjrengo.resource.normalize_version" href="#mjrengo.resource.normalize_version">normalize_version</a></code></li>
 </ul>
 </li>
