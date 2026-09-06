@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import csv
 
-from mjrengo.ucs import decode_ucs, encode_ucs
+from mjrengo.ucs import ucs_to_glyph, glyph_to_ucs
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
@@ -73,7 +73,7 @@ def load_dwpi_mdb(mdb_path: Path) -> list[GlyphRecord]:
         if not active:
             comments.insert(0, "実装なし")
         if b:
-            comments.insert(0, decode_ucs(b))
+            comments.insert(0, ucs_to_glyph(b))
 
         rec = GlyphRecord(
             name=glyph_name,

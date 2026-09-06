@@ -1,8 +1,8 @@
 import pytest
-from mjrengo.glyph_utils import GlyphUtils
+from mjrengo.tag_parser import TagParser
 from mjrengo.glyph_normalizer import GlyphNormalizer
 from mjrengo.glyph_renderer import GlyphRenderer
-from mjrengo.factories import make_replace_fn
+from mjrengo.replacer import make_replace_fn
 
 
 # --- テスト用フィクスチャ（共通データ） ---
@@ -39,19 +39,19 @@ def mock_replace_fn(mock_glyph_table):
 class TestGlyphUtils:
     def test_escape_and_restore_tokens(self):
         original = "文字: {{GJ000001}} タグ記号: {{ test }}"
-        escaped = GlyphUtils.escape_tokens(original)
+        escaped = TagParser.escape_tokens(original)
 
         # {{ と }} が制御文字に退避されていることを確認
         assert "{{" not in escaped
         # assert "}}" not in escaped
 
         # 復元後に { と } に変換されることを確認
-        restored = GlyphUtils.restore_tokens_unescape(escaped)
+        restored = TagParser.restore_tokens_unescape(escaped)
         assert restored == "文字: {GJ000001}} タグ記号: { test }}"
 
     def test_parse_tag_content(self):
         content = "GJ000001 b=U+30F1 v=U+100000 custom=test"
-        glyph_name, props = GlyphUtils.parse_tag_content(content)
+        glyph_name, props = TagParser.parse_tag_content(content)
 
         assert glyph_name == "GJ000001"
         assert props == {"b": "U+30F1", "v": "U+100000", "custom": "test"}

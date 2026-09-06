@@ -1,53 +1,131 @@
-from typing import List, Optional
+"""
+Glyph Tag normalization models and processing engine for the tofurengo library.
 
-from mjrengo.types import GlyphError, GlyphResult, ReplaceFn
-from mjrengo.glyph_utils import GlyphUtils
+This module provides data models for tracking normalization results (`NormalizeResult`)
+and the `GlyphNormalizer` class, which handles the normalization phase of Glyph Tags
+using a delegated callback function (`ReplaceFn`).
+"""
+
+from dataclasses import dataclass, field
+from typing import Any, Optional
+
+# TODO: mjrengo を tofurengo に統合する際に、以下の import 文を元に戻す
+# from tofurengo.tag_parser import IssueLevel, ReplaceFn, TagError, TagParser
+from mjrengo.tag_parser import IssueLevel, ReplaceFn, TagIssue, TagParser
+
+
+@dataclass
+class NormalizeResult:
+    """
+    Encapsulates the final outcome of a tag normalization pipeline operation.
+
+    Attributes:
+        success (bool): Indicates whether the process completed without error-level issues.
+        text (str): The transformed or normalized output string.
+        issues (list[TagIssue]): List of collected warnings and errors.
+    """
+
+    success: bool
+    text: str
+    issues: list[TagIssue] = field(default_factory=list)
+
+    @property
+    def errors(self) -> list[TagIssue]:
+        """
+        Filter and return only error-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.ERROR`.
+        """
+        return [i for i in self.issues if i.level == IssueLevel.ERROR]
+
+    @property
+    def warnings(self) -> list[TagIssue]:
+        """
+        Filter and return only warning-level issues.
+
+        Returns:
+            list[TagIssue]: List of issues with `IssueLevel.WARNING`.
+        """
+        return [i for i in self.issues if i.level == IssueLevel.WARNING]
+
+    def to_dict(self) -> dict[str, Any]:
+        """
+        Convert the result object and its collected issues into a dictionary.
+
+        Returns:
+            dict[str, Any]: Serialized dictionary containing status, output text,
+                and issue dictionaries.
+        """
+        return {
+            "success": self.success,
+            "text": self.text,
+            "issues": [i.to_dict() for i in self.issues],
+        }
 
 
 class GlyphNormalizer:
     """
-    ステートレスな正規化クラス。
-    タグ解析および置換の実装詳細は replace_fn コールバックへ委任する。
+    Stateless normalization engine for processing text containing Glyph Tags.
 
-    `replace_fn` はコンストラクタでの事前設定、または `normalize()` 実行時の動的指定の両方に対応。
+    Delegates tag lookup and attribute reconstruction details to a `ReplaceFn` callback.
+    The `replace_fn` can be provided either during initialization or dynamically
+    during the `normalize()` method call.
     """
 
-    def __init__(self, replace_fn: Optional[ReplaceFn] = None):
+    def __init__(self, replace_fn: Optional[ReplaceFn] = None) -> None:
         """
-        :param replace_fn: デフォルトで利用する ReplaceFn（任意）
+        Initialize the GlyphNormalizer.
+
+        Args:
+            replace_fn (Optional[ReplaceFn]): Default replacement callback function.
         """
         self.replace_fn = replace_fn
 
     def normalize(
-        self, 
-        text: str, 
-        replace_fn: Optional[ReplaceFn] = None
-    ) -> GlyphResult:
+        self,
+        text: str,
+        replace_fn: Optional[ReplaceFn] = None,
+    ) -> NormalizeResult:
         """
-        正規化メイン処理
+        Execute normalization on the input text.
 
-        :param text: 対象テキスト
-        :param replace_fn: 今回の呼び出しで一時的に利用（または上書き）する ReplaceFn（任意）
+        Replaces Glyph Tags with their canonical attributes while preserving
+        the opening escape tokens (`{{`).
+
+        Args:
+            text (str): Input text containing Glyph Tags.
+            replace_fn (Optional[ReplaceFn]): Replacement callback to use for this call.
+                Overrides instance `self.replace_fn` if provided.
+
+        Returns:
+            NormalizeResult: Result object containing the normalized text, success status,
+                and any accumulated warnings or errors.
+
+        Raises:
+            ValueError: If no `replace_fn` is provided in either `__init__` or `normalize()`.
         """
         if not text:
-            return GlyphResult(success=True, text="", errors=[])
+            return NormalizeResult(success=True, text="", issues=[])
 
-        # 優先順位: 引数の replace_fn > インスタンスの self.replace_fn
         fn = replace_fn or self.replace_fn
         if fn is None:
             raise ValueError("replace_fn is required in __init__ or normalize()")
 
-        errors: List[GlyphError] = []
+        issues: list[TagIssue] = []
 
-        # GlyphUtils.process_pipeline で「退避 -> 置換 -> {{ }} 復元」を一括実行
-        normalized_text = GlyphUtils.process_pipeline(
+        normalized_text = TagParser.process_pipeline(
             text=text,
-            replacer=lambda m: fn(m, errors),
-            unescape=False,  # normalize 用: {{ }} のエスケープ表記を保持
+            replacer=fn,
+            unescape=False,  # Retain '{{' escape sequences during normalization
+            issues=issues,
         )
 
-        return GlyphResult(
-            success=len(errors) == 0,
+        has_errors = any(i.level == IssueLevel.ERROR for i in issues)
+
+        return NormalizeResult(
+            success=not has_errors,
             text=normalized_text,
-            errors=errors,
+            issues=issues,
         )
+
