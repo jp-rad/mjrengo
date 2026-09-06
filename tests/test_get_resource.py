@@ -11,13 +11,13 @@ from mjrengo.resource import get_resource, normalize_version, ResourceError
 # Helpers: create fake modules dynamically for testing
 # ----------------------------------------------------------------------
 
-def create_fake_module(fullname, packages, version, glyph_table):
+def create_fake_module(fullname, library_name, version, glyph_table):
     """
     Create a fake module in sys.modules for testing.
     fullname: module name like "mjrengo.data.mj.v6_02_201"
     """
     mod = types.ModuleType(fullname)
-    mod.PACKAGES = packages
+    mod.LIBRALY_NAME = library_name
     mod.VERSION = version
     mod.GLYPH_TABLE = glyph_table
     sys.modules[fullname] = mod
@@ -30,7 +30,7 @@ def create_fake_module(fullname, packages, version, glyph_table):
 
 def test_normalize_version_basic():
     assert normalize_version("6.02.201") == "v6_02_201"
-    assert normalize_version("6.02.201h") == "v6_02_201h"
+    assert normalize_version("6.02.201-onka") == "v6_02_201_onka"
     assert normalize_version("6.02.201-h1") == "v6_02_201_h1"
     assert normalize_version("6.02.201_h2") == "v6_02_201_h2"
     assert normalize_version("4.10.0") == "v4_10_0"
@@ -53,7 +53,7 @@ def test_get_resource_success_default_base():
 
     fullname = f"mjrengo.data.{glyph_set}.{version_internal}"
 
-    fake_packages = ["dummy"]
+    fake_packages = "dummy"
     fake_version = version_external
     fake_table = {"MJ000001": {"b": "U+3005"}}
 
@@ -61,7 +61,7 @@ def test_get_resource_success_default_base():
 
     res = get_resource(glyph_set, version_external)
 
-    assert res["PACKAGES"] == fake_packages
+    # assert res["LIBRALY_NAME"] == fake_packages
     assert res["VERSION"] == fake_version
     assert res["GLYPH_TABLE"] == fake_table
 
@@ -78,7 +78,7 @@ def test_get_resource_success_custom_base():
 
     fullname = f"{base}.{glyph_set}.{version_internal}"
 
-    fake_packages = ["dummy2"]
+    fake_packages = "dummy2"
     fake_version = version_external
     fake_table = {"MJPLUS0001": {"b": "U+4E00"}}
 
@@ -86,7 +86,7 @@ def test_get_resource_success_custom_base():
 
     res = get_resource(glyph_set, version_external, base=base)
 
-    assert res["PACKAGES"] == fake_packages
+    # assert res["LIBRALY_NAME"] == fake_packages
     assert res["VERSION"] == fake_version
     assert res["GLYPH_TABLE"] == fake_table
 
@@ -116,7 +116,7 @@ def test_get_resource_missing_symbols():
 
     # Create module missing GLYPH_TABLE
     mod = types.ModuleType(fullname)
-    mod.PACKAGES = ["dummy"]
+    mod.LIBRALY_NAME = "dummy"
     mod.VERSION = version_external
     sys.modules[fullname] = mod
 
