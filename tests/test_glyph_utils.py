@@ -4,8 +4,7 @@ Unit tests for the `tofurengo.tag_parser` module.
 Verifies token escaping, `ParsedTag` parsing from content, and pipeline processing.
 """
 
-# from tofurengo.tag_parser import MARK_LB, ParsedTag, TagIssue, TagParser
-from mjrengo.tag_parser import MARK_LB, ParsedTag, TagIssue, TagParser
+from tofurengo.tag_parser import MARK_LB, ParsedTag, TagIssue, TagParser
 
 
 class TestGlyphUtilsTokenEscape:

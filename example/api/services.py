@@ -1,5 +1,5 @@
-from mjrengo.builder import build_normalizer, build_renderer
-from mjrengo.glyph_normalizer import GlyphNormalizer
+from tofurengo.builder import build_normalizer, build_renderer
+from tofurengo.glyph_normalizer import GlyphNormalizer
 
 glyph_set_info = {
     "mj":      {"set": "mj",       "version": "6.02.201"},

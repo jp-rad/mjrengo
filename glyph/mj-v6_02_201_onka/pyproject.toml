@@ -1,10 +1,10 @@
 # code/glyph/<project folder>/pyproject.toml
 [project]
-name = "mjrengo-data-mj-v6-02-201-onka"
+name = "tofurengo-data-mj-v6-02-201-onka"
 
 dynamic = ["version"]
 requires-python = ">=3.8"
-authors = [{ name = "jp-one" }]
+authors = [{ name = "jp-rad" }]
 description = "Unicode UCS/IVS utilities for MJ/GJ glyph processing"
 readme = "README.md"
 license = "MIT"
@@ -15,8 +15,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jp-one/mjrengo"
-Repository = "https://github.com/jp-one/mjrengo"
+Homepage = "https://github.com/jp-rad/tofurengo"
+Repository = "https://github.com/jp-rad/tofurengo"
 
 [build-system]
 requires = ["hatchling"]
@@ -29,4 +29,4 @@ path = "../../__about__.py"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/mjrengo"]
+packages = ["src/tofurengo"]

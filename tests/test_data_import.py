@@ -1,5 +1,5 @@
 import pytest
-from mjrengo.resource import get_resource
+from tofurengo.resource import get_resource
 
 
 def test_mj_v6_02_201():
@@ -8,7 +8,7 @@ def test_mj_v6_02_201():
     
     res = get_resource(glyph_set, version)
     assert res["VERSION"] == version
-    assert res["LIBRARY_NAME"] == "mjrengo-data-mj-v6-02-201"
+    assert res["LIBRARY_NAME"] == "tofurengo-data-mj-v6-02-201"
 
 
 def test_mj_v6_02_201_onka():
@@ -17,7 +17,7 @@ def test_mj_v6_02_201_onka():
     
     res = get_resource(glyph_set, version)
     assert res["VERSION"] == version
-    assert res["LIBRARY_NAME"] == "mjrengo-data-mj-v6-02-201-onka"
+    assert res["LIBRARY_NAME"] == "tofurengo-data-mj-v6-02-201-onka"
 
 def test_mj_plus_v4_10():
     glyph_set = "mj_plus"
@@ -25,7 +25,7 @@ def test_mj_plus_v4_10():
 
     res = get_resource(glyph_set, version)
     assert res["VERSION"] == version
-    assert res["LIBRARY_NAME"] == "mjrengo-data-mj-plus-v4-10"
+    assert res["LIBRARY_NAME"] == "tofurengo-data-mj-plus-v4-10"
 
 def test_mj_plusx_v1_20():
     glyph_set = "mj_plusx"
@@ -33,5 +33,5 @@ def test_mj_plusx_v1_20():
 
     res = get_resource(glyph_set, version)
     assert res["VERSION"] == version
-    assert res["LIBRARY_NAME"] == "mjrengo-data-mj-plusx-v1-20"
+    assert res["LIBRARY_NAME"] == "tofurengo-data-mj-plusx-v1-20"
 

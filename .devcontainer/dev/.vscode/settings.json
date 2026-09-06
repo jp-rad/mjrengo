@@ -12,7 +12,7 @@
     // These three systems are independent, so paths must be listed in all.
     "python.analysis.extraPaths": [
         "code",
-        "code/mjrengo/src",
+        "code/tofurengo/src",
         "code/glyph/template-v0_1_0/src",
         "code/glyph/mj-v6_02_201/src",
         "code/glyph/mj-v6_02_201_onka/src",

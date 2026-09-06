@@ -1,5 +1,5 @@
 import pytest
-from mjrengo.ucs import ucs_to_glyph, glyph_to_ucs
+from tofurengo.ucs import ucs_to_glyph, glyph_to_ucs
 
 
 def test_decode_ucs():

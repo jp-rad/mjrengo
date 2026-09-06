@@ -4,24 +4,24 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "pdoc3 package mjrengo",
+            "label": "pdoc3 package tofurengo",
             "type": "shell",
             "command": "pdoc",
             "args": [
-                "mjrengo",
+                "tofurengo",
                 "-o",
                 "../docs",
                 "--force",
                 "--html",
             ],
             "options": {
-                // Set the working directory to 'mjrengo/src' folder
-                "cwd": "${workspaceFolder}/code/mjrengo/src",
+                // Set the working directory to 'tofurengo/src' folder
+                "cwd": "${workspaceFolder}/code/tofurengo/src",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo",
+            "label": "build package tofurengo",
             "type": "shell",
             "command": "python",
             "args": [
@@ -29,13 +29,13 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'mjrengo' folder
-                "cwd": "${workspaceFolder}/code/mjrengo",
+                // Set the working directory to 'tofurengo' folder
+                "cwd": "${workspaceFolder}/code/tofurengo",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo",
+            "label": "install package tofurengo",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -45,13 +45,13 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'mjrengo' folder
-                "cwd": "${workspaceFolder}/code/mjrengo",
+                // Set the working directory to 'tofurengo' folder
+                "cwd": "${workspaceFolder}/code/tofurengo",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo-data-mj-v6_02_201",
+            "label": "build package tofurengo-data-mj-v6_02_201",
             "type": "shell",
             "command": "python",
             "args": [
@@ -65,7 +65,7 @@
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo-data-mj-v6_02_201",
+            "label": "install package tofurengo-data-mj-v6_02_201",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -81,7 +81,7 @@
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo-data-mj-v6_02_201_onka",
+            "label": "build package tofurengo-data-mj-v6_02_201_onka",
             "type": "shell",
             "command": "python",
             "args": [
@@ -95,7 +95,7 @@
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo-data-mj-v6_02_201_onka",
+            "label": "install package tofurengo-data-mj-v6_02_201_onka",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -111,7 +111,7 @@
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo-data-mj_plus-v4_10",
+            "label": "build package tofurengo-data-mj_plus-v4_10",
             "type": "shell",
             "command": "python",
             "args": [
@@ -119,13 +119,13 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'mjrengo-data-mj_plus-v4_10' folder
+                // Set the working directory to 'tofurengo-data-mj_plus-v4_10' folder
                 "cwd": "${workspaceFolder}/code/glyph/mj_plus-v4_10",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo-data-mj_plus-v4_10",
+            "label": "install package tofurengo-data-mj_plus-v4_10",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -135,13 +135,13 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'mjrengo-data-mj_plus-v4_10' folder
+                // Set the working directory to 'tofurengo-data-mj_plus-v4_10' folder
                 "cwd": "${workspaceFolder}/code/glyph/mj_plus-v4_10",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package mjrengo-data-mj_plusx-v1_20",
+            "label": "build package tofurengo-data-mj_plusx-v1_20",
             "type": "shell",
             "command": "python",
             "args": [
@@ -155,7 +155,7 @@
             "problemMatcher": []
         },
         {
-            "label": "install package mjrengo-data-mj_plusx-v1_20",
+            "label": "install package tofurengo-data-mj_plusx-v1_20",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -177,16 +177,16 @@
             "args": [
                 "uninstall",
                 "-y",
-                "mjrengo",
-                "mjrengo-data-mj-v6_02_201",
-                "mjrengo-data-mj-v6_02_201_onka",
-                "mjrengo-data-mj_plus-v4_10",
-                "mjrengo-data-mj_plusx-v1_20",
+                "tofurengo",
+                "tofurengo-data-mj-v6_02_201",
+                "tofurengo-data-mj-v6_02_201_onka",
+                "tofurengo-data-mj_plus-v4_10",
+                "tofurengo-data-mj_plusx-v1_20",
             ],
             "problemMatcher": []
         },
         {
-            "label": "compile mjrengo.data",
+            "label": "compile tofurengo.data",
             "type": "shell",
             "command": "python",
             "args": [
@@ -196,7 +196,7 @@
                 // Set the working directory to 'code' folder
                 "cwd": "${workspaceFolder}/code",
                 "env": {
-                    "PYTHONPATH": "${workspaceFolder}/code:${workspaceFolder}/code/mjrengo/src"
+                    "PYTHONPATH": "${workspaceFolder}/code:${workspaceFolder}/code/tofurengo/src"
                 }
             },
             "problemMatcher": []
@@ -204,18 +204,18 @@
         {
             "label": "rebuild package",
             "dependsOn": [
-                "compile mjrengo.data",
-                "pdoc3 package mjrengo",
-                "build package mjrengo",
-                "install package mjrengo",
-                "build package mjrengo-data-mj-v6_02_201",
-                "install package mjrengo-data-mj-v6_02_201",
-                "build package mjrengo-data-mj-v6_02_201_onka",
-                "install package mjrengo-data-mj-v6_02_201_onka",
-                "build package mjrengo-data-mj_plus-v4_10",
-                "install package mjrengo-data-mj_plus-v4_10",
-                "build package mjrengo-data-mj_plusx-v1_20",
-                "install package mjrengo-data-mj_plusx-v1_20",
+                "compile tofurengo.data",
+                "pdoc3 package tofurengo",
+                "build package tofurengo",
+                "install package tofurengo",
+                "build package tofurengo-data-mj-v6_02_201",
+                "install package tofurengo-data-mj-v6_02_201",
+                "build package tofurengo-data-mj-v6_02_201_onka",
+                "install package tofurengo-data-mj-v6_02_201_onka",
+                "build package tofurengo-data-mj_plus-v4_10",
+                "install package tofurengo-data-mj_plus-v4_10",
+                "build package tofurengo-data-mj_plusx-v1_20",
+                "install package tofurengo-data-mj_plusx-v1_20",
             ],
             "dependsOrder": "sequence",
             "problemMatcher": [],

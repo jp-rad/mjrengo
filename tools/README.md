@@ -157,7 +157,7 @@ class CustomBuildHook(BuildHookInterface):
         records.update(load_mdb(mdb_active, "GlyphActive", True))
         records.update(load_mdb(mdb_inactive, "GlyphInactive", False))
 
-        output_py = Path("src/mjrengo_data_mj_plus/glyph_table.py")
+        output_py = Path("src/tofurengo_data_mj_plus/glyph_table.py")
         compile_records(records, output_py)
 ```
 

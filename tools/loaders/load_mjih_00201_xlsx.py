@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 import zipfile
 
-from mjrengo.ucs import glyph_to_ucs
+from tofurengo.ucs import glyph_to_ucs
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (

@@ -68,7 +68,7 @@ def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, 
 
 def make_out_path(code_dir: Path, name_part: str, ver_part: str):
     return Path(code_dir / "glyph" /
-                f"{name_part}-{ver_part}/src/mjrengo/data/{name_part}/{ver_part}" /
+                f"{name_part}-{ver_part}/src/tofurengo_data/{name_part}/{ver_part}" /
                 f"data_{name_part}_{ver_part}.py")
 
 # ------------------------------------------------------------

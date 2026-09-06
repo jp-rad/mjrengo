@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Path
-from api.models.mjrengo_request import MjrengoRequest, VALID_GLYPH_SETS
+from api.models.tofurengo_request import TofurengoRequest, VALID_GLYPH_SETS
 from .services import (
     normalize_service,
     render_service,

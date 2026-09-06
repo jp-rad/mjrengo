@@ -4,8 +4,8 @@ import types
 import sys
 import pytest
 
-from mjrengo.resource import ResourceError
-from mjrengo.builder import build_normalizer
+from tofurengo.resource import ResourceError
+from tofurengo.builder import build_normalizer
 
 
 def create_fake_module(fullname, glyph_table, version, packages):
@@ -26,7 +26,7 @@ def test_build_normalizer_default_set_name():
     version_external = "0.1.0"
     version_internal = "v0_1_0"
 
-    fullname = f"mjrengo.data.{glyph_set}.{version_internal}"
+    fullname = f"tofurengo_data.{glyph_set}.{version_internal}"
 
     glyph_table = {"MJ000001": {"b": "U+3005", "v": "U+3005"}}
     packages = ["dummy"]
@@ -50,7 +50,7 @@ def test_build_normalizer_custom_set_name():
     version_external = "0.1.0"
     version_internal = "v0_1_0"
 
-    fullname = f"mjrengo.data.{glyph_set}.{version_internal}"
+    fullname = f"tofurengo_data.{glyph_set}.{version_internal}"
 
     glyph_table = {"MJ000001": {"b": "U+3005", "v": "U+3005"}}
     packages = ["dummy"]

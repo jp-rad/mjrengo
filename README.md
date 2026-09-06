@@ -1,6 +1,6 @@
-# mjrengo
+# tofurengo
 
-mjrengo is a toolkit that provides a unified “Glyph Tag abstraction layer”
+tofurengo is a toolkit that provides a unified “Glyph Tag abstraction layer”
 for handling large-scale Japanese glyph systems such as MJ and MJ+,  
 both widely used in Japanese government and public documents.
 
@@ -25,7 +25,7 @@ The project uses PEP 420 namespace packages.
 Each dataset module provides its own `GLYPH_TABLE`, `VERSION`, and `PACKAGES` definitions.
 
 ```
-mjrengo/
+tofurengo/
     engine/
     normalize/
     replace/
@@ -47,7 +47,7 @@ mjrengo/
                 contains GLYPH_TABLE
 ```
 
-Each subdirectory under `mjrengo.data.*` represents an independently versioned dataset module.  
+Each subdirectory under `tofurengo.data.*` represents an independently versioned dataset module.  
 Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
 
 
@@ -61,12 +61,12 @@ This method uses a PEP 503–compatible simple index hosted on GitHub Pages.
 Pip downloads pre‑built wheel files, so installation is fast and does not require any build tools.  
 
 ```
-pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/mjrengo/simple/ \
-    mjrengo \
-    mjrengo-data-mj-plus-v4-10 \
-    mjrengo-data-mj-plusx-v1-20 \
-    mjrengo-data-mj-v6-02-201-onka \
-    mjrengo-data-mj-v6-02-201-onka
+pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/tofurengo/simple/ \
+    tofurengo \
+    tofurengo-data-mj-plus-v4-10 \
+    tofurengo-data-mj-plusx-v1-20 \
+    tofurengo-data-mj-v6-02-201-onka \
+    tofurengo-data-mj-v6-02-201-onka
 ```
 
 Use this when you want **simple installation**, **no build tools**, and **versioned wheels** directly from the project’s release pipeline.
@@ -79,11 +79,11 @@ It is useful when you want the **latest commit**, **development versions**, or w
 
 ```
 pip3 install --upgrade --no-deps \
-    mjrengo@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo \
-    mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
-    mjrengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
-    mjrengo-data-mj-v6_02_201@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201_onka@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201_onka
+    tofurengo@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=tofurengo \
+    tofurengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
+    tofurengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
+    tofurengo-data-mj-v6_02_201@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj-v6_02_201 \
+    tofurengo-data-mj-v6_02_201_onka@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj-v6_02_201_onka
 ```
 
 Choose this when you need **development builds**, **source-level debugging**, or **custom modifications**.
@@ -93,22 +93,22 @@ Choose this when you need **development builds**, **source-level debugging**, or
 ## Check Installed Version
 
 ```
-pip3 list | grep mjrengo
+pip3 list | grep tofurengo
 ```
 
 
 
 ## Uninstallation
 
-Remove all mjrengo packages:
+Remove all tofurengo packages:
 
 ```
 pip3 uninstall -y \
-    mjrengo \
-    mjrengo-data-mj_plus-v4_10 \
-    mjrengo-data-mj_plusx-v1_20 \
-    mjrengo-data-mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201_onka
+    tofurengo \
+    tofurengo-data-mj_plus-v4_10 \
+    tofurengo-data-mj_plusx-v1_20 \
+    tofurengo-data-mj-v6_02_201 \
+    tofurengo-data-mj-v6_02_201_onka
 ```
 
 
@@ -118,7 +118,7 @@ This example shows how to load MJ glyph datasets using `build_engine()`,
 normalize MJ tags, and render final Unicode characters.
 
 ```
-from mjrengo.builder import build_engine
+from tofurengo.builder import build_engine
 
 # Input text containing MJ090001 tags
 text = "'{MJ090001}'"

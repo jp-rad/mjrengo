@@ -4,7 +4,7 @@ import types
 import sys
 import pytest
 
-from mjrengo.resource import get_resource, normalize_version, ResourceError
+from tofurengo.resource import get_resource, normalize_version, ResourceError
 
 
 # ----------------------------------------------------------------------
@@ -14,7 +14,7 @@ from mjrengo.resource import get_resource, normalize_version, ResourceError
 def create_fake_module(fullname, library_name, version, glyph_table):
     """
     Create a fake module in sys.modules for testing.
-    fullname: module name like "mjrengo.data.mj.v6_02_201"
+    fullname: module name like "tofurengo_data.mj.v6_02_201"
     """
     mod = types.ModuleType(fullname)
     mod.LIBRALY_NAME = library_name
@@ -44,14 +44,14 @@ def test_normalize_version_basic():
 
 def test_get_resource_success_default_base():
     """
-    Test loading a module under the default base namespace "mjrengo.data".
+    Test loading a module under the default base namespace "tofurengo_data".
     """
 
     glyph_set = "mj"
     version_external = "6.02.201"
     version_internal = "v6_02_201"
 
-    fullname = f"mjrengo.data.{glyph_set}.{version_internal}"
+    fullname = f"tofurengo_data.{glyph_set}.{version_internal}"
 
     fake_packages = "dummy"
     fake_version = version_external
@@ -112,7 +112,7 @@ def test_get_resource_missing_symbols():
     version_external = "6.02.201"
     version_internal = "v6_02_201"
 
-    fullname = f"mjrengo.data.{glyph_set}.{version_internal}"
+    fullname = f"tofurengo.data.{glyph_set}.{version_internal}"
 
     # Create module missing GLYPH_TABLE
     mod = types.ModuleType(fullname)
