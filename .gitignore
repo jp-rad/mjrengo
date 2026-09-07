@@ -185,3 +185,4 @@ results/
 /.devcontainer/unoserver/customfonts/*
 !/.devcontainer/unoserver/customfonts/.gitkeep
 node_modules
+package-lock.json
