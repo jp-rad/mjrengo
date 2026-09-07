@@ -1,22 +1,17 @@
 {
-  "name": "tofurengo-js",
-  "version": "1.0.0",
-  "description": "MJ glyph tag parser and renderer for JavaScript.",
+  "name": "tofurengo_js",
+  "version": "0.1.0",
   "type": "module",
-  "main": "src/glyphRenderer.js",
+  "main": "src/index.js",
   "exports": {
-    ".": "./src/glyphRenderer.js",
-    "/render": "./src/glyphRenderer.js",
-    "/normalize": "./src/glyphNormalizer.js",
-    "/utils": "./src/glyphUtils.js"
+    ".": "./src/index.js"
   },
-  "keywords": [
-    "mj",
-    "glyph",
-    "renderer",
-    "parser",
-    "normalize",
-    "japanese"
-  ],
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^24.0.0"
+  },
   "license": "MIT"
 }

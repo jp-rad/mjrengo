@@ -4,7 +4,7 @@ from ._json_base_model import JsonBaseModel
 # Allowed glyph set identifiers
 VALID_GLYPH_SETS = ["mj-plus", "mj-plusx", "mj", "mj-onka"]
 
-class MjrengoRequest(JsonBaseModel):
+class TofurengoRequest(JsonBaseModel):
     # Glyph set used for normalization or rendering
     glyph_set: str = Field(
         default="mj-plus",

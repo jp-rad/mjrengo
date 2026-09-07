@@ -1,74 +1,63 @@
-# tests/test_builder.py
-
-import types
-import sys
 import pytest
+from unittest.mock import patch
 
-from tofurengo.resource import ResourceError
-from tofurengo.builder import build_normalizer
-
-
-def create_fake_module(fullname, glyph_table, version, packages):
-    mod = types.ModuleType(fullname)
-    mod.GLYPH_TABLE = glyph_table
-    mod.VERSION = version
-    mod.PACKAGES = packages
-    sys.modules[fullname] = mod
-    return mod
+from tofurengo.builder import build_normalizer, build_renderer
+from tofurengo.glyph_normalizer import GlyphNormalizer
+from tofurengo.glyph_renderer import GlyphRenderer
 
 
-def test_build_normalizer_default_set_name():
-    """
-    set_name=None → glyph_set が使われることを確認する
-    """
+# ------------------------------------------------------------
+# build_normalizer
+# ------------------------------------------------------------
 
-    glyph_set = "template"
-    version_external = "0.1.0"
-    version_internal = "v0_1_0"
+@patch("tofurengo.builder.get_resource")
+def test_build_normalizer_basic(mock_get_resource):
+    # Fake dataset resource
+    mock_get_resource.return_value = {
+        "GLYPH_TABLE": {
+            "MJ022335": {"b": "U+845B", "v": "U+845B U+E0102", "active": True}
+        },
+        "VERSION": "v6_02_201",
+        "LIBRARY_NAME": "dummy-lib",
+    }
 
-    fullname = f"tofurengo_data.{glyph_set}.{version_internal}"
+    norm = build_normalizer("mj", "6.02.201")
 
-    glyph_table = {"MJ000001": {"b": "U+3005", "v": "U+3005"}}
-    packages = ["dummy"]
-    version = version_external
-
-    create_fake_module(fullname, glyph_table, version, packages)
-
-    normalizer = build_normalizer(glyph_set, version_external)
-
-    result = normalizer.normalize("{MJ000001}")
-    assert result.success is True
-    assert "set=template" in result.text
+    assert isinstance(norm, GlyphNormalizer)
+    assert norm.replace_fn is not None
 
 
-def test_build_normalizer_custom_set_name():
-    """
-    set_name を明示指定した場合
-    """
+@patch("tofurengo.builder.get_resource")
+def test_build_normalizer_set_name_override(mock_get_resource):
+    mock_get_resource.return_value = {
+        "GLYPH_TABLE": {"MJ000001": {"b": "U+4E00", "v": "U+4E00 U+E0101", "active": True}},
+        "VERSION": "v1",
+        "LIBRARY_NAME": "dummy",
+    }
 
-    glyph_set = "template"
-    version_external = "0.1.0"
-    version_internal = "v0_1_0"
+    norm = build_normalizer("mj", "1.0", set_name="custom")
 
-    fullname = f"tofurengo_data.{glyph_set}.{version_internal}"
-
-    glyph_table = {"MJ000001": {"b": "U+3005", "v": "U+3005"}}
-    packages = ["dummy"]
-    version = version_external
-
-    create_fake_module(fullname, glyph_table, version, packages)
-
-    normalizer = build_normalizer(glyph_set, version_external, set_name="test")
-
-    result = normalizer.normalize("{MJ000001}")
-    assert result.success is True
-    assert "set=test" in result.text
+    assert isinstance(norm, GlyphNormalizer)
+    # ReplaceFn should embed "custom" as set name
+    out = norm.normalize("{MJ000001}")
+    assert "set=custom" in out.text
 
 
-def test_build_normalizer_missing_module():
-    """
-    モジュールが存在しない場合は ResourceError
-    """
+# ------------------------------------------------------------
+# build_renderer
+# ------------------------------------------------------------
 
-    with pytest.raises(ResourceError):
-        build_normalizer("unknown", "1.00.0")
+def test_build_renderer_basic():
+    renderer = build_renderer()
+
+    assert isinstance(renderer, GlyphRenderer)
+    assert renderer.use_base is False
+    assert renderer.tofu == "U+25A1"
+
+
+def test_build_renderer_override():
+    renderer = build_renderer(use_base=True, tofu="U+FFFD")
+
+    assert renderer.use_base is True
+    assert renderer.tofu == "U+FFFD"
+

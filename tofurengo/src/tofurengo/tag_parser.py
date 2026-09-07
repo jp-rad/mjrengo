@@ -16,12 +16,13 @@ from typing import Any, Protocol
 MARK_LB: str = "\u0002"
 
 # Matches a single tag enclosed in single braces: {glyph_name key=value ...}
-# Captures the raw tag body inside the "content" named group.
+# Allows optional leading horizontal whitespace before the glyph name,
+# requires a valid glyph name identifier, disallows newlines, and captures
+# the raw tag body inside the "content" named group.
 TAG_PATTERN: re.Pattern[str] = re.compile(
     r"\{"
-    r"(?P<content>[^\}]+)"
+    r"(?P<content>[ \t]*[A-Za-z0-9_\-]+(?:[ \t]+[^}\r\n]+)?)"
     r"\}",
-    re.DOTALL,
 )
 
 
@@ -103,12 +104,25 @@ class ParsedTag:
         if not tokens:
             return cls(glyph_name="", raw_content=raw_str)
 
-        glyph_name = tokens[0]
+        # Check if the first token is actually a key-value pair (missing glyph_name)
+        if "=" in tokens[0]:
+            glyph_name = ""
+            attr_tokens = tokens
+        else:
+            glyph_name = tokens[0]
+            attr_tokens = tokens[1:]
+
         properties: dict[str, str] = {}
-        for token in tokens[1:]:
+        last_key: str | None = None
+
+        for token in attr_tokens:
             if "=" in token:
                 key, value = token.split("=", 1)
                 properties[key] = value
+                last_key = key
+            elif last_key is not None:
+                # Append multi-token values (e.g., space-separated UCS sequences like 'U+845B U+E0103')
+                properties[last_key] = f"{properties[last_key]} {token}"
 
         return cls(
             glyph_name=glyph_name,

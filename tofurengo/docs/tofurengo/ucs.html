@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <meta name="generator" content="pdoc3 0.11.6">
 <title>tofurengo.ucs API documentation</title>
-<meta name="description" content="Unicode and UCS code point conversion utilities for glyph processing …">
+<meta name="description" content="Unicode Code Point (UCS) sequence and native glyph conversion utilities …">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
@@ -36,9 +36,10 @@ el.replaceWith(d);
 <h1 class="title">Module <code>tofurengo.ucs</code></h1>
 </header>
 <section id="section-intro">
-<p>Unicode and UCS code point conversion utilities for glyph processing.</p>
-<p>This module provides bidirectional conversion functions between native Python
-glyph character representations and formatted UCS code point sequences.</p>
+<p>Unicode Code Point (UCS) sequence and native glyph conversion utilities.</p>
+<p>This module provides bidirectional conversion functions between native Unicode glyph
+strings (including base characters and variation selectors) and formatted UCS code point
+sequences (e.g., 'U+845B U+E0103').</p>
 </section>
 <section>
 </section>
@@ -57,31 +58,27 @@ glyph character representations and formatted UCS code point sequences.</p>
 </summary>
 <pre><code class="python">def glyph_to_ucs(glyph: str) -&gt; str:
     &#34;&#34;&#34;
-    Convert a native Unicode glyph representation into a space-separated UCS string.
-
-    Encodes characters (including surrogate pairs and Ideographic Variation Sequences)
-    into formatted &#34;U+XXXX&#34; hexadecimal code point strings.
+    Convert a native Unicode glyph string into a standardized UCS code point sequence.
 
     Args:
-        glyph (str): Native Unicode string representing a single glyph or IVS sequence.
+        glyph: Native character string.
 
     Returns:
-        str: Space-separated UCS code point sequence formatted as &#34;U+XXXX&#34;.
+        str: Space-separated UCS code point string in &#39;U+XXXX&#39; format.
     &#34;&#34;&#34;
-    return &#34; &#34;.join(f&#34;U+{ord(char):X}&#34; for char in glyph)</code></pre>
+    codepoints = _validate_glyph(glyph)
+    return &#34; &#34;.join(f&#34;U+{cp:X}&#34; for cp in codepoints)</code></pre>
 </details>
-<div class="desc"><p>Convert a native Unicode glyph representation into a space-separated UCS string.</p>
-<p>Encodes characters (including surrogate pairs and Ideographic Variation Sequences)
-into formatted "U+XXXX" hexadecimal code point strings.</p>
+<div class="desc"><p>Convert a native Unicode glyph string into a standardized UCS code point sequence.</p>
 <dl>
 <dt>Args</dt>
 <dt>-----=</dt>
-<dt><strong><code>glyph</code></strong> :&ensp;<code>str</code></dt>
-<dd>Native Unicode string representing a single glyph or IVS sequence.</dd>
+<dt><strong><code>glyph</code></strong></dt>
+<dd>Native character string.</dd>
 <dt>Returns</dt>
 <dt>-----=</dt>
 <dt><code>str</code></dt>
-<dd>Space-separated UCS code point sequence formatted as "U+XXXX".</dd>
+<dd>Space-separated UCS code point string in 'U+XXXX' format.</dd>
 </dl></div>
 </dd>
 <dt id="tofurengo.ucs.ucs_to_glyph"><code class="name flex">
@@ -94,32 +91,27 @@ into formatted "U+XXXX" hexadecimal code point strings.</p>
 </summary>
 <pre><code class="python">def ucs_to_glyph(ucs_seq: str) -&gt; str:
     &#34;&#34;&#34;
-    Convert a space-separated UCS code point sequence into a native Unicode glyph string.
-
-    Decodes formatted &#34;U+XXXX&#34; hexadecimal strings back into standard Unicode characters,
-    handling supplementary planes and Ideographic Variation Sequences (IVS).
+    Convert a standardized UCS code point sequence into a native Unicode glyph string.
 
     Args:
-        ucs_seq (str): Space-separated UCS code point string (e.g., &#34;U+845B U+E0102&#34;).
+        ucs_seq: Space-separated UCS sequence string.
 
     Returns:
-        str: Decoded native Unicode glyph string.
+        str: Native Unicode glyph string combining base character and variation selectors.
     &#34;&#34;&#34;
-    code_points = UCS_CODEPOINT_PATTERN.findall(ucs_seq)
-    return &#34;&#34;.join(chr(int(cp, 16)) for cp in code_points)</code></pre>
+    code_points = _parse_ucs_tokens(ucs_seq)
+    return &#34;&#34;.join(chr(cp) for cp in code_points)</code></pre>
 </details>
-<div class="desc"><p>Convert a space-separated UCS code point sequence into a native Unicode glyph string.</p>
-<p>Decodes formatted "U+XXXX" hexadecimal strings back into standard Unicode characters,
-handling supplementary planes and Ideographic Variation Sequences (IVS).</p>
+<div class="desc"><p>Convert a standardized UCS code point sequence into a native Unicode glyph string.</p>
 <dl>
 <dt>Args</dt>
 <dt>-----=</dt>
-<dt><strong><code>ucs_seq</code></strong> :&ensp;<code>str</code></dt>
-<dd>Space-separated UCS code point string (e.g., "U+845B U+E0102").</dd>
+<dt><strong><code>ucs_seq</code></strong></dt>
+<dd>Space-separated UCS sequence string.</dd>
 <dt>Returns</dt>
 <dt>-----=</dt>
 <dt><code>str</code></dt>
-<dd>Decoded native Unicode glyph string.</dd>
+<dd>Native Unicode glyph string combining base character and variation selectors.</dd>
 </dl></div>
 </dd>
 </dl>

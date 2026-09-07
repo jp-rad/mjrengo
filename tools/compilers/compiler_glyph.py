@@ -43,10 +43,10 @@ def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, 
         lines.append(f"# {desc}")
     
     lines.append("")
-    lines.append(f"VERSION = {version!r}")
+    lines.append(f"VERSION: str = {version!r}")
 
     lines.append("")
-    lines.append("GLYPH_TABLE = {")
+    lines.append("GLYPH_TABLE: dict[str, dict[str, str | bool]] = {")
 
     # sortが真の場合、name でソート
     for rec in sorted(records, key=lambda r: r.name) if sort else records:

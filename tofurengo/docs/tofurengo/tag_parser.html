@@ -132,12 +132,25 @@ class ParsedTag:
         if not tokens:
             return cls(glyph_name=&#34;&#34;, raw_content=raw_str)
 
-        glyph_name = tokens[0]
+        # Check if the first token is actually a key-value pair (missing glyph_name)
+        if &#34;=&#34; in tokens[0]:
+            glyph_name = &#34;&#34;
+            attr_tokens = tokens
+        else:
+            glyph_name = tokens[0]
+            attr_tokens = tokens[1:]
+
         properties: dict[str, str] = {}
-        for token in tokens[1:]:
+        last_key: str | None = None
+
+        for token in attr_tokens:
             if &#34;=&#34; in token:
                 key, value = token.split(&#34;=&#34;, 1)
                 properties[key] = value
+                last_key = key
+            elif last_key is not None:
+                # Append multi-token values (e.g., space-separated UCS sequences like &#39;U+845B U+E0103&#39;)
+                properties[last_key] = f&#34;{properties[last_key]} {token}&#34;
 
         return cls(
             glyph_name=glyph_name,
