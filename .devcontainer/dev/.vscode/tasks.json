@@ -6,7 +6,7 @@
         {
             "label": "pdoc3 package tofurengo",
             "type": "shell",
-            "command": "pdoc",
+            "command": "pdoc3",
             "args": [
                 "tofurengo",
                 "-o",
@@ -15,7 +15,6 @@
                 "--html",
             ],
             "options": {
-                // Set the working directory to 'tofurengo/src' folder
                 "cwd": "${workspaceFolder}/code/tofurengo/src",
             },
             "problemMatcher": []
@@ -29,7 +28,6 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'tofurengo' folder
                 "cwd": "${workspaceFolder}/code/tofurengo",
             },
             "problemMatcher": []
@@ -45,13 +43,12 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'tofurengo' folder
                 "cwd": "${workspaceFolder}/code/tofurengo",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package tofurengo-data-mj-v6_02_201",
+            "label": "build package tofurengo-data-mj-v6-02-201",
             "type": "shell",
             "command": "python",
             "args": [
@@ -59,13 +56,12 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201",
+                "cwd": "${workspaceFolder}/code/glyph/mj_v6_02_201",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package tofurengo-data-mj-v6_02_201",
+            "label": "install package tofurengo-data-mj-v6-02-201",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -75,13 +71,12 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201",
+                "cwd": "${workspaceFolder}/code/glyph/mj_v6_02_201",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package tofurengo-data-mj-v6_02_201_onka",
+            "label": "build package tofurengo-data-mj-v6-02-201-onka",
             "type": "shell",
             "command": "python",
             "args": [
@@ -89,13 +84,12 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201_onka' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201_onka",
+                "cwd": "${workspaceFolder}/code/glyph/mj_v6_02_201_onka",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package tofurengo-data-mj-v6_02_201_onka",
+            "label": "install package tofurengo-data-mj-v6-02-201-onka",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -105,13 +99,12 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'glyph/mj-v6_02_201_onka' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj-v6_02_201_onka",
+                "cwd": "${workspaceFolder}/code/glyph/mj_v6_02_201_onka",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package tofurengo-data-mj_plus-v4_10",
+            "label": "build package tofurengo-data-mj-plus-v4-10",
             "type": "shell",
             "command": "python",
             "args": [
@@ -119,13 +112,12 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'tofurengo-data-mj_plus-v4_10' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj_plus-v4_10",
+                "cwd": "${workspaceFolder}/code/glyph/mj_plus_v4_10",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package tofurengo-data-mj_plus-v4_10",
+            "label": "install package tofurengo-data-mj-plus-v4-10",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -135,13 +127,12 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'tofurengo-data-mj_plus-v4_10' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj_plus-v4_10",
+                "cwd": "${workspaceFolder}/code/glyph/mj_plus_v4_10",
             },
             "problemMatcher": []
         },
         {
-            "label": "build package tofurengo-data-mj_plusx-v1_20",
+            "label": "build package tofurengo-data-mj-plusx-v1-20",
             "type": "shell",
             "command": "python",
             "args": [
@@ -149,13 +140,12 @@
                 "build"
             ],
             "options": {
-                // Set the working directory to 'glyph/mj_plusx-v1_20' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj_plusx-v1_20",
+                "cwd": "${workspaceFolder}/code/glyph/mj_plusx_v1_20",
             },
             "problemMatcher": []
         },
         {
-            "label": "install package tofurengo-data-mj_plusx-v1_20",
+            "label": "install package tofurengo-data-mj-plusx-v1-20",
             "type": "shell",
             "command": "pip3",
             "args": [
@@ -165,8 +155,7 @@
                 ".",
             ],
             "options": {
-                // Set the working directory to 'glyph/mj_plusx-v1_20' folder
-                "cwd": "${workspaceFolder}/code/glyph/mj_plusx-v1_20",
+                "cwd": "${workspaceFolder}/code/glyph/mj_plusx_v1_20",
             },
             "problemMatcher": []
         },
@@ -178,10 +167,10 @@
                 "uninstall",
                 "-y",
                 "tofurengo",
-                "tofurengo-data-mj-v6_02_201",
-                "tofurengo-data-mj-v6_02_201_onka",
-                "tofurengo-data-mj_plus-v4_10",
-                "tofurengo-data-mj_plusx-v1_20",
+                "tofurengo-data-mj-v6-02-201",
+                "tofurengo-data-mj-v6-02-201-onka",
+                "tofurengo-data-mj-plus-v4-10",
+                "tofurengo-data-mj-plusx-v1-20",
             ],
             "problemMatcher": []
         },
@@ -193,7 +182,6 @@
                 "tools/compilers/compiler_glyph.py"
             ],
             "options": {
-                // Set the working directory to 'code' folder
                 "cwd": "${workspaceFolder}/code",
                 "env": {
                     "PYTHONPATH": "${workspaceFolder}/code:${workspaceFolder}/code/tofurengo/src"
@@ -208,14 +196,14 @@
                 "pdoc3 package tofurengo",
                 "build package tofurengo",
                 "install package tofurengo",
-                "build package tofurengo-data-mj-v6_02_201",
-                "install package tofurengo-data-mj-v6_02_201",
-                "build package tofurengo-data-mj-v6_02_201_onka",
-                "install package tofurengo-data-mj-v6_02_201_onka",
-                "build package tofurengo-data-mj_plus-v4_10",
-                "install package tofurengo-data-mj_plus-v4_10",
-                "build package tofurengo-data-mj_plusx-v1_20",
-                "install package tofurengo-data-mj_plusx-v1_20",
+                "build package tofurengo-data-mj-v6-02-201",
+                "install package tofurengo-data-mj-v6-02-201",
+                "build package tofurengo-data-mj-v6-02-201-onka",
+                "install package tofurengo-data-mj-v6-02-201-onka",
+                "build package tofurengo-data-mj-plus-v4-10",
+                "install package tofurengo-data-mj-plus-v4-10",
+                "build package tofurengo-data-mj-plusx-v1-20",
+                "install package tofurengo-data-mj-plusx-v1-20",
             ],
             "dependsOrder": "sequence",
             "problemMatcher": [],

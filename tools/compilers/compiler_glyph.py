@@ -65,11 +65,29 @@ def write_glyph_table_py(out_path: Path, descriptions: list[str], version: str, 
 # ------------------------------------------------------------
 # 出力先ファイルのフルパス を生成
 # ------------------------------------------------------------
+def build_dataset_output_path(code_dir: Path, dataset_name: str, version: str) -> Path:
+    """
+    Build the full output path for the generated glyph table.
+    """
 
-def make_out_path(code_dir: Path, name_part: str, ver_part: str):
-    return Path(code_dir / "glyph" /
-                f"{name_part}-{ver_part}/src/tofurengo_data/{name_part}/{ver_part}" /
-                f"data_{name_part}_{ver_part}.py")
+    def slugify(s: str) -> str:
+        return s.lower().replace(".", "_").replace("-", "_")
+
+    name_part = slugify(dataset_name)
+    ver_part = f"v{slugify(version)}"
+
+    base = (
+        code_dir
+        / "glyph"
+        / f"{name_part}_{ver_part}"
+        / "src"
+        / "tofurengo_data"
+        / name_part
+        / ver_part
+    )
+
+    return base / f"data_{name_part}_{ver_part}.py"
+
 
 # ------------------------------------------------------------
 # GLYPH_TABLE を生成
@@ -82,14 +100,11 @@ def compile_mj_v6_02_201(code_dir: Path, base_from: Literal['jibo', 'onka']):
 
     res_name = "mj"
     res_ver = "6.02.201" if base_from == "jibo" else "6.02.201-onka"
+    out_path = build_dataset_output_path(code_dir, res_name, res_ver)
 
     xlsx_mj = code_dir / "tools/data" / "mji.00602.xlsx"
     xlsx_mjih = code_dir / "tools/data" / "MJIH00201.xlsx"
     
-    name_part = res_name
-    ver_part = "v" + res_ver.replace(".", "_").replace("-", "_")  # v6_02_201_onka
-    out_path = make_out_path(code_dir, name_part, ver_part)
-
     base_from_name = "字母" if base_from == "jibo" else "音価１"
 
     descriptions = [
@@ -143,12 +158,9 @@ def compile_mj_plus_v4_10(code_dir: Path):
 
     res_name = "mj_plus"
     res_ver = "4.10"
+    out_path = build_dataset_output_path(code_dir, res_name, res_ver)
 
     mdb_path = code_dir / "tools/data" / "deluxe文字選択DWPI明朝4.10版V2.0.mdb"
-
-    name_part = res_name
-    ver_part = "v" + res_ver.replace(".", "_")  # v4_10
-    out_path = make_out_path(code_dir, name_part, ver_part)
     
     descriptions = [
         "",
@@ -190,12 +202,9 @@ def compile_mj_plusx_v1_20(code_dir: Path):
 
     res_name = "mj_plusx"
     res_ver = "1.20"
+    out_path = build_dataset_output_path(code_dir, res_name, res_ver)
 
     mdb_path = code_dir / "tools/data" / "deluxe文字選択DWPIex明朝1.2版.mdb"
-
-    name_part = res_name
-    ver_part = "v" + res_ver.replace(".", "_")  # v1_20
-    out_path = make_out_path(code_dir, name_part, ver_part)
     
     descriptions = [
         "",

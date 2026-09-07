@@ -13,11 +13,11 @@
     "python.analysis.extraPaths": [
         "code",
         "code/tofurengo/src",
-        "code/glyph/template-v0_1_0/src",
-        "code/glyph/mj-v6_02_201/src",
-        "code/glyph/mj-v6_02_201_onka/src",
-        "code/glyph/mj_plus-v4_10/src",
-        "code/glyph/mj_plusx-v1_20/src"
+        "code/glyph/template_v0_1_0/src",
+        "code/glyph/mj_v6_02_201/src",
+        "code/glyph/mj_v6_02_201_onka/src",
+        "code/glyph/mj_plus_v4_10/src",
+        "code/glyph/mj_plusx_v1_20/src"
     ],
 
     "python.testing.pytestEnabled": true,
