@@ -144,3 +144,52 @@ describe("normalizeAndRender", () => {
   });
 });
 
+//
+// Tests for Sentence Processing (Full text sentence integration)
+//
+describe("Sentence Processing Tests", () => {
+  const glyphTable = {
+    MJ000001: { b: "U+3005", v: "U+3005", active: true },
+    MJ022335: { b: "U+845B", v: "U+845B U+E0102", active: true },
+    MJ999999: { active: false },
+  };
+
+  test("sentence without any tags remains untouched", () => {
+    const sentence = "This is a normal sentence without any glyph tags.";
+    const out = normalizeAndRender(sentence, glyphTable, "mj");
+    expect(out.text).toBe(sentence);
+    expect(out.issues.length).toBe(0);
+  });
+
+  test("sentence with inline tags and surrounding Japanese text", () => {
+    const sentence = "葛飾区の{MJ022335}城神社。";
+    const out = normalizeAndRender(sentence, glyphTable, "mj");
+    expect(out.text).toBe("葛飾区の\u{845B}\u{E0102}城神社。");
+  });
+
+  test("sentence starting and ending with tags", () => {
+    const sentence = "{MJ022335}は文字で、繰り返しは{MJ000001}";
+    const out = normalizeAndRender(sentence, glyphTable, "mj");
+    expect(out.text).toBe("\u{845B}\u{E0102}は文字で、繰り返しは\u{3005}");
+  });
+
+  test("sentence containing escaped literal braces alongside tags", () => {
+    const sentence = "Format {{KEY}}: Use {MJ000001} here.";
+    const out = normalizeAndRender(sentence, glyphTable, "mj");
+    expect(out.text).toBe("Format {KEY}}: Use \u{3005} here.");
+  });
+
+  test("sentence containing unknown/inactive glyphs with tofu fallback", () => {
+    const sentence = "Known: {MJ000001}, Unknown: {MJ999999}.";
+    const out = normalizeAndRender(sentence, glyphTable, "mj");
+    expect(out.text).toBe("Known: \u{3005}, Unknown: \u{25A1}.");
+    expect(out.issues.length).toBe(1);
+  });
+
+  test("multiline paragraph sentence rendering", () => {
+    const paragraph = "Line 1: {MJ000001}\nLine 2: {MJ022335}";
+    const out = normalizeAndRender(paragraph, glyphTable, "mj");
+    expect(out.text).toBe("Line 1: \u{3005}\nLine 2: \u{845B}\u{E0102}");
+  });
+});
+
