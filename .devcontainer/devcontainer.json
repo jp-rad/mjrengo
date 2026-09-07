@@ -59,7 +59,8 @@
 				"ms-python.vscode-pylance",
 				"tamasfe.even-better-toml",
 				"ms-python.black-formatter",
-				"ms-python.debugpy"
+				"ms-python.debugpy",
+				"vitest.explorer"
 			]
 		}
 	},
@@ -67,6 +68,7 @@
 	// "forwardPorts": [9000],
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "pip3 install -r requirements.txt",
+	"postCreateCommand": "npm install --prefix code/tofurengo_js",
 	// Comment out to connect as root instead.
 	"remoteUser": "vscode"
 }

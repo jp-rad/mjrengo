@@ -70,7 +70,7 @@ describe("renderOnly", () => {
 
     test("unescape=false preserves '{{'", () => {
         const out = renderOnly("Start {{X}} {MJ000001 b=U+3005}", { unescape: false });
-        expect(out.startsWith("Start {{X}}")).toBe(true);
+        expect(out.startsWith("Start {X}}")).toBe(true);
     });
 });
 

@@ -3,18 +3,18 @@
  */
 
 // Control character used as a temporary placeholder for escaped opening braces '{{'
-const MARK_LB = "\u0002";
+export const MARK_LB = "\u0002";
 
 // Matches a single tag enclosed in single braces: {glyph_name key=value ...}
 // Disallows newlines inside tags and captures raw content inside group 1.
-const TAG_PATTERN = /\{([ \t]*[A-Za-z0-9_\-]+(?:[ \t]+[^}\r\n]+)?)\}/g;
+export const TAG_PATTERN = /\{([ \t]*[A-Za-z0-9_\-]+(?:[ \t]+[^}\r\n]+)?)\}/g;
 
 /**
  * Severity levels for tag processing diagnostics.
  * @readonly
  * @enum {string}
  */
-const IssueLevel = {
+export const IssueLevel = {
     WARNING: "warning",
     ERROR: "error",
 };
@@ -22,7 +22,7 @@ const IssueLevel = {
 /**
  * Represents a warning or error encountered during tag processing.
  */
-class TagIssue {
+export class TagIssue {
     /**
      * @param {string} code - Machine-readable issue category identifier.
      * @param {string} message - Human-readable failure explanation.
@@ -53,7 +53,7 @@ class TagIssue {
 /**
  * Structured representation of a parsed glyph tag's contents.
  */
-class ParsedTag {
+export class ParsedTag {
     /**
      * @param {string} glyphName - Primary glyph identifier.
      * @param {Object.<string, string>} [properties={}] - Extracted key-value pairs.
@@ -118,7 +118,7 @@ class ParsedTag {
 /**
  * Utility class for handling brace escaping, restoration, and tag parsing.
  */
-class TagParser {
+export class TagParser {
     /**
      * Replace escaped double-brace sequences with a temporary control character.
      * @param {string} text
@@ -171,17 +171,5 @@ class TagParser {
         }
         return this.restoreTokensPreserveEscape(substituted);
     }
-}
-
-// Module export compatibility (Node.js / ES Module / Browser global)
-if (typeof module !== "undefined" && module.exports) {
-    module.exports = {
-        MARK_LB,
-        TAG_PATTERN,
-        IssueLevel,
-        TagIssue,
-        ParsedTag,
-        TagParser,
-    };
 }
 

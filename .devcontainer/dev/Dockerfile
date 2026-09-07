@@ -9,9 +9,9 @@ RUN rm -f /etc/apt/sources.list.d/yarn.list \
     && rm -f /etc/apt/trusted.gpg.d/yarn.gpg
 
 # [Option] Install Node.js
-# ARG INSTALL_NODE="true"
-# ARG NODE_VERSION="lts/*"
-# RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
+ARG INSTALL_NODE="true"
+ARG NODE_VERSION="lts/*"
+RUN if [ "${INSTALL_NODE}" = "true" ]; then su vscode -c "umask 0002 && . /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"; fi
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
 # COPY requirements.txt /tmp/pip-tmp/
@@ -39,7 +39,7 @@ RUN rm -f /etc/apt/sources.list.d/yarn.list \
 # required by tools/loaders/load_dwpi_mdb.py for reading Access .mdb files.
 # Version depends on the base image; check available versions with:
 #   apt-cache madison mdbtools
-# For Japanese table names (e.g., "文字属性辞書"), mdbtools >= 0.9.2 is recommended.
+# For Japanese table names (e.g., "Moji Zokusei Jisho"), mdbtools >= 0.9.2 is recommended.
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
     mdbtools

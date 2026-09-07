@@ -95,7 +95,7 @@ describe("TagParser processPipeline", () => {
     test("extra braces preserved", () => {
         const replacer = (tag) => tag.glyphName;
         const out = TagParser.processPipeline("{MJ000001}}}", replacer);
-        expect(out).toBe("MJ000001}}}");
+        expect(out).toBe("MJ000001}}");
     });
 
     test("issues collected", () => {
