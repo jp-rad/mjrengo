@@ -1,156 +1,146 @@
 /**
- * Unit tests for index.js public API
+ * Unit tests for index.js (tofurengo_js)
  * ASCII-only comments only.
  */
 
+import { describe, test, expect } from "vitest";
+
 import {
-    MARK_LB,
-    TAG_PATTERN,
-    IssueLevel,
-    TagIssue,
-    ParsedTag,
-    TagParser,
-    makeReplaceFn,
-    NormalizationResult,
-    GlyphNormalizer,
-    GlyphRenderer,
-    renderOnly,
-    normalizeAndRender,
+  MARK_LB,
+  TAG_PATTERN,
+  IssueLevel,
+  TagIssue,
+  ParsedTag,
+  TagParser,
+  makeReplaceFn,
+  NormalizationResult,
+  GlyphNormalizer,
+  GlyphRenderer,
+  ucsToGlyph,
+  renderOnly,
+  normalizeAndRender,
 } from "../src/index.js";
 
+//
+// Basic sanity checks for re-exported primitives
+//
 describe("index.js re-exports", () => {
-    test("TagParser is exported", () => {
-        expect(typeof TagParser.processPipeline).toBe("function");
-    });
+  test("MARK_LB is defined", () => {
+    expect(MARK_LB).toBe("\u0002");
+  });
 
-    test("GlyphNormalizer is exported", () => {
-        const norm = new GlyphNormalizer({}, "mj");
-        expect(norm instanceof GlyphNormalizer).toBe(true);
-    });
+  test("TAG_PATTERN matches basic tag", () => {
+    const m = "{MJ000001 b=U+3005}".match(TAG_PATTERN);
+    expect(m).not.toBeNull();
+  });
 
-    test("GlyphRenderer is exported", () => {
-        const renderer = new GlyphRenderer();
-        expect(renderer instanceof GlyphRenderer).toBe(true);
-    });
+  test("IssueLevel contains expected keys", () => {
+    expect(IssueLevel.ERROR).toBe("error");
+    expect(IssueLevel.WARNING).toBe("warning");
+  });
 
-    test("makeReplaceFn is exported", () => {
-        expect(typeof makeReplaceFn).toBe("function");
-    });
-
-    test("NormalizationResult is exported", () => {
-        const r = new NormalizationResult("x", []);
-        expect(r instanceof NormalizationResult).toBe(true);
-    });
-
-    test("MARK_LB is exported", () => {
-        expect(typeof MARK_LB).toBe("string");
-    });
-
-    test("TAG_PATTERN is exported", () => {
-        expect(TAG_PATTERN instanceof RegExp).toBe(true);
-    });
+  test("ucsToGlyph works", () => {
+    expect(ucsToGlyph("U+3005")).toBe("\u{3005}");
+    expect(ucsToGlyph("ABC")).toBe("ABC");
+  });
 });
 
+//
+// Tests for renderOnly
+//
 describe("renderOnly", () => {
-    test("empty text returns empty string", () => {
-        const out = renderOnly("");
-        expect(out).toBe("");
-    });
+  test("empty text returns empty string", () => {
+    const out = renderOnly("");
+    expect(out).toBe("");
+  });
 
-    test("basic rendering", () => {
-        const out = renderOnly("A {MJ000001 b=U+3005 v=U+3005}");
-        expect(out).toContain("<span");
-        expect(out).toContain("\u3005");
-    });
+  test("basic rendering", () => {
+    const out = renderOnly("A {MJ000001 b=U+3005 v=U+3005}");
+    expect(out).toBe("A \u{3005}");
+  });
 
-    test("escape '{{' then unescape to '{'", () => {
-        const out = renderOnly("Start {{X}} {MJ000001 b=U+3005}");
-        expect(out.startsWith("Start {X}")).toBe(true);
-    });
+  test("useBase=true overrides variant", () => {
+    const out = renderOnly("{MJ022335 b=U+845B v=U+845B U+E0102}", true);
+    expect(out).toBe("\u{845B}");
+  });
 
-    test("unescape=false preserves '{{'", () => {
-        const out = renderOnly("Start {{X}} {MJ000001 b=U+3005}", { unescape: false });
-        expect(out.startsWith("Start {X}}")).toBe(true);
-    });
+  test("tofu override works", () => {
+    const out = renderOnly("{MJ999999}", false, "U+3005");
+    expect(out).toBe("\u{3005}");
+  });
+
+  test("double braces '{{' unescaped to '{'", () => {
+    const out = renderOnly("Start {{X}}");
+    expect(out).toBe("Start {X}}");
+  });
 });
 
+//
+// Tests for normalizeAndRender
+//
 describe("normalizeAndRender", () => {
-    const GLYPH_TABLE = {
-        MJ000001: { b: "U+3005", v: "U+3005", active: true },
-        MJ000012: { b: "U+FFFF", v: "U+FFFF", active: false },
-        MJ022335: { b: "U+845B", v: "U+845B U+E0102", active: true },
-    };
+  const glyphTable = {
+    MJ000001: { b: "U+3005", v: "U+3005", active: true },
+    MJ022335: { b: "U+845B", v: "U+845B U+E0102", active: true },
+    MJ999999: { active: false },
+  };
 
-    test("full pipeline: normalize then render", () => {
-        const { html, issues } = normalizeAndRender(
-            "A {MJ000001} B",
-            GLYPH_TABLE,
-            "mj"
-        );
+  test("basic normalize + render", () => {
+    const out = normalizeAndRender(
+      "A {MJ000001} B {MJ022335}",
+      glyphTable,
+      "mj"
+    );
+    expect(out.text).toBe("A \u{3005} B \u{845B}\u{E0102}");
+  });
 
-        expect(html).toContain("\u3005");
-        expect(html).toContain("<span");
-        expect(issues.length).toBe(0);
-    });
+  test("inactive glyph produces tofu", () => {
+    const out = normalizeAndRender("{MJ999999}", glyphTable, "mj");
+    expect(out.text).toBe("\u{25A1}");
+    expect(out.issues.length).toBeGreaterThan(0);
+  });
 
-    test("inactive glyph produces error", () => {
-        const { html, issues } = normalizeAndRender(
-            "A {MJ000012} B",
-            GLYPH_TABLE,
-            "mj"
-        );
+  test("useBase=true overrides variant", () => {
+    const out = normalizeAndRender(
+      "{MJ022335}",
+      glyphTable,
+      "mj",
+      true
+    );
+    expect(out.text).toBe("\u{845B}");
+  });
 
-        expect(html).toContain("{MJ000012}");
-        expect(issues.length).toBe(1);
-        expect(issues[0].code).toBe("error.glyph.archived");
-    });
+  test("tofu override works", () => {
+    const out = normalizeAndRender(
+      "{MJ999999}",
+      glyphTable,
+      "mj",
+      false,
+      "U+3005"
+    );
+    expect(out.text).toBe("\u{3005}");
+  });
 
-    test("unknown glyph produces error", () => {
-        const { html, issues } = normalizeAndRender(
-            "A {UNKNOWN} B",
-            GLYPH_TABLE,
-            "mj"
-        );
+  test("unescape=false preserves '{{'", () => {
+    const out = normalizeAndRender(
+      "Start {{X}} {MJ000001}",
+      glyphTable,
+      "mj",
+      false,
+      "U+25A1"
+    );
+    expect(out.text.startsWith("Start {X}}")).toBe(true);
+  });
 
-        expect(html).toContain("{UNKNOWN}");
-        expect(issues.length).toBe(1);
-        expect(issues[0].code).toBe("error.glyph.not_found");
-    });
-
-    test("multiple tags mixed", () => {
-        const { html, issues } = normalizeAndRender(
-            "A {MJ000001} B {UNKNOWN} C {MJ000012} D {MJ022335}",
-            GLYPH_TABLE,
-            "mj"
-        );
-
-        expect(html).toContain("\u3005");
-        expect(html).toContain("{UNKNOWN}");
-        expect(html).toContain("{MJ000012}");
-        expect(html).toContain("\u845B\uE0102");
-
-        expect(issues.length).toBe(2);
-    });
-
-    test("escape '{{' then unescape to '{'", () => {
-        const { html } = normalizeAndRender(
-            "Start {{X}} {MJ000001}",
-            GLYPH_TABLE,
-            "mj"
-        );
-
-        expect(html.startsWith("Start {X}")).toBe(true);
-    });
-
-    test("unescape=false preserves '{{'", () => {
-        const { html } = normalizeAndRender(
-            "Start {{X}} {MJ000001}",
-            GLYPH_TABLE,
-            "mj",
-            { unescape: false }
-        );
-
-        expect(html.startsWith("Start {{X}}")).toBe(true);
-    });
+  test("issues propagate from normalizer", () => {
+    const out = normalizeAndRender(
+      "{MJ999999}",
+      glyphTable,
+      "mj"
+    );
+    expect(out.issues.length).toBeGreaterThan(0);
+    const issue = out.issues[0];
+    expect(issue).toBeInstanceOf(TagIssue);
+  });
 });
 

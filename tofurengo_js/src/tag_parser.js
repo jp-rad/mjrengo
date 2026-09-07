@@ -35,19 +35,6 @@ export class TagIssue {
         this.level = level;
         this.details = details;
     }
-
-    /**
-     * Convert the instance into a plain JSON-serializable object.
-     * @returns {Object}
-     */
-    toDict() {
-        return {
-            code: this.code,
-            message: this.message,
-            level: this.level,
-            details: this.details,
-        };
-    }
 }
 
 /**

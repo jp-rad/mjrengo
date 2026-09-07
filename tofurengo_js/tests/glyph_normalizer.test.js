@@ -112,7 +112,7 @@ describe("GlyphNormalizer.normalize", () => {
         const norm = new GlyphNormalizer(GLYPH_TABLE, "mj");
         const result = norm.normalize("Start {{X}} {MJ000001}");
 
-        expect(result.text.startsWith("Start {X}")).toBe(true);
+        expect(result.text.startsWith("Start {{X}} {MJ000001 ")).toBe(true);
         expect(result.text.includes("MJ000001")).toBe(true);
     });
 

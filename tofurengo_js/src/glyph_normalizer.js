@@ -5,21 +5,8 @@
  * to perform text-wide glyph tag normalization and error collection.
  */
 
-// Module imports (for CommonJS / Node.js environments)
-let TagParser, ParsedTag, TagIssue, IssueLevel;
-if (typeof require !== "undefined") {
-    const tagParserModule = require("./tag_parser.js");
-    TagParser = tagParserModule.TagParser;
-    ParsedTag = tagParserModule.ParsedTag;
-    TagIssue = tagParserModule.TagIssue;
-    IssueLevel = tagParserModule.IssueLevel;
-} else if (typeof window !== "undefined") {
-    // Browser global fallback
-    TagParser = window.TagParser;
-    ParsedTag = window.ParsedTag;
-    TagIssue = window.TagIssue;
-    IssueLevel = window.IssueLevel;
-}
+
+import { TagParser, ParsedTag, TagIssue, IssueLevel } from "./tag_parser.js";
 
 /**
  * Creates a normalization replacement callback function for parsed tags.
@@ -28,7 +15,7 @@ if (typeof require !== "undefined") {
  * @param {string} setName - Target dataset name (e.g., 'mj').
  * @returns {function(ParsedTag, Array<TagIssue>): string} Replace callback compliant with TagParser.
  */
-function makeReplaceFn(glyphTable, setName) {
+export function makeReplaceFn(glyphTable, setName) {
     return function replaceFn(tag, issues) {
         const glyph = tag.glyphName;
 
@@ -85,7 +72,7 @@ function makeReplaceFn(glyphTable, setName) {
 /**
  * Result object returned by GlyphNormalizer processing.
  */
-class NormalizationResult {
+export class NormalizationResult {
     /**
      * @param {string} text - Transformed output text.
      * @param {Array<TagIssue>} issues - List of issues encountered during processing.
@@ -107,7 +94,7 @@ class NormalizationResult {
 /**
  * High-level service class for normalizing glyph tags in text strings.
  */
-class GlyphNormalizer {
+export class GlyphNormalizer {
     /**
      * @param {Object.<string, Object>} glyphTable - Dataset table mapping glyph IDs to attributes.
      * @param {string} setName - Dataset identifier (e.g., 'mj').
@@ -125,29 +112,16 @@ class GlyphNormalizer {
      * @param {boolean} [unescape=true] - If true, converts preserved placeholders ('{{') to '{'.
      * @returns {NormalizationResult} Result object containing normalized text and issues.
      */
-    normalize(text, unescape = true) {
+    normalize(text) {
         const issues = [];
         const normalizedText = TagParser.processPipeline(
             text,
             this.replaceFn,
-            unescape,
+            false, // useBase is not relevant here
             issues
         );
 
         return new NormalizationResult(normalizedText, issues);
     }
-}
-
-// Module export compatibility (Node.js / ES Module / Browser global)
-if (typeof module !== "undefined" && module.exports) {
-    module.exports = {
-        makeReplaceFn,
-        NormalizationResult,
-        GlyphNormalizer,
-    };
-} else if (typeof window !== "undefined") {
-    window.makeReplaceFn = makeReplaceFn;
-    window.NormalizationResult = NormalizationResult;
-    window.GlyphNormalizer = GlyphNormalizer;
 }
 
