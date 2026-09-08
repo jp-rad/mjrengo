@@ -9,7 +9,7 @@ COPY nginx/rebuild-certs.sh /usr/local/bin/rebuild-certs.sh
 RUN chmod +x /usr/local/bin/rebuild-certs.sh
 
 # Generate certificates at build time
-RUN SSL_DAYS=${SSL_DAYS} SSL_SUBJECT=${SSL_SUBJECT} /usr/local/bin/rebuild-certs.sh
+RUN SSL_DAYS=${SSL_DAYS} BASE_SUBJECT=${BASE_SUBJECT} /usr/local/bin/rebuild-certs.sh
 
 EXPOSE 80 443
 

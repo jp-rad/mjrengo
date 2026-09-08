@@ -26,10 +26,10 @@
             const normalizedText = document.getElementById("normalized_text").value;
 
             // Render base character prioritized output
-            document.getElementById("js_base_text").value = render(normalizedText, true);
+            document.getElementById("base_text").value = render(normalizedText, true);
 
             // Render variant/IVS prioritized output
-            document.getElementById("js_variant_text").value = render(normalizedText, false);
+            document.getElementById("variant_text").value = render(normalizedText, false);
         };
     </script>
 </head>
@@ -66,18 +66,6 @@
 
 <hr>
 
-<!-- Original Base rendered text -->
-<div class="section">
-    <h2>Base Rendered Text</h2>
-    <input id="base_text" type="text" readonly>
-</div>
-
-<!-- Original Variant rendered text -->
-<div class="section">
-    <h2>Variant Rendered Text</h2>
-    <input id="variant_text" type="text" readonly>
-</div>
-
 <!-- JSON result -->
 <div class="section">
     <h2>Result JSON</h2>
@@ -95,13 +83,13 @@
 <!-- Client-side rendered text (Base) -->
 <div class="section">
     <h2>JS Base Rendered Text</h2>
-    <input id="js_base_text" type="text" readonly>
+    <input id="base_text" type="text" readonly>
 </div>
 
 <!-- Client-side rendered text (Variant) -->
 <div class="section">
     <h2>JS Variant Rendered Text</h2>
-    <input id="js_variant_text" type="text" readonly>
+    <input id="variant_text" type="text" readonly>
 </div>
 
 </body>
