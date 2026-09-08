@@ -8,14 +8,29 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/fonts.css">
 
-    <!-- JS -->
+    <!-- JS: Original frontend controller script -->
     <script type="module">
         import { initConsole, doConvert, updateVariantFont } from "/static/js/frontend.js";
 
         window.doConvert = doConvert;
         window.updateVariantFont = updateVariantFont;
-
         window.onload = initConsole;
+    </script>
+
+    <!-- JS: Client-side rendering script using Tofurengo bundle -->
+    <script type="module">
+        import { render } from "/vendor/tofurengo/tofurengo.min.js";
+
+        // Client-side render handler for normalized text changes
+        window.onNormalizedTextChange = () => {
+            const normalizedText = document.getElementById("normalized_text").value;
+
+            // Render base character prioritized output
+            document.getElementById("base_text").value = render(normalizedText, true);
+
+            // Render variant/IVS prioritized output
+            document.getElementById("variant_text").value = render(normalizedText, false);
+        };
     </script>
 </head>
 
@@ -40,7 +55,8 @@
 <!-- Single-line input -->
 <div class="section">
     <label for="text">Input Text:</label><br>
-    <input id="text" type="text" value="東京都{MJ022336}飾区（{{MJ022336}） と 奈良県{MJ022335}城市（{{MJ022335}） と 変体仮名：{MJ090001}">
+    <input id="text" type="text"
+           value="奈良県{MJ022335}城市{{MJ022335}と仮名の「{MJ090001}」">
 </div>
 
 <!-- Convert button + docs link -->
@@ -51,22 +67,30 @@
 
 <hr>
 
-<!-- Base rendered text -->
-<div class="section">
-    <h2>Base Rendered Text</h2>
-    <input id="base_text" type="text" readonly>
-</div>
-
-<!-- Variant rendered text -->
-<div class="section">
-    <h2>Variant Rendered Text</h2>
-    <input id="variant_text" type="text" readonly>
-</div>
-
 <!-- JSON result -->
 <div class="section">
     <h2>Result JSON</h2>
     <textarea id="json_result" rows="20" readonly></textarea>
+</div>
+
+<hr>
+
+<!-- Normalized text output -->
+<div class="section">
+    <h2>Normalized Text</h2>
+    <input id="normalized_text" type="text" oninput="onNormalizedTextChange()">
+</div>
+
+<!-- Client-side rendered text (Base) -->
+<div class="section">
+    <h2>JS Base Rendered Text</h2>
+    <input id="base_text" type="text" readonly>
+</div>
+
+<!-- Client-side rendered text (Variant) -->
+<div class="section">
+    <h2>JS Variant Rendered Text</h2>
+    <input id="variant_text" type="text" readonly>
 </div>
 
 </body>

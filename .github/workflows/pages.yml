@@ -26,33 +26,33 @@ jobs:
       # ---------------------------------------------------------
       # Build all packages
       # ---------------------------------------------------------
-      - name: Build mjrengo
+      - name: Build tofurengo
         run: python -m build
-        working-directory: mjrengo
+        working-directory: tofurengo
 
-      - name: Build mjrengo-data-mj-v6_02_201
+      - name: Build tofurengo-data-mj-v6_02_201
         run: python -m build
         working-directory: glyph/mj-v6_02_201
 
-      - name: Build mjrengo-data-mj-v6_02_201_onka
+      - name: Build tofurengo-data-mj-v6_02_201_onka
         run: python -m build
         working-directory: glyph/mj-v6_02_201_onka
 
-      - name: Build mjrengo-data-mj_plus-v4_10
+      - name: Build tofurengo-data-mj_plus-v4_10
         run: python -m build
         working-directory: glyph/mj_plus-v4_10
 
-      - name: Build mjrengo-data-mj_plusx-v1_20
+      - name: Build tofurengo-data-mj_plusx-v1_20
         run: python -m build
         working-directory: glyph/mj_plusx-v1_20
 
       # ---------------------------------------------------------
       # Copy pre-generated pdoc (committed in repo)
       # ---------------------------------------------------------
-      - name: Copy mjrengo docs to docs
+      - name: Copy tofurengo docs to docs
         run: |
           mkdir -p docs
-          cp -r mjrengo/docs/mjrengo/* docs
+          cp -r tofurengo/docs/tofurengo/* docs
 
       # ---------------------------------------------------------
       # Collect wheels
@@ -60,7 +60,7 @@ jobs:
       - name: Collect wheels
         run: |
           mkdir -p docs/wheels
-          cp mjrengo/dist/*.whl docs/wheels/
+          cp tofurengo/dist/*.whl docs/wheels/
           cp glyph/mj-v6_02_201/dist/*.whl docs/wheels/
           cp glyph/mj-v6_02_201_onka/dist/*.whl docs/wheels/
           cp glyph/mj_plus-v4_10/dist/*.whl docs/wheels/

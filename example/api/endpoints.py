@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Path
-from api.models.mjrengo_request import MjrengoRequest, VALID_GLYPH_SETS
+from api.models.tofurengo_request import TofurengoRequest, VALID_GLYPH_SETS
 from .services import (
     normalize_service,
     render_service,
@@ -25,10 +25,10 @@ def convert(
 
 # POST normalize (uses glyph_set from request body)
 @endpoints_router.post("/normalize")
-def normalize(payload: MjrengoRequest):
+def normalize(payload: TofurengoRequest):
     return normalize_service(payload.glyph_set, payload.text)
 
 # POST render (uses glyph_set from request body)
 @endpoints_router.post("/render")
-def render(payload: MjrengoRequest):
+def render(payload: TofurengoRequest):
     return render_service(payload.glyph_set, payload.text)

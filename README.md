@@ -1,184 +1,179 @@
-# mjrengo
+# tofurengo
 
-mjrengo is a toolkit that provides a unified “Glyph Tag abstraction layer”
-for handling large-scale Japanese glyph systems such as MJ and MJ+,  
-both widely used in Japanese government and public documents.
+**tofurengo** is a Python toolkit that provides a unified "Glyph Tag" abstraction layer for handling large-scale Japanese glyph systems, such as **MJ** (using `MJxxxxxx` glyph tags) and **MJ+** (which extends MJ by adding administrative glyphs tagged as `GJxxxxxx`). Both systems are widely used in Japanese government and public sector applications.
 
-In Unicode, a single glyph may correspond to multiple UCS code point sequences (UCSSeq)
-and multiple IVS (Variation Selectors).  
-Furthermore, glyph numbering schemes and attribute systems differ across datasets,
-making consistent management and exchange of glyph information essential.
+### Problem & Key Objective
+Traditionally, many Japanese personal names and place names containing variant kanji relied on proprietary custom characters (**Gaiji**). When exchanging data between different systems, Gaiji leads to corrupted text and a loss of precise glyph information.
+
+**tofurengo** enables system compliance with Japan's Moji Joho Kiban (Character Information Infrastructure) and the Unicode IVS international standard. By representing glyphs through standard Glyph Tags (`MJxxxxxx` / `GJxxxxxx`), it eliminates reliance on Gaiji and ensures accurate, lossless glyph data exchange across systems.
 
 ## Features
 
-- Abstract glyph specification using Glyph Tags  
-  (glyph-name / UCSSeq / IVS handled in a unified format)
+- **Unified Glyph Abstraction (Glyph Tag)**  
+  Handles diverse representations (`glyph-name` like `MJxxxxxx`/`GJxxxxxx`, `UCSSeq`, and `IVS`) in a single, standard Glyph Tag format.
 
-- Stable glyph management and exchange even in environments  
-  that do not support IVS/VDS
+- **Lossless Data Exchange Across Environments**  
+  Ensures reliable glyph management and exchange even in systems or environments that do not natively support IVS/VDS, eliminating character corruption.
 
-- Provides datasets compatible with MJ and MJ+
+- **Extensible & Customizable Glyph Systems**  
+  Provides built-in datasets for MJ (`MJxxxxxx`) and MJ+ (`GJxxxxxx`), while allowing users to easily define and extend their own custom `glyph-name` schemes.
 
 ## Namespace Package Layout
 
-The project uses PEP 420 namespace packages.  
-Each dataset module provides its own `GLYPH_TABLE`, `VERSION`, and `PACKAGES` definitions.
+The project utilizes **PEP 420** namespace packages. It is organized into two primary namespaces: `tofurengo` (the core engine modules) and `tofurengo_data` (independently versioned dataset modules).
+
+```text
+tofurengo
+├── builder
+├── glyph_normalizer
+├── glyph_renderer
+├── replacer
+├── resource
+├── tag_parser
+└── ucs
+
+tofurengo_data
+├── mj
+│   ├── v6_02_201/         # contains GLYPH_TABLE
+│   └── v6_02_201_onka/    # contains GLYPH_TABLE
+├── mj_plus
+│   └── v4_10/             # contains GLYPH_TABLE
+└── mj_plusx
+    └── v1_20/             # contains GLYPH_TABLE
 
 ```
-mjrengo/
-    engine/
-    normalize/
-    replace/
-    builder/
-    data/
-        mj/
-            v6_02_201/
-                contains GLYPH_TABLE
-            v6_02_201_onka/
-                contains GLYPH_TABLE
-        mj_plus/
-            v4_10/
-                contains GLYPH_TABLE
-        mj_plusx/
-            v1_20/
-                contains GLYPH_TABLE
-        template/
-            v0_1_0/
-                contains GLYPH_TABLE
-```
 
-Each subdirectory under `mjrengo.data.*` represents an independently versioned dataset module.  
-Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
+Each module under `tofurengo_data.*` represents an independently versioned dataset exposing its glyph table through the `GLYPH_TABLE` symbol.
 
+*(Note: A `template` module is available in the source repository for creating custom dataset packages, though it is not included in published distributions.)*
 
 ## Installation
 
-There are **two installation methods** available, depending on how you prefer to obtain the packages:
+There are **two installation methods** available depending on your requirements:
 
-### **1. Install from GitHub Pages**  
+### 1. Install from GitHub Pages (Recommended)
 
-This method uses a PEP 503–compatible simple index hosted on GitHub Pages.  
-Pip downloads pre‑built wheel files, so installation is fast and does not require any build tools.  
+Uses a PEP 503–compatible simple index hosted on GitHub Pages. Pip downloads pre-built wheel files for fast installation without requiring local build tools.
 
-```
-pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/mjrengo/simple/ \
-    mjrengo \
-    mjrengo-data-mj-plus-v4-10 \
-    mjrengo-data-mj-plusx-v1-20 \
-    mjrengo-data-mj-v6-02-201-onka \
-    mjrengo-data-mj-v6-02-201-onka
-```
-
-Use this when you want **simple installation**, **no build tools**, and **versioned wheels** directly from the project’s release pipeline.
-
----
-
-### **2. Install directly from the Git repository**  
-This method pulls the source code from GitHub and builds each package locally.  
-It is useful when you want the **latest commit**, **development versions**, or when testing changes.
+```bash
+pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/tofurengo/simple/ \
+    tofurengo \
+    tofurengo-data-mj-plus-v4-10 \
+    tofurengo-data-mj-plusx-v1-20 \
+    tofurengo-data-mj-v6-02-201 \
+    tofurengo-data-mj-v6-02-201-onka
 
 ```
+
+### 2. Install Directly from Git Repository
+
+Pulls source code directly from GitHub to build packages locally. Ideal for development versions, testing unreleased changes, or source-level debugging.
+
+```bash
 pip3 install --upgrade --no-deps \
-    mjrengo@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=mjrengo \
-    mjrengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
-    mjrengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
-    mjrengo-data-mj-v6_02_201@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201_onka@git+https://github.com/jp-rad/mjrengo.git@main#subdirectory=glyph/mj-v6_02_201_onka
+    tofurengo@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=tofurengo \
+    tofurengo-data-mj-plus-v4-10@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plus_v4_10 \
+    tofurengo-data-mj-plusx-v1-20@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plusx_v1_20 \
+    tofurengo-data-mj-v6-02-201@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_v6_02_201 \
+    tofurengo-data-mj-v6-02-201-onka@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_v6_02_201_onka
+
 ```
-
-Choose this when you need **development builds**, **source-level debugging**, or **custom modifications**.
-
-
 
 ## Check Installed Version
 
-```
-pip3 list | grep mjrengo
-```
+Verify all installed `tofurengo` core and dataset packages:
 
+```bash
+pip3 list | grep tofurengo
 
+```
 
 ## Uninstallation
 
-Remove all mjrengo packages:
+Remove the core engine and all installed dataset packages in one command:
 
-```
+```bash
 pip3 uninstall -y \
-    mjrengo \
-    mjrengo-data-mj_plus-v4_10 \
-    mjrengo-data-mj_plusx-v1_20 \
-    mjrengo-data-mj-v6_02_201 \
-    mjrengo-data-mj-v6_02_201_onka
-```
+    tofurengo \
+    tofurengo-data-mj-plus-v4-10 \
+    tofurengo-data-mj-plusx-v1-20 \
+    tofurengo-data-mj-v6-02-201 \
+    tofurengo-data-mj-v6-02-201-onka
 
+```
 
 ## Usage Example
 
-This example shows how to load MJ glyph datasets using `build_engine()`,
-normalize MJ tags, and render final Unicode characters.
+The following example demonstrates how to build a `GlyphNormalizer` and `GlyphRenderer`, normalize Hentaigana (variant kana) Glyph Tags in text, and render them into plain Unicode characters.
 
-```
-from mjrengo.builder import build_engine
+```python
+from tofurengo.builder import build_normalizer, build_renderer
 
-# Input text containing MJ090001 tags
+# Input text containing an MJ Hentaigana Glyph Tag (An-no-A)
 text = "'{MJ090001}'"
 
 # ------------------------------------------------------------
-# MJ glyph (source form) version 6.02.201
+# 1. Build Normalizer and Renderer
 # ------------------------------------------------------------
-engine = build_engine("mj", "6.02.201")  # set_name defaults to "mj"
+# Load the MJ dataset (version 6.02.201) and create a normalizer
+normalizer = build_normalizer("mj", "6.02.201")
 
-norm = engine.normalize_tags(text)
+# Create a renderer (use_base=False uses IVS/UCSSeq, use_base=True uses base character)
+renderer = build_renderer(use_base=False, tofu="U+25A1")
 
-# Output:
-# '{MJ090001 b=U+5B89 v=U+1B002 set=mj}'
-print(norm.text)
+# ------------------------------------------------------------
+# 2. Normalize Glyph Tags
+# ------------------------------------------------------------
+normalized = normalizer.normalize(text)
+print(normalized.text)
+# Output: '{MJ090001 b=U+5B89 v=U+1B002 set=mj}'
 
-rendered = engine.render_text(norm.text, True)
-# Output:
-# '<Japanese Character (Kanji)>'
+# ------------------------------------------------------------
+# 3. Render Text to Unicode
+# ------------------------------------------------------------
+rendered = renderer.render(normalized.text)
 print(rendered)
+# Output: Hentaigana character (Kana Supplement U+1B002)
+
+# Using base Kanji fallback:
+base_renderer = build_renderer(use_base=True)
+print(base_renderer.render(normalized.text))
+# Output: Base Kanji character (U+5B89)
 
 # ------------------------------------------------------------
-# MJ glyph (phonetic form) version 6.02.201-onka
+# 4. Handle Escape Sequences (Section 4 of Specification)
 # ------------------------------------------------------------
-engine = build_engine("mj", "6.02.201-onka", "mj_hira")
+# Escaping '{' using '{{' prevents tag parsing and outputs a literal '{'
+text_with_escape = "Literal bracket: {{MJ090001}"
+normalized_esc = normalizer.normalize(text_with_escape)
+print(normalized_esc.text)
+# Output: "Literal bracket: {{MJ090001}"
 
-norm = engine.normalize_tags(text)
-
-# Output:
-# '{MJ090001 b=U+3042 v=U+1B002 set=mj_hira}'
-print(norm.text)
-
-rendered = engine.render_text(norm.text, True)
-
-# Output:
-# '<Japanese Character (Hiragana)>'
-print(rendered)
+rendered_esc = renderer.render(normalized_esc.text)
+print(rendered_esc)
+# Output: "Literal bracket: {MJ090001}"
 
 ```
 
 ## Data Sources
 
-This project uses dataset materials published on the following official pages:
+This project uses materials published by the following official data sources and organizations:
 
-- IPA MJ List  
-  https://moji.or.jp/mojikiban/mjlist/
+* [IPA MJ List](https://moji.or.jp/mojikiban/mjlist/)
+* Digital Wide area Promotion Institute (DWPI) - [DWPI Mincho](https://www.digitalwidearea.org/dwpi_mincho)
 
-- Digital Wide Area DWPI Mincho  
-  https://www.digitalwidearea.org/dwpi_mincho
-
-All dataset materials are used solely as source data for generating unified glyph tables.  
-All copyrights remain with their respective publishers.
+All dataset materials are used solely as source data for generating unified glyph tables. All original copyrights remain with their respective publisher organizations.
 
 ## License
 
-Released under the MIT License.  
-All datasets retain their original copyright notices.
+Released under the MIT License.
+
+All underlying datasets retain their original copyright notices.
 
 ## Notes
 
-- Each dataset module provides its own GLYPH_TABLE.
-- Data modules are versioned independently.
-- The core engine does not embed any dataset.
-- Namespace packages allow multiple datasets to coexist without conflicts.
+* Each dataset module under `tofurengo_data.*` provides its own `GLYPH_TABLE` and `VERSION`.
+* Dataset packages are versioned independently from the core engine.
+* The core `tofurengo` engine does not embed any heavy datasets out of the box.
+* Namespace packages allow multiple dataset versions to coexist without conflicts.
+

@@ -1,9 +1,7 @@
-# tools/loaders/load_mji_00602_xlsx.py
-
 from pathlib import Path
 import zipfile
 
-from mjrengo.ucs import ucs_to_glyph
+from tofurengo.ucs import ucs_to_glyph
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
