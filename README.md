@@ -65,8 +65,6 @@ pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/tofurengo/
 
 ```
 
----
-
 ### 2. Install Directly from Git Repository
 
 Pulls source code directly from GitHub to build packages locally. Ideal for development versions, testing unreleased changes, or source-level debugging.
@@ -144,7 +142,6 @@ print(base_renderer.render(normalized.text))
 
 ```
 
-
 ## Data Sources
 
 This project uses materials published by the following official data sources and organizations:
@@ -154,18 +151,16 @@ This project uses materials published by the following official data sources and
 
 All dataset materials are used solely as source data for generating unified glyph tables. All original copyrights remain with their respective publisher organizations.
 
-
 ## License
 
 Released under the MIT License.
 
 All underlying datasets retain their original copyright notices.
 
-
 ## Notes
 
-- Each dataset module under `tofurengo_data.*` provides its own `GLYPH_TABLE` and `VERSION`.
-- Dataset packages are versioned independently from the core engine.
-- The core `tofurengo` engine does not embed any heavy datasets out of the box.
-- Namespace packages allow multiple dataset versions to coexist without conflicts.
+* Each dataset module under `tofurengo_data.*` provides its own `GLYPH_TABLE` and `VERSION`.
+* Dataset packages are versioned independently from the core engine.
+* The core `tofurengo` engine does not embed any heavy datasets out of the box.
+* Namespace packages allow multiple dataset versions to coexist without conflicts.
 
