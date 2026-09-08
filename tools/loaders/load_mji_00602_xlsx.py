@@ -1,5 +1,3 @@
-# tools/loaders/load_mji_00602_xlsx.py
-
 from pathlib import Path
 import zipfile
 

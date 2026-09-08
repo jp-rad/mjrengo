@@ -1,123 +1,110 @@
 # tofurengo
 
-tofurengo is a toolkit that provides a unified “Glyph Tag abstraction layer”
-for handling large-scale Japanese glyph systems such as MJ and MJ+,  
-both widely used in Japanese government and public documents.
+tofurengo is a toolkit that provides a unified "Glyph Tag abstraction layer" for handling large-scale Japanese glyph systems such as MJ and MJ+, both widely used in Japanese government and public documents.
 
-In Unicode, a single glyph may correspond to multiple UCS code point sequences (UCSSeq)
-and multiple IVS (Variation Selectors).  
-Furthermore, glyph numbering schemes and attribute systems differ across datasets,
-making consistent management and exchange of glyph information essential.
+In Unicode, a single glyph may correspond to multiple UCS code point sequences (UCSSeq) and multiple IVS (Variation Selectors). Furthermore, glyph numbering schemes and attribute systems differ across datasets, making consistent management and exchange of glyph information essential.
 
 ## Features
 
-- Abstract glyph specification using Glyph Tags  
-  (glyph-name / UCSSeq / IVS handled in a unified format)
-
-- Stable glyph management and exchange even in environments  
-  that do not support IVS/VDS
-
-- Provides datasets compatible with MJ and MJ+
+- **Unified Glyph Abstraction**: Abstract glyph specification using Glyph Tags (`glyph-name` / `UCSSeq` / `IVS` handled in a unified format).
+- **Environment Independent**: Stable glyph management and exchange even in environments that do not support IVS/VDS.
+- **Dataset Compatibility**: Provides datasets compatible with MJ and MJ+.
 
 ## Namespace Package Layout
 
-The project uses PEP 420 namespace packages.  
-Each dataset module provides its own `GLYPH_TABLE`, `VERSION`, and `PACKAGES` definitions.
+The project uses PEP 420 namespace packages. Each dataset module provides its own `GLYPH_TABLE`, `VERSION`, and `PACKAGES` definitions.
+
 
 ```
+
 tofurengo/
-    engine/
-    normalize/
-    replace/
-    builder/
-    data/
-        mj/
-            v6_02_201/
-                contains GLYPH_TABLE
-            v6_02_201_onka/
-                contains GLYPH_TABLE
-        mj_plus/
-            v4_10/
-                contains GLYPH_TABLE
-        mj_plusx/
-            v1_20/
-                contains GLYPH_TABLE
-        template/
-            v0_1_0/
-                contains GLYPH_TABLE
+engine/
+normalize/
+replace/
+builder/
+data/
+mj/
+v6_02_201/
+contains GLYPH_TABLE
+v6_02_201_onka/
+contains GLYPH_TABLE
+mj_plus/
+v4_10/
+contains GLYPH_TABLE
+mj_plusx/
+v1_20/
+contains GLYPH_TABLE
+template/
+v0_1_0/
+contains GLYPH_TABLE
+
 ```
 
-Each subdirectory under `tofurengo.data.*` represents an independently versioned dataset module.  
-Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
-
+Each subdirectory under `tofurengo.data.*` represents an independently versioned dataset module. Each module exposes a glyph table through its `GLYPH_TABLE` symbol.
 
 ## Installation
 
 There are **two installation methods** available, depending on how you prefer to obtain the packages:
 
-### **1. Install from GitHub Pages**  
+### 1. Install from GitHub Pages
 
-This method uses a PEP 503–compatible simple index hosted on GitHub Pages.  
-Pip downloads pre‑built wheel files, so installation is fast and does not require any build tools.  
+This method uses a PEP 503–compatible simple index hosted on GitHub Pages. Pip downloads pre‑built wheel files, so installation is fast and does not require any build tools.
 
-```
+```bash
 pip3 install --upgrade --no-deps --index-url https://jp-rad.github.io/tofurengo/simple/ \
     tofurengo \
     tofurengo-data-mj-plus-v4-10 \
     tofurengo-data-mj-plusx-v1-20 \
-    tofurengo-data-mj-v6-02-201-onka \
+    tofurengo-data-mj-v6-02-201 \
     tofurengo-data-mj-v6-02-201-onka
+
 ```
 
-Use this when you want **simple installation**, **no build tools**, and **versioned wheels** directly from the project’s release pipeline.
+Use this when you want **simple installation**, **no build tools**, and **versioned wheels** directly from the project's release pipeline.
 
 ---
 
-### **2. Install directly from the Git repository**  
-This method pulls the source code from GitHub and builds each package locally.  
-It is useful when you want the **latest commit**, **development versions**, or when testing changes.
+### 2. Install directly from the Git repository
 
-```
+This method pulls the source code from GitHub and builds each package locally. It is useful when you want the **latest commit**, **development versions**, or when testing changes.
+
+```bash
 pip3 install --upgrade --no-deps \
     tofurengo@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=tofurengo \
-    tofurengo-data-mj_plus-v4_10@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plus-v4_10 \
-    tofurengo-data-mj_plusx-v1_20@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plusx-v1_20 \
-    tofurengo-data-mj-v6_02_201@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj-v6_02_201 \
-    tofurengo-data-mj-v6_02_201_onka@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj-v6_02_201_onka
+    tofurengo-data-mj-plus-v4-10@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plus_v4_10 \
+    tofurengo-data-mj-plusx-v1-20@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_plusx_v1_20 \
+    tofurengo-data-mj-v6-02-201@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj-v6-02-201 \
+    tofurengo-data-mj-v6-02-201-onka@git+https://github.com/jp-rad/tofurengo.git@main#subdirectory=glyph/mj_v6_02_201_onka
 ```
 
 Choose this when you need **development builds**, **source-level debugging**, or **custom modifications**.
 
-
-
 ## Check Installed Version
 
-```
+```bash
 pip3 list | grep tofurengo
+
 ```
-
-
 
 ## Uninstallation
 
 Remove all tofurengo packages:
 
-```
+```bash
 pip3 uninstall -y \
     tofurengo \
-    tofurengo-data-mj_plus-v4_10 \
-    tofurengo-data-mj_plusx-v1_20 \
-    tofurengo-data-mj-v6_02_201 \
-    tofurengo-data-mj-v6_02_201_onka
-```
+    tofurengo-data-mj-plus-v4-10 \
+    tofurengo-data-mj-plusx-v1-20 \
+    tofurengo-data-mj-v6-02-201 \
+    tofurengo-data-mj-v6-02-201-onka
 
+```
 
 ## Usage Example
 
-This example shows how to load MJ glyph datasets using `build_engine()`,
-normalize MJ tags, and render final Unicode characters.
+This example shows how to load MJ glyph datasets using `build_engine()`, normalize MJ tags, and render final Unicode characters.
 
-```
+```python
 from tofurengo.builder import build_engine
 
 # Input text containing MJ090001 tags
@@ -136,7 +123,7 @@ print(norm.text)
 
 rendered = engine.render_text(norm.text, True)
 # Output:
-# '<Japanese Character (Kanji)>'
+# '<Japanese (Kanji) Character>'
 print(rendered)
 
 # ------------------------------------------------------------
@@ -153,7 +140,7 @@ print(norm.text)
 rendered = engine.render_text(norm.text, True)
 
 # Output:
-# '<Japanese Character (Hiragana)>'
+# '<Japanese (Hiragana) Character>'
 print(rendered)
 
 ```
@@ -162,23 +149,19 @@ print(rendered)
 
 This project uses dataset materials published on the following official pages:
 
-- IPA MJ List  
-  https://moji.or.jp/mojikiban/mjlist/
+* **IPA MJ List**: https://moji.or.jp/mojikiban/mjlist/
+* **Digital Wide Area DWPI Mincho**: https://www.digitalwidearea.org/dwpi_mincho
 
-- Digital Wide Area DWPI Mincho  
-  https://www.digitalwidearea.org/dwpi_mincho
-
-All dataset materials are used solely as source data for generating unified glyph tables.  
-All copyrights remain with their respective publishers.
+All dataset materials are used solely as source data for generating unified glyph tables. All copyrights remain with their respective publishers.
 
 ## License
 
-Released under the MIT License.  
-All datasets retain their original copyright notices.
+Released under the MIT License. All datasets retain their original copyright notices.
 
 ## Notes
 
-- Each dataset module provides its own GLYPH_TABLE.
-- Data modules are versioned independently.
-- The core engine does not embed any dataset.
-- Namespace packages allow multiple datasets to coexist without conflicts.
+* Each dataset module provides its own `GLYPH_TABLE`.
+* Data modules are versioned independently.
+* The core engine does not embed any dataset.
+* Namespace packages allow multiple datasets to coexist without conflicts.
+

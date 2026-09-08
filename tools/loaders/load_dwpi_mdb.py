@@ -1,5 +1,3 @@
-# tools/loaders/load_dwpi_mdb.py
-
 from pathlib import Path
 import subprocess
 import csv
