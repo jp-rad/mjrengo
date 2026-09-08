@@ -6,7 +6,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Example: Fastapi",
+            "name": "tofurengo",
             "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}/code/example",

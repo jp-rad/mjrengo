@@ -28,13 +28,7 @@
     ],
     "python-envs.defaultEnvManager": "ms-python.python:system",
 
-    // Vitest
-    // "vitest.enable": true,
-    // "vitest.commandLine": "npm test",
-    // "vitest.showFailMessages": true,
-    // "vitest.root": "code/tofurengo_js",
-
-    // JS/TS validation (new unified setting)
+    // JS/TS validation
     "js/ts.validate.enabled": false,
 
     // Search excludes
