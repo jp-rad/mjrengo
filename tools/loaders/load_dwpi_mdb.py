@@ -2,13 +2,12 @@ from pathlib import Path
 import subprocess
 import csv
 
-from tofurengo.ucs import ucs_to_glyph, glyph_to_ucs
+from tofurengo.ucs import ucs_to_glyph
 
 from tools.core.model import GlyphRecord
 from tools.core.normalize import (
     to_uplus_string,
     validate_uplus_input,
-    pick_ucs_by_rep,
     sanitize_comment,
 )
 
