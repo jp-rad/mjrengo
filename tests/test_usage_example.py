@@ -36,3 +36,17 @@ def test_usage_example():
     base_renderer = build_renderer(use_base=True)
     print(base_renderer.render(normalized.text))
     # Output: Base Kanji character (U+5B89)
+
+    # ------------------------------------------------------------
+    # 4. Handle Escape Sequences (Section 4 of Specification)
+    # ------------------------------------------------------------
+    # Escaping '{' using '{{' prevents tag parsing and outputs a literal '{'
+    text_with_escape = "Literal bracket: {{MJ090001}"
+    normalized_esc = normalizer.normalize(text_with_escape)
+    print(normalized_esc.text)
+    # Output: "Literal bracket: {{MJ090001}"
+
+    rendered_esc = renderer.render(normalized_esc.text)
+    print(rendered_esc)
+    # Output: "Literal bracket: {MJ090001}"
+
