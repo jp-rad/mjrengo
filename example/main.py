@@ -13,6 +13,9 @@ app = FastAPI(title=settings.app_name)
 # Static files (CSS, JS, fonts, index.html)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Vendor JS files (tofurengo-js)
+app.mount("/vendor/tofurengo", StaticFiles(directory="../tofurengo_js/dist"), name="vendor_tofurengo")
+
 # UI entry point
 @app.get("/console", include_in_schema=False)
 def console():

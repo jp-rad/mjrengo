@@ -190,6 +190,15 @@
             "problemMatcher": []
         },
         {
+            "label": "build tofurengo-js",
+            "type": "shell",
+            "command": "npm run build",
+            "options": {
+                "cwd": "${workspaceFolder}/code/tofurengo_js",
+            },
+            "problemMatcher": [],
+        },
+        {
             "label": "rebuild package",
             "dependsOn": [
                 "compile tofurengo.data",

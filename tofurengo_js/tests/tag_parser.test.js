@@ -3,6 +3,8 @@
  * ASCII-only comments only.
  */
 
+import { describe, test, expect } from "vitest";
+
 import {
     MARK_LB,
     TAG_PATTERN,

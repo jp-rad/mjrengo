@@ -30,7 +30,8 @@
 
     // Vitest
     "vitest.enable": true,
-    "vitest.commandLine": "npm test",
+    // "vitest.commandLine": "npm test",
+    "vitest.commandLine.command": "npm test",
     "vitest.showFailMessages": true,
     "vitest.root": "code/tofurengo_js",
 

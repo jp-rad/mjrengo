@@ -4,6 +4,7 @@
  */
 
 import { describe, test, expect } from "vitest";
+
 import { GlyphRenderer, ucsToGlyph } from "../src/glyph_renderer.js";
 import { TagParser, ParsedTag } from "../src/tag_parser.js";
 

@@ -1,8 +1,5 @@
-# code/example/config.py
-
 from functools import lru_cache
 from pydantic_settings import BaseSettings
-# from rptgen1.uno_client_config import UnoClientConfig
 
 
 class Settings(BaseSettings):

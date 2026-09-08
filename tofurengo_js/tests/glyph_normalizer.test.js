@@ -3,6 +3,8 @@
  * ASCII-only comments only.
  */
 
+import { describe, test, expect } from "vitest";
+
 import {
     makeReplaceFn,
     NormalizationResult,

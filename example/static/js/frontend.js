@@ -3,7 +3,9 @@ export function updateVariantFont() {
     const glyphSet = document.getElementById("glyph_set").value;
 
     const variantInput = document.getElementById("variant_text");
+    const jsVariantInput = document.getElementById("js_variant_text");
     const jsonArea = document.getElementById("json_result");
+
     const fontNameLabel = document.getElementById("font_name");
 
     let font = "inherit";
@@ -21,6 +23,7 @@ export function updateVariantFont() {
     }
 
     variantInput.style.fontFamily = font;
+    jsVariantInput.style.fontFamily = font;
     jsonArea.style.fontFamily = font;
 
     // Display selected font name
@@ -47,6 +50,11 @@ export async function doConvert() {
 
         document.getElementById("variant_text").value =
             data.text?.rendered?.variant || "";
+        
+        const normalizedInput = document.getElementById("normalized_text");
+        normalizedInput.value = data.text?.normalized || "";
+        // Trigger input event to execute onNormalizedTextChange() in HTML
+        normalizedInput.dispatchEvent(new Event("input"));
 
         updateVariantFont();
 

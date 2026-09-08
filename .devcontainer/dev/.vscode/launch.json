@@ -11,7 +11,8 @@
             "request": "launch",
             "cwd": "${workspaceFolder}/code/example",
             "program": "main.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "preLaunchTask": "build tofurengo-js"
         },
     ]
 }
